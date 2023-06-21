@@ -78,15 +78,12 @@ public class Pickaxe implements ModInitializer {
 	public boolean isInPickaxe() {
     	MinecraftClient client = MinecraftClient.getInstance();
     	if (client.world == null) {
-        	System.out.println("world is null");
         	return false;
     	}
     	if (client.isInSingleplayer()) {
-        	System.out.println("in singleplayer");
         	return false;
     	}
     	if (!client.getCurrentServerEntry().address.endsWith("mcdiamondfire.com")) {
-        	System.out.println("not on mcdiamondfire.com");
         	return false;
    	 	}
 		PlayerEntity player = client.player;
