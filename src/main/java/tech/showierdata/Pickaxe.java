@@ -1,5 +1,7 @@
 package tech.showierdata;
 
+import tech.showierdata.mixin.PlayerHudListMixin;
+
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
@@ -11,6 +13,10 @@ import org.slf4j.MarkerFactory;
 
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
+import net.minecraft.client.gui.DrawableHelper;
+import net.minecraft.client.gui.hud.PlayerListHud;
+import net.minecraft.entity.player.HungerManager;
+import net.minecraft.text.Text;
 import net.minecraft.util.math.Vec3d;
 
 import java.sql.DriverManager;
@@ -137,7 +143,36 @@ public class Pickaxe implements ModInitializer {
     			int y = 3 + (i * (renderer.fontHeight + 1));
     			renderer.drawWithShadow(matrixStack, line, x - 3, y, 0xFFFFFF);
 			}
+			//get the coins from the PlayerHud
+			String[] footer = ((PlayerHudListMixin) client.inGameHud.getPlayerListHud()).getFooter().getString().split("\n");
 
+			//get the coins from the footer
+			String coins = '⛃' + footer[2].replaceAll("[^0-9\\.]", "");
+
+
+			
+
+			// Calculate the hunger bar values
+			int xhp = client.getWindow().getScaledWidth() / 2 - 91;
+			int ybottom = client.getWindow().getScaledHeight() - 39;
+
+			// Define the height of the hunger bar
+			int hungerHeight = 10;
+
+			// Calculate the health and hunger bar widths
+			int hpWidth = Math.round(20 / 2.0f * 18.0f);
+
+			// Calculate the x-coordinate of the right edge of the health bar
+			int xhpRight = xhp + hpWidth;
+
+			// Draw the custom hunger bar
+			DrawableHelper.fill(matrixStack, xhp+(hpWidth/2)  , ybottom-1, xhpRight+3, ybottom + hungerHeight-1, 0xFFFF0000);
+
+
+
+			// Draw the coins value
+			int coinsWidth = renderer.getWidth(coins);
+			renderer.drawWithShadow(matrixStack, coins, xhpRight - coinsWidth, ybottom, 0xFFFF00);
 		});
 		
 

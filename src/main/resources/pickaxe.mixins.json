@@ -3,7 +3,8 @@
 	"package": "tech.showierdata.mixin",
 	"compatibilityLevel": "JAVA_17",
 	"mixins": [
-		"ClientPlayNetworkHandlerMixin"
+		"ClientPlayNetworkHandlerMixin",
+		"PlayerHudListMixin"
 	],
 	"injectors": {
 		"defaultRequire": 1
