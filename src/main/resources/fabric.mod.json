@@ -1,0 +1,34 @@
+{
+	"schemaVersion": 1,
+	"id": "pickaxe",
+	"version": "${version}",
+	"name": "Pickaxe",
+	"description": "This is an example description! Tell everyone what your mod is about!",
+	"authors": [
+		"Me!"
+	],
+	"contact": {
+		"homepage": "https://fabricmc.net/",
+		"sources": "https://github.com/FabricMC/fabric-example-mod"
+	},
+	"license": "CC0-1.0",
+	"icon": "assets/pickaxe/icon.png",
+	"environment": "*",
+	"entrypoints": {
+		"main": [
+			"tech.showierdata.Pickaxe"
+		]
+	},
+	"mixins": [
+		"pickaxe.mixins.json"
+	],
+	"depends": {
+		"fabricloader": ">=0.14.21",
+		"minecraft": "~1.19.4",
+		"java": ">=17",
+		"fabric-api": "*"
+	},
+	"suggests": {
+		"another-mod": "*"
+	}
+}
