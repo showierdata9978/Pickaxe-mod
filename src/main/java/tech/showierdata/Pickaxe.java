@@ -11,7 +11,6 @@ import org.slf4j.MarkerFactory;
 
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
-import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.math.Vec3d;
 
 import java.sql.DriverManager;
@@ -86,8 +85,7 @@ public class Pickaxe implements ModInitializer {
     	if (!client.getCurrentServerEntry().address.endsWith("mcdiamondfire.com")) {
         	return false;
    	 	}
-		PlayerEntity player = client.player;
-    	Vec3d pos = player.getPos().subtract(Pickaxe_Spawn);
+    	Vec3d pos = client.player.getPos().subtract(Pickaxe_Spawn);
     	return pos.x > -1000 && pos.z > -1000 && pos.x < 1000 && pos.z < 1000;
 	}
 
@@ -106,8 +104,7 @@ public class Pickaxe implements ModInitializer {
 					return;
 				}
 
-		        PlayerEntity player = client.player;
-        		Vec3d playerPos = player.getPos();
+        		Vec3d playerPos = client.player.getPos();
 		        Vec3d pos = playerPos.subtract(Pickaxe_Spawn);
         		rel_spawn = pos;
 			}
