@@ -19,6 +19,7 @@ import net.minecraft.text.Text;
 import net.minecraft.util.math.Vec3d;
 import tech.showierdata.pickaxe.mixin.BossBarHudMixin;
 import tech.showierdata.pickaxe.mixin.PlayerHudListMixin;
+import tech.showierdata.pickaxe.PickaxeCommand;
 
 import java.sql.DriverManager;
 import java.sql.Connection;

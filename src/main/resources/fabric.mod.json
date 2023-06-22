@@ -8,10 +8,10 @@
 		"ShowierData9978"
 	],
 	"contact": {
-		"homepage": "https://fabricmc.net/",
-		"sources": "https://github.com/FabricMC/fabric-example-mod"
+		"homepage": "https://github.com/showierdata9978/Pickaxe-mod",
+		"sources": "https://github.com/showierdata9978/Pickaxe-mod"
 	},
-	"license": "CC0-1.0",
+	"license": " BSD-2-Clause license ",
 	"icon": "assets/pickaxe/icon.png",
 	"environment": "*",
 	"entrypoints": {
