@@ -1,6 +1,4 @@
-package tech.showierdata;
-
-import tech.showierdata.mixin.PlayerHudListMixin;
+package tech.showierdata.pickaxe;
 
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
@@ -14,16 +12,21 @@ import org.slf4j.MarkerFactory;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.DrawableHelper;
+import net.minecraft.client.gui.hud.ClientBossBar;
 import net.minecraft.client.gui.hud.PlayerListHud;
 import net.minecraft.entity.player.HungerManager;
 import net.minecraft.text.Text;
 import net.minecraft.util.math.Vec3d;
+import tech.showierdata.pickaxe.mixin.BossBarHudMixin;
+import tech.showierdata.pickaxe.mixin.PlayerHudListMixin;
 
 import java.sql.DriverManager;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Objects;
+import java.util.UUID;
 
 public class Pickaxe implements ModInitializer {
 	// This logger is used to write text to the console and the log file.
@@ -37,6 +40,7 @@ public class Pickaxe implements ModInitializer {
 
 	public static final Vec3d Pickaxe_Spawn = new Vec3d( 7085, 200, 4115);
 	public Vec3d rel_spawn =  new Vec3d(0, 0,0);
+	public ArrayList<UUID> removed_bossbars = new ArrayList<UUID>();
 	
 	
 
@@ -95,15 +99,7 @@ public class Pickaxe implements ModInitializer {
     	return pos.x > -1000 && pos.z > -1000 && pos.x < 1000 && pos.z < 1000;
 	}
 
-	@Override
-	public void onInitialize() {
-		// This code runs as soon as Minecraft is in a mod-load-ready state.
-		// However, some things (like resources) may still be uninitialized.
-		// Proceed with mild caution.
-		Pickaxe.instence = this;
-
-		LOGGER.info(String.format("Starting %c mod....", PICKAXE_EMOJI));
-
+	private void register_callbacks() {
 		ClientTickEvents.END_CLIENT_TICK.register(new ClientTickEvents.EndTick() {
 		    public void onEndTick(MinecraftClient client) {
         		if (!isInPickaxe()) {
@@ -113,6 +109,27 @@ public class Pickaxe implements ModInitializer {
         		Vec3d playerPos = client.player.getPos();
 		        Vec3d pos = playerPos.subtract(Pickaxe_Spawn);
         		rel_spawn = pos;
+
+				boolean foundRadBossBar = false;
+
+				for (ClientBossBar bar : ((IBossBarHudMixin) (Object) client.inGameHud.getBossBarHud()).getBossBars().values()) {
+					String[] split = (bar.getName().getString().split(" "));
+
+					if (split.length < 2) {
+						continue;
+					}
+					if (split[1].equals("Radiation:")) {
+						foundRadBossBar = true;
+					
+					}
+				}
+
+				if (!foundRadBossBar) {
+					client.player.experienceProgress = 0;
+				}
+
+
+
 			}
 		});
 		
@@ -174,6 +191,19 @@ public class Pickaxe implements ModInitializer {
 			int coinsWidth = renderer.getWidth(coins);
 			renderer.drawWithShadow(matrixStack, coins, xhpRight - coinsWidth, ybottom, 0xFFFF00);
 		});
+	}
+	
+
+	@Override
+	public void onInitialize() {
+		// This code runs as soon as Minecraft is in a mod-load-ready state.
+		// However, some things (like resources) may still be uninitialized.
+		// Proceed with mild caution.
+		Pickaxe.instence = this;
+
+		LOGGER.info(String.format("Starting %c mod....", PICKAXE_EMOJI));
+
+		register_callbacks();
 		
 
 		

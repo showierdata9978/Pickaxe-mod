@@ -5,7 +5,7 @@
 	"name": "Pickaxe",
 	"description": "This is an example description! Tell everyone what your mod is about!",
 	"authors": [
-		"Me!"
+		"ShowierData9978"
 	],
 	"contact": {
 		"homepage": "https://fabricmc.net/",
@@ -16,7 +16,7 @@
 	"environment": "*",
 	"entrypoints": {
 		"main": [
-			"tech.showierdata.Pickaxe"
+			"tech.showierdata.pickaxe.Pickaxe"
 		]
 	},
 	"mixins": [

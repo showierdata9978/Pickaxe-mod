@@ -1,4 +1,4 @@
-package tech.showierdata;
+package tech.showierdata.pickaxe;
 
 public class PickaxeCommand {
 	public String name = "";

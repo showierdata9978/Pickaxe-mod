@@ -1,10 +1,10 @@
-package tech.showierdata.mixin;
+package tech.showierdata.pickaxe.mixin;
 
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayNetworkHandler;
 import net.minecraft.text.Text;
-import tech.showierdata.Pickaxe;
-import tech.showierdata.PickaxeCommand;
+import tech.showierdata.pickaxe.Pickaxe;
+import tech.showierdata.pickaxe.PickaxeCommand;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -17,12 +17,12 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 
 @Mixin(ClientPlayNetworkHandler.class)
-public class ClientPlayNetworkHandlerMixin {
+public class ClientPlayNetworkHandlerMixin  {
 	private static final PickaxeCommand[] PickCommands = Pickaxe.getCommands();
 	private static final HashMap<String, PickaxeCommand> PickHandledCommands = Pickaxe.getHandledCommands();
 
 
-
+	
 
 	
 	@Inject(at = @At("HEAD"), method = "sendChatMessage", cancellable = true)
