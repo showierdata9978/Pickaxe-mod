@@ -27,6 +27,7 @@ import tech.showierdata.pickaxe.mixin.PlayerHudListMixin;
 import tech.showierdata.pickaxe.server.CommandHelper;
 import tech.showierdata.pickaxe.server.Plot;
 import tech.showierdata.pickaxe.PickaxeCommand;
+import tech.showierdata.pickaxe.config.Options;
 
 import java.sql.DriverManager;
 import java.sql.Connection;
@@ -51,7 +52,6 @@ public class Pickaxe implements ModInitializer {
 	public Vec3d rel_spawn =  new Vec3d(0, 0,0);
 	public ArrayList<UUID> removed_bossbars = new ArrayList<UUID>();
 
-	public boolean enabled = true;
 
 	public static final CommandHelper commandHelper = CommandHelper.getInstance();
 	public Plot currentPlot = null;
@@ -97,7 +97,7 @@ public class Pickaxe implements ModInitializer {
 	}
 
 	public boolean isInPickaxe() {
-		if (!enabled) {
+		if (!Options.getInstance().enabled) {
 			return false;
 		}
 		
@@ -129,15 +129,7 @@ public class Pickaxe implements ModInitializer {
 				boolean foundRadBossBar = false;
 
 				for (ClientBossBar bar : ((IBossBarHudMixin) (Object) client.inGameHud.getBossBarHud()).getBossBars().values()) {
-					String[] split = (bar.getName().getString().split(" "));
-
-					if (split.length < 2) {
-						continue;
-					}
-					if (split[1].equals("Radiation:")) {
-						foundRadBossBar = true;
-					
-					}
+					foundRadBossBar = Options.getInstance().XPBarType.detect(bar);
 				}
 
 				if (!foundRadBossBar) {
@@ -232,24 +224,7 @@ public class Pickaxe implements ModInitializer {
 		});
 	}
 	
-	public Screen getConfigScreen(Screen parent) {
-    	return YetAnotherConfigLib.createBuilder()
-        	    .title(Text.literal("Pickaxe Mod Settings"))
-            	.category(ConfigCategory.createBuilder()
-                	    .name(Text.literal("General"))
-                    	.option(Option.createBuilder(Boolean.class)
-                        	    .name(Text.literal("Enable Mod"))
-                            	.binding(true, () -> enabled, e -> {
-                                	enabled = e;
-                           		})
-                            	.controller(BooleanController::new)
-                            	.build()
-	                    )
-    	                .build()
-        	    )
-				.build()
-            	.generateScreen(parent);
-	}
+	
 
 	@Override
 	public void onInitialize() {

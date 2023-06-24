@@ -19,7 +19,7 @@
 			"tech.showierdata.pickaxe.Pickaxe"
 		],
 		"modmenu": [ 
-			"tech.showierdata.pickaxe.ModMenuIntergrationImpl" 
+			"tech.showierdata.pickaxe.config.ModMenuIntergrationImpl" 
 		]
 		
 	},
