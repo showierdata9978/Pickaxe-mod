@@ -17,16 +17,22 @@
 	"entrypoints": {
 		"main": [
 			"tech.showierdata.pickaxe.Pickaxe"
+		],
+		"modmenu": [ 
+			"tech.showierdata.pickaxe.ModMenuIntergrationImpl" 
 		]
+		
 	},
 	"mixins": [
 		"pickaxe.mixins.json"
 	],
 	"depends": {
 		"fabricloader": ">=0.14.21",
-		"minecraft": "~1.19.4",
 		"java": ">=17",
-		"fabric-api": "*"
+		"minecraft": "~1.19.4",
+
+		"fabric-api": "*",
+		"yet_another_config_lib": "^2.5.0+1.19.4"
 	},
 	"suggests": {
 		"another-mod": "*"

@@ -9,16 +9,23 @@ import org.slf4j.LoggerFactory;
 import org.slf4j.Marker;
 import org.slf4j.MarkerFactory;
 
+import dev.isxander.yacl.api.YetAnotherConfigLib;
+import dev.isxander.yacl.api.Option;
+import dev.isxander.yacl.gui.controllers.BooleanController;
+import dev.isxander.yacl.api.ConfigCategory;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.DrawableHelper;
 import net.minecraft.client.gui.hud.ClientBossBar;
 import net.minecraft.client.gui.hud.PlayerListHud;
+import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.entity.player.HungerManager;
 import net.minecraft.text.Text;
 import net.minecraft.util.math.Vec3d;
 import tech.showierdata.pickaxe.mixin.BossBarHudMixin;
 import tech.showierdata.pickaxe.mixin.PlayerHudListMixin;
+import tech.showierdata.pickaxe.server.CommandHelper;
+import tech.showierdata.pickaxe.server.Plot;
 import tech.showierdata.pickaxe.PickaxeCommand;
 
 import java.sql.DriverManager;
@@ -34,6 +41,7 @@ public class Pickaxe implements ModInitializer {
 	// It is considered best practice to use your mod id as the logger's name.
 	// That way, it's clear which mod wrote info, warnings, and errors.
     public static final char PICKAXE_EMOJI = '⛏';
+	public static final char DIAMOND_CHAR = '◆';
 	public static final Logger LOGGER = LoggerFactory.getLogger(String.format("%c", PICKAXE_EMOJI));
 	public Connection conn;
 	public static final Marker FATAL = MarkerFactory.getMarker("FATAL");
@@ -42,7 +50,11 @@ public class Pickaxe implements ModInitializer {
 	public static final Vec3d Pickaxe_Spawn = new Vec3d( 7085, 200, 4115);
 	public Vec3d rel_spawn =  new Vec3d(0, 0,0);
 	public ArrayList<UUID> removed_bossbars = new ArrayList<UUID>();
-	
+
+	public boolean enabled = true;
+
+	public static final CommandHelper commandHelper = CommandHelper.getInstance();
+	public Plot currentPlot = null;
 	
 
 	public static Pickaxe getInstance() {
@@ -50,7 +62,6 @@ public class Pickaxe implements ModInitializer {
 	}
 
 	
-
 	public static PickaxeCommand[] getCommands() {
 		return new PickaxeCommand[]{
 			new PickaxeCommand("help", 
@@ -86,6 +97,11 @@ public class Pickaxe implements ModInitializer {
 	}
 
 	public boolean isInPickaxe() {
+		if (!enabled) {
+			return false;
+		}
+		
+
     	MinecraftClient client = MinecraftClient.getInstance();
     	if (client.world == null) {
         	return false;
@@ -99,7 +115,6 @@ public class Pickaxe implements ModInitializer {
     	Vec3d pos = client.player.getPos().subtract(Pickaxe_Spawn);
     	return pos.x > -1000 && pos.z > -1000 && pos.x < 1000 && pos.z < 1000;
 	}
-
 	private void register_callbacks() {
 		ClientTickEvents.END_CLIENT_TICK.register(new ClientTickEvents.EndTick() {
 		    public void onEndTick(MinecraftClient client) {
@@ -142,7 +157,7 @@ public class Pickaxe implements ModInitializer {
 
 			MinecraftClient client = MinecraftClient.getInstance();
 			TextRenderer renderer = client.textRenderer; //ignore
-
+			
 			String[] lines = String.format("X: %d,\nY: %d,\nZ: %d", Math.round(rel_spawn.x), Math.round(rel_spawn.y), Math.round(rel_spawn.z)).split("\n");
 
 
@@ -151,49 +166,90 @@ public class Pickaxe implements ModInitializer {
 			for (String line : lines) {
     			width = Math.max(width, renderer.getWidth(line));
 			}
-	
+
 			//get the top left corner of the screen
 			int x = MinecraftClient.getInstance().getWindow().getScaledWidth() - width;
 
 			//draw the text
 			for (int i = 0; i < lines.length; i++) {
     			String line = lines[i];
-    			int y = 3 + (i * (renderer.fontHeight + 1));
+   		 		int y = 3 + (i * (renderer.fontHeight + 1));
     			renderer.drawWithShadow(matrixStack, line, x - 3, y, 0xFFFFFF);
 			}
 			//get the coins from the PlayerHud
-			String[] footer = ((PlayerHudListMixin) client.inGameHud.getPlayerListHud()).getFooter().getString().split("\n");
+			try {
+				String[] footer = ((PlayerHudListMixin) client.inGameHud.getPlayerListHud()).getFooter().getString().split("\n");
 
-			//get the coins from the footer
-			String coins = '⛃' + footer[2].replaceAll("[^0-9\\.]", "");
-
-
-			
-
-			// Calculate the hunger bar values
-			int xhp = client.getWindow().getScaledWidth() / 2 - 91;
-			int ybottom = client.getWindow().getScaledHeight() - 39;
-
-			// Define the height of the hunger bar
-			int hungerHeight = 10;
-
-			// Calculate the health and hunger bar widths
-			int hpWidth = Math.round(20 / 2.0f * 18.0f);
-
-			// Calculate the x-coordinate of the right edge of the health bar
-			int xhpRight = xhp + hpWidth;
-
-			// Draw the custom hunger bar
-			DrawableHelper.fill(matrixStack, xhp+(hpWidth/2)  , ybottom-1, xhpRight+3, ybottom + hungerHeight-1, 0xFFFF0000);
+				//get the coins from the footer
+				String coins = '⛃' + footer[2].replaceAll("[^0-9\\.]", "");
 
 
+				// Calculate the hunger bar values
+				int xhp = client.getWindow().getScaledWidth() / 2 - 91;
+				int ybottom = client.getWindow().getScaledHeight() - 39;
 
-			// Draw the coins value
-			int coinsWidth = renderer.getWidth(coins);
-			renderer.drawWithShadow(matrixStack, coins, xhpRight - coinsWidth, ybottom, 0xFFFF00);
+				// Define the height of the hunger bar
+				int hungerHeight = 10;
+
+				// Calculate the health and hunger bar widths
+				int hpWidth = Math.round(20 / 2.0f * 18.0f);
+
+				// Calculate the x-coordinate of the right edge of the health bar
+				int xhpRight = xhp + hpWidth;
+
+				// Draw the custom hunger bar
+				DrawableHelper.fill(matrixStack, xhp+(hpWidth/2)  , ybottom-1, xhpRight+3, ybottom + hungerHeight-1, 0xFFFF0000);
+
+
+
+				// Draw the coins value
+				int coinsWidth = renderer.getWidth(coins);
+				renderer.drawWithShadow(matrixStack, coins, xhpRight - coinsWidth, ybottom, 0xFFFF00);
+			} catch (Exception e) {
+				LOGGER.error("Error while drawing custom hunger bar", e);
+
+				// Draw a empty hunger bar with 0 coins
+				// Calculate the hunger bar values
+				int xhp = client.getWindow().getScaledWidth() / 2 - 91;
+				int ybottom = client.getWindow().getScaledHeight() - 39;
+
+				// Define the height of the hunger bar
+				int hungerHeight = 10;
+
+				// Calculate the health and hunger bar widths
+				int hpWidth = Math.round(20 / 2.0f * 18.0f);
+
+				// Calculate the x-coordinate of the right edge of the health bar
+				int xhpRight = xhp + hpWidth;
+
+				// Draw the custom hunger bar
+				DrawableHelper.fill(matrixStack, xhp+(hpWidth/2)  , ybottom-1, xhpRight+3, ybottom + hungerHeight-1, 0xFFFF0000);
+				String coins = '⛃' + "0 (Error)";
+				int coinsWidth = renderer.getWidth(coins);
+				renderer.drawWithShadow(matrixStack, coins, xhpRight - coinsWidth, ybottom, 0xFFFF00);
+
+			}
 		});
 	}
 	
+	public Screen getConfigScreen(Screen parent) {
+    	return YetAnotherConfigLib.createBuilder()
+        	    .title(Text.literal("Pickaxe Mod Settings"))
+            	.category(ConfigCategory.createBuilder()
+                	    .name(Text.literal("General"))
+                    	.option(Option.createBuilder(Boolean.class)
+                        	    .name(Text.literal("Enable Mod"))
+                            	.binding(true, () -> enabled, e -> {
+                                	enabled = e;
+                           		})
+                            	.controller(BooleanController::new)
+                            	.build()
+	                    )
+    	                .build()
+        	    )
+				.build()
+            	.generateScreen(parent);
+	}
 
 	@Override
 	public void onInitialize() {
