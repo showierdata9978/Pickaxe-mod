@@ -3,6 +3,7 @@ package tech.showierdata.pickaxe.config;
 public class Options {
 	public boolean enabled = true;
 	public XPBarEnum XPBarType = XPBarEnum.Radiation;
+	public boolean AutoCL = false;
 	static Options INSTANCE;
 
 	public Options() { // all default vals

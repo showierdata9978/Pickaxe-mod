@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.util.Optional;
 
 import com.google.common.io.Files;
+import net.minecraft.client.MinecraftClient;
 import com.mojang.authlib.minecraft.client.ObjectMapper;
 import com.terraformersmc.modmenu.api.ConfigScreenFactory;
 import com.terraformersmc.modmenu.api.ModMenuApi;
@@ -76,7 +77,15 @@ public class ModMenuIntergrationImpl implements ModMenuApi  {
                 	    .name(Text.literal("General"))
                     	.option(Option.createBuilder(Boolean.class)
                         	    .name(Text.literal("Enable Mod"))
-                            	.binding(true, () -> Options.getInstance().enabled, e -> {
+                            	.binding(true, () -> Options.getInstance().enabled, e -> { 
+										if (Pickaxe.getInstance().isInPickaxe()) {
+											if (!e) {
+												MinecraftClient.getInstance().getNetworkHandler().sendChatCommand("c g");
+
+											} else {
+												MinecraftClient.getInstance().getNetworkHandler().sendChatCommand("c l");
+											}
+										}
                                 		Options.getInstance().enabled = e;
                            		})
 
@@ -90,6 +99,14 @@ public class ModMenuIntergrationImpl implements ModMenuApi  {
 									Options.getInstance().XPBarType = e;
 								})
 								.controller(EnumController<XPBarEnum>::new)
+								.build()
+						)
+						.option(Option.createBuilder(Boolean.class)
+								.name(Text.literal("Automaticly send /c l"))
+								.binding(false, () -> Options.getInstance().AutoCL, e -> {
+									Options.getInstance().AutoCL = e;
+								})
+								.controller(BooleanController::new)
 								.build()
 						)
     	                .build()

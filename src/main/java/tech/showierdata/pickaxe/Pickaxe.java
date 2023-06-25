@@ -1,41 +1,27 @@
 package tech.showierdata.pickaxe;
 
-import net.fabricmc.api.ModInitializer;
-import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
-import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
+import java.sql.Connection;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.UUID;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.Marker;
 import org.slf4j.MarkerFactory;
 
-import dev.isxander.yacl.api.YetAnotherConfigLib;
-import dev.isxander.yacl.api.Option;
-import dev.isxander.yacl.gui.controllers.BooleanController;
-import dev.isxander.yacl.api.ConfigCategory;
+import net.fabricmc.api.ModInitializer;
+import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
+import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.DrawableHelper;
 import net.minecraft.client.gui.hud.ClientBossBar;
-import net.minecraft.client.gui.hud.PlayerListHud;
-import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.entity.player.HungerManager;
-import net.minecraft.text.Text;
 import net.minecraft.util.math.Vec3d;
-import tech.showierdata.pickaxe.mixin.BossBarHudMixin;
+
+import tech.showierdata.pickaxe.config.Options;
 import tech.showierdata.pickaxe.mixin.PlayerHudListMixin;
 import tech.showierdata.pickaxe.server.CommandHelper;
-import tech.showierdata.pickaxe.server.Plot;
-import tech.showierdata.pickaxe.PickaxeCommand;
-import tech.showierdata.pickaxe.config.Options;
-
-import java.sql.DriverManager;
-import java.sql.Connection;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Objects;
-import java.util.UUID;
 
 public class Pickaxe implements ModInitializer {
 	// This logger is used to write text to the console and the log file.
@@ -44,24 +30,14 @@ public class Pickaxe implements ModInitializer {
     public static final char PICKAXE_EMOJI = '⛏';
 	public static final char DIAMOND_CHAR = '◆';
 	public static final Logger LOGGER = LoggerFactory.getLogger(String.format("%c", PICKAXE_EMOJI));
-	public Connection conn;
 	public static final Marker FATAL = MarkerFactory.getMarker("FATAL");
 	public static Pickaxe instence;
-
 	public static final Vec3d Pickaxe_Spawn = new Vec3d( 7085, 200, 4115);
-	public Vec3d rel_spawn =  new Vec3d(0, 0,0);
-	public ArrayList<UUID> removed_bossbars = new ArrayList<UUID>();
-
 
 	public static final CommandHelper commandHelper = CommandHelper.getInstance();
-	public Plot currentPlot = null;
-	
-
 	public static Pickaxe getInstance() {
 		return instence;
 	}
-
-	
 	public static PickaxeCommand[] getCommands() {
 		return new PickaxeCommand[]{
 			new PickaxeCommand("help", 
@@ -83,7 +59,8 @@ public class Pickaxe implements ModInitializer {
 			})
 		};
 		
-	} 
+	}
+
 
 	public static HashMap<String, PickaxeCommand> getHandledCommands() {
 		PickaxeCommand[] commands = getCommands();
@@ -95,6 +72,17 @@ public class Pickaxe implements ModInitializer {
 		}
 		return ret;
 	}
+
+	public Connection conn;
+
+	public Vec3d rel_spawn =  new Vec3d(0, 0,0);
+	
+
+	public ArrayList<UUID> removed_bossbars = new ArrayList<UUID>();
+
+	
+
+	public boolean lastConnectedStatus = false;
 
 	public boolean isInPickaxe() {
 		if (!Options.getInstance().enabled) {
@@ -112,9 +100,49 @@ public class Pickaxe implements ModInitializer {
     	if (!client.getCurrentServerEntry().address.endsWith("mcdiamondfire.com")) {
         	return false;
    	 	}
+
+		
     	Vec3d pos = client.player.getPos().subtract(Pickaxe_Spawn);
-    	return pos.x > -1000 && pos.z > -1000 && pos.x < 1000 && pos.z < 1000;
+    	boolean status = pos.x > -1000 && pos.z > -1000 && pos.x < 1000 && pos.z < 1000;
+
+		if (status && !lastConnectedStatus && Options.getInstance().AutoCL) {
+			client.getNetworkHandler().sendChatCommand("c l");
+		}
+		
+		lastConnectedStatus = status;
+		return status;
 	}
+
+	@Override
+	public void onInitialize() {
+		// This code runs as soon as Minecraft is in a mod-load-ready state.
+		// However, some things (like resources) may still be uninitialized.
+		// Proceed with mild caution.
+		Pickaxe.instence = this;
+
+		LOGGER.info(String.format("Starting %c mod....", PICKAXE_EMOJI));
+
+		register_callbacks();
+
+		// send a get request to https://api.modrinth.com/v2/project/{id|slug}/version
+
+			
+		
+		/*try {
+			conn = DriverManager.getConnection("jdbc:sqlite:pickaxe.sqlite.db");
+			if (conn == null) {
+				throw new SQLException("DB Connection is NULL");
+			}
+		} catch (SQLException  e) {
+			LOGGER.error("Could not connect to mod DB.", e);
+		}*/
+
+		LOGGER.info(String.format("Finished loading %c....", PICKAXE_EMOJI));
+
+	}
+	
+	
+
 	private void register_callbacks() {
 		ClientTickEvents.END_CLIENT_TICK.register(new ClientTickEvents.EndTick() {
 		    public void onEndTick(MinecraftClient client) {
@@ -222,33 +250,5 @@ public class Pickaxe implements ModInitializer {
 
 			}
 		});
-	}
-	
-	
-
-	@Override
-	public void onInitialize() {
-		// This code runs as soon as Minecraft is in a mod-load-ready state.
-		// However, some things (like resources) may still be uninitialized.
-		// Proceed with mild caution.
-		Pickaxe.instence = this;
-
-		LOGGER.info(String.format("Starting %c mod....", PICKAXE_EMOJI));
-
-		register_callbacks();
-		
-
-		
-		/*try {
-			conn = DriverManager.getConnection("jdbc:sqlite:pickaxe.sqlite.db");
-			if (conn == null) {
-				throw new SQLException("DB Connection is NULL");
-			}
-		} catch (SQLException  e) {
-			LOGGER.error("Could not connect to mod DB.", e);
-		}*/
-
-		LOGGER.info(String.format("Finished loading %c....", PICKAXE_EMOJI));
-
 	}
 }
