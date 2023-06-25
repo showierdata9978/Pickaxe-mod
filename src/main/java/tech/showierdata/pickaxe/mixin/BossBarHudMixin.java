@@ -22,6 +22,7 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 
+import tech.showierdata.pickaxe.config.Options;
 @Mixin(BossBarHud.class) //
 public class BossBarHudMixin implements IBossBarHudMixin {
 
@@ -72,7 +73,7 @@ public class BossBarHudMixin implements IBossBarHudMixin {
 
 		//set the users xp percent to the boss bar labled "Radiation"
 	
-		if (bossBar.getName().getString().split(" ")[1].equals("Radiation:")) {
+		if (Options.getInstance().XPBarType.detect(bossBar)) {
 			client.player.experienceProgress = bossBar.getPercent();
 			Text name = bossBar.getName();
 			bossBarNames.put(bossBar.getUuid(), name);
@@ -80,9 +81,7 @@ public class BossBarHudMixin implements IBossBarHudMixin {
 
 			info.cancel();
 
-		} else {
-			client.player.experienceProgress = 0;
-		}
+		} 
 	
 	}
 }

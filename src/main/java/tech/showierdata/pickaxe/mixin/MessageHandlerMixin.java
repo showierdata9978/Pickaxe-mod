@@ -23,7 +23,7 @@ public class MessageHandlerMixin {
 			if (Pickaxe.commandHelper.getLastSentCommand().equals("locate")) {
 				Pickaxe.commandHelper.clearLastSentCommand();
 				Plot plot = Regexs.getPlotDetails(message.getContent().getString());
-				pickaxe.currentPlot = plot;
+				/*pickaxe.currentPlot = plot;*/
 				Pickaxe.LOGGER.info("Located plot: " + plot.name);
 				info.cancel(); // stop the message from being shown to the player.
 			}
