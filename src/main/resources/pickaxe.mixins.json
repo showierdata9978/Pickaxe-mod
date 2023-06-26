@@ -5,7 +5,8 @@
 	"mixins": [
 		"ClientPlayNetworkHandlerMixin",
 		"PlayerHudListMixin",
-		"BossBarHudMixin"
+		"BossBarHudMixin",
+		"InGameHudMixin"
 	],
 	"injectors": {
 		"defaultRequire": 1

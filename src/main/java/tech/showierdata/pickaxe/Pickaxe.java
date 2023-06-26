@@ -8,8 +8,6 @@ import java.util.UUID;
 import org.lwjgl.glfw.GLFW;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.slf4j.Marker;
-import org.slf4j.MarkerFactory;
 
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
@@ -17,15 +15,12 @@ import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
 import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
-import net.minecraft.client.gui.DrawableHelper;
 import net.minecraft.client.gui.hud.ClientBossBar;
 import net.minecraft.client.option.KeyBinding;
 import net.minecraft.client.util.InputUtil;
-import net.minecraft.text.Text;
 import net.minecraft.util.math.Vec3d;
 
 import tech.showierdata.pickaxe.config.Options;
-import tech.showierdata.pickaxe.mixin.PlayerHudListMixin;
 import tech.showierdata.pickaxe.server.CommandHelper;
 
 public class Pickaxe implements ModInitializer {
@@ -35,7 +30,6 @@ public class Pickaxe implements ModInitializer {
     public static final char PICKAXE_EMOJI = '⛏';
 	public static final char DIAMOND_CHAR = '◆';
 	public static final Logger LOGGER = LoggerFactory.getLogger(String.format("%c", PICKAXE_EMOJI));
-	public static final Marker FATAL = MarkerFactory.getMarker("FATAL");
 	public static Pickaxe instence;
 	public static final Vec3d Pickaxe_Spawn = new Vec3d( 7085, 200, 4115);
 
@@ -195,6 +189,7 @@ public class Pickaxe implements ModInitializer {
 			for (String line : lines) {
     			width = Math.max(width, renderer.getWidth(line));
 			}
+			
 
 			//get the top left corner of the screen
 			int x = MinecraftClient.getInstance().getWindow().getScaledWidth() - width;
@@ -205,59 +200,7 @@ public class Pickaxe implements ModInitializer {
    		 		int y = 3 + (i * (renderer.fontHeight + 1));
     			renderer.drawWithShadow(matrixStack, line, x - 3, y, 0xFFFFFF);
 			}
-			//get the coins from the PlayerHud
-			try {
-				String[] footer = ((PlayerHudListMixin) client.inGameHud.getPlayerListHud()).getFooter().getString().split("\n");
-
-				//get the coins from the footer
-				String coins = '⛃' + footer[2].replaceAll("[^0-9\\.]", "");
-
-
-				// Calculate the hunger bar values
-				int xhp = client.getWindow().getScaledWidth() / 2 - 91;
-				int ybottom = client.getWindow().getScaledHeight() - 39;
-
-				// Define the height of the hunger bar
-				int hungerHeight = 10;
-
-				// Calculate the health and hunger bar widths
-				int hpWidth = Math.round(20 / 2.0f * 18.0f);
-
-				// Calculate the x-coordinate of the right edge of the health bar
-				int xhpRight = xhp + hpWidth;
-
-				// Draw the custom hunger bar
-				DrawableHelper.fill(matrixStack, xhp+(hpWidth/2)  , ybottom-1, xhpRight+3, ybottom + hungerHeight-1, 0xFFFF0000);
-
-
-
-				// Draw the coins value
-				int coinsWidth = renderer.getWidth(coins);
-				renderer.drawWithShadow(matrixStack, coins, xhpRight - coinsWidth, ybottom, 0xFFFF00);
-			} catch (Exception e) {
-				LOGGER.error("Error while drawing custom hunger bar", e);
-
-				// Draw a empty hunger bar with 0 coins
-				// Calculate the hunger bar values
-				int xhp = client.getWindow().getScaledWidth() / 2 - 91;
-				int ybottom = client.getWindow().getScaledHeight() - 39;
-
-				// Define the height of the hunger bar
-				int hungerHeight = 10;
-
-				// Calculate the health and hunger bar widths
-				int hpWidth = Math.round(20 / 2.0f * 18.0f);
-
-				// Calculate the x-coordinate of the right edge of the health bar
-				int xhpRight = xhp + hpWidth;
-
-				// Draw the custom hunger bar
-				DrawableHelper.fill(matrixStack, xhp+(hpWidth/2)  , ybottom-1, xhpRight+3, ybottom + hungerHeight-1, 0xFFFF0000);
-				String coins = '⛃' + "0 (Error)";
-				int coinsWidth = renderer.getWidth(coins);
-				renderer.drawWithShadow(matrixStack, coins, xhpRight - coinsWidth, ybottom, 0xFFFF00);
-
-			}
+			
 		});
 	}
 }
