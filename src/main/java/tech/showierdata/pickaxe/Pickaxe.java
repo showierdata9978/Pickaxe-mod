@@ -190,7 +190,7 @@ public class Pickaxe implements ModInitializer {
 			}
 		});
 		
-		HudRenderCallback.EVENT.register((matrixStack, tickDelta) -> {
+		HudRenderCallback.EVENT.register((context, tickDelta) -> {
 
 			if (!isInPickaxe()) {
 				return;
@@ -216,7 +216,7 @@ public class Pickaxe implements ModInitializer {
 			for (int i = 0; i < lines.length; i++) {
     			String line = lines[i];
    		 		int y = 3 + (i * (renderer.fontHeight + 1));
-    			renderer.drawWithShadow(matrixStack, line, x - 3, y, 0xFFFFFF);
+    			context.drawTextWithShadow(renderer, line, x - 3, y, 0xFFFFFF);
 			}
 			
 		});
