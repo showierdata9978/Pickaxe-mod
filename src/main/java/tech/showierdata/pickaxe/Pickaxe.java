@@ -9,17 +9,29 @@ import org.lwjgl.glfw.GLFW;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.mojang.brigadier.Command;
+import com.mojang.brigadier.CommandDispatcher;
+
 import net.fabricmc.api.ModInitializer;
+import net.fabricmc.fabric.api.client.command.v2.ClientCommandManager;
+import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback;
+import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
 import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
+import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.hud.ClientBossBar;
 import net.minecraft.client.option.KeyBinding;
 import net.minecraft.client.util.InputUtil;
+import net.minecraft.command.CommandRegistryAccess;
 import net.minecraft.util.math.Vec3d;
 
+
+import static net.minecraft.server.command.CommandManager.*;
+
+import tech.showierdata.pickaxe.Commands.PickaxeCommandManager;
 import tech.showierdata.pickaxe.config.Options;
 import tech.showierdata.pickaxe.server.CommandHelper;
 
@@ -120,7 +132,13 @@ public class Pickaxe implements ModInitializer {
 		Pickaxe.instence = this;
 
 		LOGGER.info(String.format("Starting %c mod....", PICKAXE_EMOJI));
-
+		
+		PickaxeCommandManager commandManager = PickaxeCommandManager.getInstance();
+		ClientCommandRegistrationCallback.EVENT.register(new ClientCommandRegistrationCallback() {
+			public void register(CommandDispatcher<FabricClientCommandSource> dispatcher, CommandRegistryAccess registryAccess) {
+				commandManager.register(dispatcher);
+			}
+		});
 		register_callbacks();
 
 		// send a get request to https://api.modrinth.com/v2/project/{id|slug}/version
@@ -201,6 +219,10 @@ public class Pickaxe implements ModInitializer {
     			renderer.drawWithShadow(matrixStack, line, x - 3, y, 0xFFFFFF);
 			}
 			
+		});
+
+		CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) -> {
+
 		});
 	}
 }

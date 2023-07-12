@@ -5,6 +5,7 @@ import net.minecraft.util.math.random.Random;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.tools.obfuscation.SuppressedBy;
 
 import net.minecraft.client.gui.hud.InGameHud;
 import net.minecraft.entity.LivingEntity;
@@ -22,8 +23,9 @@ import net.minecraft.client.font.TextRenderer;
 import net.minecraft.util.Util;
 
 @Mixin(InGameHud.class)
+@SuppressWarnings("all")
 public abstract class InGameHudMixin {
-	@Shadow
+    @Shadow
 	abstract LivingEntity getRiddenEntity();
 	
 	@Shadow
@@ -72,6 +74,7 @@ public abstract class InGameHudMixin {
 	 * 
 	 * @since 6/26/2023
 	 * @reason overwriting hunger bar
+     * @author ShowierData9978
 	 */
 	@Overwrite
 	private void renderStatusBars(MatrixStack matrixStack) {
@@ -105,8 +108,8 @@ public abstract class InGameHudMixin {
         this.random.setSeed(this.ticks * 312871);
         HungerManager hungerManager = playerEntity.getHungerManager();
         int k = hungerManager.getFoodLevel();
-        int m = this.scaledWidth / 2 - 91;
-        int n = this.scaledWidth / 2 + 91;
+        int scaledWidthMinus = this.scaledWidth / 2 - 91; //Pickaxe Remame "M"
+        int scaledWidthPlus = this.scaledWidth / 2 + 91; // Pickaxe Rename "N"
         int o = this.scaledHeight - 39;
         float f = Math.max((float)playerEntity.getAttributeValue(EntityAttributes.GENERIC_MAX_HEALTH), (float)Math.max(j, i));
         int p = MathHelper.ceil(playerEntity.getAbsorptionAmount());
@@ -122,7 +125,7 @@ public abstract class InGameHudMixin {
         this.client.getProfiler().push("armor");
         for (int w = 0; w < 10; ++w) {
             if (u <= 0) continue;
-            x = m + w * 8;
+            x = scaledWidthMinus + w * 8;
             if (w * 2 + 1 < u) {
                 InGameHud.drawTexture(matrixStack, x, s, 34, 9, 9, 9);
             }
@@ -133,10 +136,10 @@ public abstract class InGameHudMixin {
             InGameHud.drawTexture(matrixStack, x, s, 16, 9, 9, 9);
         }
         this.client.getProfiler().swap("health");
-        this.renderHealthBar(matrixStack, playerEntity, m, o, r, v, f, i, j, p, bl);
+        this.renderHealthBar(matrixStack, playerEntity, scaledWidthMinus, o, r, v, f, i, j, p, bl);
         LivingEntity livingEntity = this.getRiddenEntity();
         x = this.getHeartCount(livingEntity);
-        if (x == 0 && /* PICKAXE */ !Pickaxe.getInstance().isInPickaxe()) {
+        if (x == 0 && /* PICKAXE */ (!Pickaxe.getInstance().isInPickaxe())) {
             this.client.getProfiler().swap("food");
             for (y = 0; y < 10; ++y) {
                 z = o;
@@ -149,7 +152,7 @@ public abstract class InGameHudMixin {
                 if (playerEntity.getHungerManager().getSaturationLevel() <= 0.0f && this.ticks % (k * 3 + 1) == 0) {
                     z += this.random.nextInt(3) - 1;
                 }
-                ac = n - y * 8 - 9;
+                ac = scaledWidthPlus - y * 8 - 9;
                 InGameHud.drawTexture(matrixStack, ac, z, 16 + ab * 9, 27, 9, 9);
                 if (y * 2 + 1 < k) {
                     InGameHud.drawTexture(matrixStack, ac, z, aa + 36, 27, 9, 9);
@@ -162,6 +165,7 @@ public abstract class InGameHudMixin {
         } else if (Pickaxe.getInstance().isInPickaxe() && x == 0) { // Pickaxe start
 			MinecraftClient client = MinecraftClient.getInstance();
 			TextRenderer renderer = client.textRenderer; //ignore
+            this.client.getProfiler().swap("food");
 
 			try {
 				String[] footer = ((PlayerHudListMixin) client.inGameHud.getPlayerListHud()).getFooter().getString().split("\n");
@@ -211,7 +215,7 @@ public abstract class InGameHudMixin {
 				renderer.drawWithShadow(matrixStack, coins, xhpRight - coinsWidth, ybottom, 0xFFFF00);
 
 			}
-
+            t -= 10; 
     	} // Pickaxe end
 		
 		
@@ -223,12 +227,12 @@ public abstract class InGameHudMixin {
             t -= aa * 10;
             ab = MathHelper.ceil((double)(z - 2) * 10.0 / (double)y);
             ac = MathHelper.ceil((double)z * 10.0 / (double)y) - ab;
-            for (int ad = 0; ad < ab + ac; ++ad) {
-                if (ad < ab) {
-                    InGameHud.drawTexture(matrixStack, n - ad * 8 - 9, t, 16, 18, 9, 9);
+            for (int o2LoopIndex = 0; o2LoopIndex < ab + ac; ++o2LoopIndex) { //Pickaxe rename "ad"
+                if (o2LoopIndex < ab) {
+                    InGameHud.drawTexture(matrixStack, scaledWidthPlus - o2LoopIndex * 8 - 9, t, 16, 18, 9, 9);
                     continue;
                 }
-                InGameHud.drawTexture(matrixStack, n - ad * 8 - 9, t, 25, 18, 9, 9);
+                InGameHud.drawTexture(matrixStack, scaledWidthPlus - o2LoopIndex * 8 - 9, t, 25, 18, 9, 9);
             }
         }
         this.client.getProfiler().pop();
