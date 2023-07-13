@@ -10,12 +10,12 @@ import com.mojang.authlib.minecraft.client.ObjectMapper;
 import com.terraformersmc.modmenu.api.ConfigScreenFactory;
 import com.terraformersmc.modmenu.api.ModMenuApi;
 
-import dev.isxander.yacl.api.ConfigCategory;
-import dev.isxander.yacl.api.LabelOption;
-import dev.isxander.yacl.api.Option;
-import dev.isxander.yacl.api.YetAnotherConfigLib;
-import dev.isxander.yacl.gui.controllers.BooleanController;
-import dev.isxander.yacl.gui.controllers.cycling.EnumController;
+import dev.isxander.yacl3.api.ConfigCategory;
+import dev.isxander.yacl3.api.Option;
+import dev.isxander.yacl3.api.YetAnotherConfigLib;
+import dev.isxander.yacl3.api.controller.BooleanControllerBuilder;
+import dev.isxander.yacl3.api.controller.EnumControllerBuilder;
+import dev.isxander.yacl3.gui.controllers.BooleanController;
 import net.minecraft.text.Text;
 import tech.showierdata.pickaxe.Pickaxe;
 import net.minecraft.client.gui.screen.Screen;
@@ -75,7 +75,7 @@ public class ModMenuIntergrationImpl implements ModMenuApi  {
         	    .title(Text.literal("Pickaxe Mod Settings"))
             	.category(ConfigCategory.createBuilder()
                 	    .name(Text.literal("General"))
-                    	.option(Option.createBuilder(Boolean.class)
+                    	.option(Option.<Boolean>createBuilder()
                         	    .name(Text.literal("Enable Mod"))
                             	.binding(true, () -> Options.getInstance().enabled, e -> { 
 										if (Pickaxe.getInstance().isInPickaxe()) {
@@ -89,24 +89,26 @@ public class ModMenuIntergrationImpl implements ModMenuApi  {
                                 		Options.getInstance().enabled = e;
                            		})
 
-                            	.controller(BooleanController::new)
+                            	.controller(BooleanControllerBuilder::create)
                             	.build()
 	                    )
-						.option(Option.createBuilder(XPBarEnum.class)
+						.option(Option.<XPBarEnum>createBuilder()
 
 								.name(Text.literal("XP Bar Control"))
 								.binding(XPBarEnum.Radiation,() -> Options.getInstance().XPBarType, e -> {
 									Options.getInstance().XPBarType = e;
 								})
-								.controller(EnumController<XPBarEnum>::new)
+								.controller((opt) -> EnumControllerBuilder.create(opt)
+									.enumClass(XPBarEnum.class)
+								)
 								.build()
 						)
-						.option(Option.createBuilder(Boolean.class)
+						.option(Option.<Boolean>createBuilder()
 								.name(Text.literal("Automaticly send /c l"))
 								.binding(false, () -> Options.getInstance().AutoCL, e -> {
 									Options.getInstance().AutoCL = e;
 								})
-								.controller(BooleanController::new)
+								.controller(BooleanControllerBuilder::create)
 								.build()
 						)
     	                .build()
