@@ -1,6 +1,7 @@
 package tech.showierdata.pickaxe.mixin;
 
 import net.minecraft.client.gui.hud.ClientBossBar;
+import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.hud.BossBarHud;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.boss.BossBar;
@@ -40,7 +41,7 @@ public class BossBarHudMixin implements IBossBarHudMixin {
 	
 
 	@Inject(at = @At("HEAD"), method = "renderBossBar", cancellable = true)
-	private void renderBossBar(MatrixStack matrices, int x, int y, BossBar bossBar, CallbackInfo info) {
+	private void renderBossBar(DrawContext context, int x, int y, BossBar bossBar, CallbackInfo info) {
 		for (UUID unamed_bar: bossBarNames.keySet()) {
 			ClientBossBar bar = bossBars.get(unamed_bar);
 			Text name = bossBarNames.get(unamed_bar);
