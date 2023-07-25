@@ -349,7 +349,7 @@ public class Pickaxe implements ModInitializer {
 		});
 
 		CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) -> {
-
+			
 		});
 
 	}

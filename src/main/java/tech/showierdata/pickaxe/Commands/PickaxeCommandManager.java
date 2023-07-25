@@ -24,9 +24,9 @@ public class PickaxeCommandManager {
 	public void register(CommandDispatcher<FabricClientCommandSource> dispatcher) {
 		LiteralArgumentBuilder<FabricClientCommandSource> literalText = literal("pickaxe");
 		
-		/*for (CommandBase cmd: getCommands()) {
+		for (CommandBase cmd: getCommands()) {
 			literalText = cmd.commandResponse(literalText);
-		}*/
+		}
 
 		dispatcher.register(literalText);
 		
