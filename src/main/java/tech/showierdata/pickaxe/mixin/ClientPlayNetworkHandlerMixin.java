@@ -4,18 +4,17 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayNetworkHandler;
 import net.minecraft.network.packet.s2c.play.GameJoinS2CPacket;
 import net.minecraft.text.Text;
-import net.minecraft.util.math.Vec3d;
-import tech.showierdata.pickaxe.Pickaxe;
-import tech.showierdata.pickaxe.PickaxeCommand;
-import tech.showierdata.pickaxe.Constants;
-import java.util.ArrayList;
-import java.util.HashMap;
-
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import tech.showierdata.pickaxe.Constants;
+import tech.showierdata.pickaxe.Pickaxe;
+import tech.showierdata.pickaxe.PickaxeCommand;
+
+import java.util.ArrayList;
+import java.util.HashMap;
 
 
 
@@ -24,6 +23,7 @@ public abstract class ClientPlayNetworkHandlerMixin  {
 	private static final PickaxeCommand[] PickCommands = Pickaxe.getCommands();
 	private static final HashMap<String, PickaxeCommand> PickHandledCommands = Pickaxe.getHandledCommands();
 
+	@SuppressWarnings("SameParameterValue")
 	@Shadow
 	abstract void sendChatCommand(String message);
 
@@ -58,7 +58,7 @@ public abstract class ClientPlayNetworkHandlerMixin  {
 		if (chatText.startsWith("@")) {
 
 			String command = chatText.substring(1); // Removes the "@"
-			Vec3d pos = client.player.getPos().subtract(Constants.Spawn);
+			assert client.player != null;
 
 
 			if (!PickHandledCommands.containsKey(command)) {
@@ -66,21 +66,20 @@ public abstract class ClientPlayNetworkHandlerMixin  {
 			}
 
 
-			switch (command) {
-				case "help":
-					ArrayList<String> s = new ArrayList<String>();
-					for (PickaxeCommand c: PickCommands) {
-						s.add(
-							"@" + c.name + 
-							" " + 
-							String.join(" ", c.arguments) + 
-							"\n    " + 
-							c.data
-						);
-					}
-					client.player.sendMessage(Text.literal(
+			if (command.equals("help")) {
+				ArrayList<String> s = new ArrayList<>();
+				for (PickaxeCommand c : PickCommands) {
+					s.add(
+							"@" + c.name +
+									" " +
+									String.join(" ", c.arguments) +
+									"\n    " +
+									c.data
+					);
+				}
+				client.player.sendMessage(Text.literal(
 						"-- Help --\n" + String.join("\n", s)
-					));
+				));
 			}
 
 			info.cancel();

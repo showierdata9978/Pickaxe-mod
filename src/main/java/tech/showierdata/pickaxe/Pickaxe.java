@@ -1,23 +1,7 @@
 package tech.showierdata.pickaxe;
 
-import java.sql.Connection;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.UUID;
-
-import org.lwjgl.glfw.GLFW;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.mojang.brigadier.Command;
-import com.mojang.brigadier.CommandDispatcher;
-
-import dev.isxander.yacl3.gui.AbstractWidget;
 import net.fabricmc.api.ModInitializer;
-import net.fabricmc.fabric.api.client.command.v2.ClientCommandManager;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback;
-import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
 import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
@@ -37,19 +21,21 @@ import net.minecraft.client.network.ServerAddress;
 import net.minecraft.client.network.ServerInfo;
 import net.minecraft.client.option.KeyBinding;
 import net.minecraft.client.util.InputUtil;
-import net.minecraft.command.CommandRegistryAccess;
-import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
 import net.minecraft.text.TranslatableTextContent;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.Vec3d;
-
-import static net.minecraft.server.command.CommandManager.*;
-
+import org.lwjgl.glfw.GLFW;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import tech.showierdata.pickaxe.Commands.PickaxeCommandManager;
 import tech.showierdata.pickaxe.config.Options;
 import tech.showierdata.pickaxe.mixin.PlayerHudListMixin;
 import tech.showierdata.pickaxe.server.CommandHelper;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Objects;
 
 public class Pickaxe implements ModInitializer {
 	// This logger is used to write text to the console and the log file.
@@ -100,13 +86,16 @@ public class Pickaxe implements ModInitializer {
 		return ret;
 	}
 
-	public Connection conn;
 
 	public Vec3d rel_spawn = new Vec3d(0, 0, 0);
 
-	public ArrayList<UUID> removed_bossbars = new ArrayList<UUID>();
 
 	public boolean lastConnectedStatus = false;
+
+	private static boolean buttonHasText(ClickableWidget button, @SuppressWarnings("SameParameterValue") String translationKey) {
+		Text content = button.getMessage();
+		return content instanceof TranslatableTextContent tr && tr.getKey().equals(translationKey);
+	}
 
 	public boolean isInPickaxe() {
 		if (!Options.getInstance().enabled) {
@@ -120,54 +109,20 @@ public class Pickaxe implements ModInitializer {
 		if (client.isInSingleplayer()) {
 			return false;
 		}
-		if (!client.getCurrentServerEntry().address.endsWith(Constants.SERVER_IP)) {
+		if (!Objects.requireNonNull(client.getCurrentServerEntry()).address.endsWith(Constants.SERVER_IP)) {
 			return false;
 		}
 
+		assert client.player != null;
 		Vec3d pos = client.player.getPos().subtract(Constants.Spawn);
 		boolean status = pos.x > -1000 && pos.z > -1000 && pos.x < 1000 && pos.z < 1000;
 
 		if (status && !lastConnectedStatus && Options.getInstance().AutoCL) {
-			client.getNetworkHandler().sendChatCommand("c l");
+			Objects.requireNonNull(client.getNetworkHandler()).sendChatCommand("c l");
 		}
 
 		lastConnectedStatus = status;
 		return status;
-	}
-
-	@Override
-	public void onInitialize() {
-		// This code runs as soon as Minecraft is in a mod-load-ready state.
-		// However, some things (like resources) may still be uninitialized.
-		// Proceed with mild caution.
-		Pickaxe.instence = this;
-
-		LOGGER.info(String.format("Starting %s....", Constants.PICKAXE_STRING));
-
-		PickaxeCommandManager commandManager = PickaxeCommandManager.getInstance();
-		ClientCommandRegistrationCallback.EVENT.register(new ClientCommandRegistrationCallback() {
-			public void register(CommandDispatcher<FabricClientCommandSource> dispatcher,
-					CommandRegistryAccess registryAccess) {
-				commandManager.register(dispatcher);
-			}
-		});
-		register_callbacks();
-
-		// send a get request to https://api.modrinth.com/v2/project/{id|slug}/version
-
-		/*
-		 * try {
-		 * conn = DriverManager.getConnection("jdbc:sqlite:pickaxe.sqlite.db");
-		 * if (conn == null) {
-		 * throw new SQLException("DB Connection is NULL");
-		 * }
-		 * } catch (SQLException e) {
-		 * LOGGER.error("Could not connect to mod DB.", e);
-		 * }
-		 */
-
-		LOGGER.info(String.format("Finished loading %s...", Constants.PICKAXE_STRING));
-
 	}
 
 	private void drawCoords(DrawContext context, TextRenderer renderer) {
@@ -191,16 +146,34 @@ public class Pickaxe implements ModInitializer {
 			}
 	}
 
+	@Override
+	public void onInitialize() {
+		// This code runs as soon as Minecraft is in a mod-load-ready state.
+		// However, some things (like resources) may still be uninitialized.
+		// Proceed with mild caution.
+		Pickaxe.instence = this;
 
-	
+		LOGGER.info(String.format("Starting %s....", Constants.PICKAXE_STRING));
+
+		PickaxeCommandManager commandManager = PickaxeCommandManager.getInstance();
+		ClientCommandRegistrationCallback.EVENT.register((dispatcher, registryAccess) -> commandManager.register(dispatcher));
+		register_callbacks();
+
+		// send a get request to https://api.modrinth.com/v2/project/{id|slug}/version
+
+
+		LOGGER.info(String.format("Finished loading %s...", Constants.PICKAXE_STRING));
+
+	}
+
 	private void drawCoinBar(DrawContext context, TextRenderer renderer, MinecraftClient client) {
-		
+
 			try {
 				String[] footer = ((PlayerHudListMixin) client.inGameHud.getPlayerListHud()).getFooter().getString()
 						.split("\n");
 
 				// get the coins from the footer
-				String coins = '⛃' + footer[2].replaceAll("[^0-9\\.]", "");
+				String coins = '⛃' + footer[2].replaceAll("[^0-9.]", "");
 
 				// Calculate the hunger bar values
 				int xhp = client.getWindow().getScaledWidth() / 2 - 91;
@@ -218,7 +191,7 @@ public class Pickaxe implements ModInitializer {
 
 				// Draw the coins value
 				int coinsWidth = renderer.getWidth(coins);
-				context.drawTextWithShadow(renderer, coins.toString(), xhpRight - coinsWidth, ybottom, 0xFFFF00);
+				context.drawTextWithShadow(renderer, coins, xhpRight - coinsWidth, ybottom, 0xFFFF00);
 			} catch (Exception e) {
 				Pickaxe.LOGGER.error("Error while drawing custom hunger bar", e);
 
@@ -238,48 +211,45 @@ public class Pickaxe implements ModInitializer {
 				// Draw the custom hunger bar
 				String coins = '⛃' + "0 (Error)";
 				int coinsWidth = renderer.getWidth(coins);
-				context.drawTextWithShadow(renderer, coins.toString(), xhpRight - coinsWidth, ybottom, 0xFFFF00);
+				context.drawTextWithShadow(renderer, coins, xhpRight - coinsWidth, ybottom, 0xFFFF00);
 
 			}
 	}
-
-
 
 	private void register_callbacks() {
 		// @up keybind
 		KeyBinding keyBinding = KeyBindingHelper.registerKeyBinding(
 				new KeyBinding("key.pickaxe.up", InputUtil.Type.KEYSYM, GLFW.GLFW_KEY_R, "category.pickaxe.keybinds"));
 
-		ClientTickEvents.END_CLIENT_TICK.register(new ClientTickEvents.EndTick() {
-			public void onEndTick(MinecraftClient client) {
-				if (!isInPickaxe()) {
-					return;
-				}
+		ClientTickEvents.END_CLIENT_TICK.register(client -> {
+			if (!isInPickaxe()) {
+				return;
+			}
 
-				Vec3d playerPos = client.player.getPos();
-				Vec3d pos = playerPos.subtract(Constants.Spawn);
-				rel_spawn = pos;
+			assert client.player != null;
+			Vec3d playerPos = client.player.getPos();
+			rel_spawn = playerPos.subtract(Constants.Spawn);
 
-				boolean foundRadBossBar = false;
+			boolean foundRadBossBar = false;
 
-				for (ClientBossBar bar : ((IBossBarHudMixin) (Object) client.inGameHud.getBossBarHud()).getBossBars()
-						.values()) {
-					foundRadBossBar = Options.getInstance().XPBarType.detect(bar);
-				}
+			//noinspection RedundantCast
+			for (ClientBossBar bar : ((IBossBarHudMixin) (Object) client.inGameHud.getBossBarHud()).getBossBars()
+					.values()) {
+				foundRadBossBar = Options.getInstance().XPBarType.detect(bar);
+			}
 
-				if (!foundRadBossBar) {
-					client.player.experienceProgress = 0;
-				}
+			if (!foundRadBossBar) {
+				client.player.experienceProgress = 0;
+			}
 
-				//disable keybind in all areas except main mine; mesa mine; and sputtrooms
-				while (keyBinding.wasPressed()) {
-						client.player.networkHandler.sendChatMessage("@up");
-				
-				
-				}
+			//disable keybind in all areas except main mine; mesa mine; and sputtrooms
+			while (keyBinding.wasPressed()) {
+				client.player.networkHandler.sendChatMessage("@up");
+
+
 			}
 		});
-		
+
 
 		HudRenderCallback.EVENT.register((context, tickDelta) -> {
 
@@ -302,14 +272,14 @@ public class Pickaxe implements ModInitializer {
 				Pickaxe.LOGGER.error("Error while drawing coin bar", e);
 			}
 
-	
+
 		});
-	
+
 
 
 		ScreenEvents.AFTER_INIT.register(new Identifier("pickaxe", "button"), (client, screen, scaledWidth, scaledHeight) -> {
 			 	if (screen instanceof TitleScreen) {
-	
+
 					final List<ClickableWidget> buttons = Screens.getButtons(screen);
 
 					int index = 0;
@@ -317,33 +287,33 @@ public class Pickaxe implements ModInitializer {
 					for (int i = 0; i < buttons.size(); i++) {
 						ClickableWidget button = buttons.get(i);
 						if (Pickaxe.buttonHasText(button, "menu.multiplayer") && button.visible) {
-							index = i + 1;		
+							index = i + 1;
 							y = button.getY();
 						}
-						
+
 					}
-					
+
 					if (FabricLoader.getInstance().isModLoaded("recode")) {
 						y += 24;
 					}
 					if (index != -1) {
-						Screens.getButtons(screen).add(ButtonWidget.builder(Text.literal("\u26CF"), (btn) -> {
+						Screens.getButtons(screen).add(ButtonWidget.builder(Text.literal("⛏"), (btn) -> {
 							LOGGER.info("Joining Pickaxe...");
 
 							MinecraftClient mc = MinecraftClient.getInstance();
-							ServerAddress address = ServerAddress.parse(Constants.SERVER_IP);
+									ServerAddress address = ServerAddress.parse(Constants.NODE_IP);
 							ServerInfo serverInfo = new ServerInfo("Diamondfire", Constants.SERVER_IP, false);
 
 							Pickaxe.getInstance().connectButtenPressed = true; // Just incase java is odd, and connectButtonPressed = true is odd
 							ConnectScreen.connect(screen, mc, address, serverInfo, false);
-							
-							
-						})
+
+
+								})
 						.position(screen.width / 2 + 104, y)
 						.size(20, 20)
 						.build());
 					}
-   
+
 
 				}
 		});
@@ -353,9 +323,5 @@ public class Pickaxe implements ModInitializer {
 		});
 
 	}
-	private static boolean buttonHasText(ClickableWidget button, String translationKey) {
-			Text content = button.getMessage();
-			return content instanceof TranslatableTextContent  tr && tr.getKey().equals(translationKey);
-		}
 
 } 

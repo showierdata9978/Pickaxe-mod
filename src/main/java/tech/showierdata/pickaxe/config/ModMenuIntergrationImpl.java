@@ -1,24 +1,22 @@
 package tech.showierdata.pickaxe.config;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.Optional;
-
 import com.google.common.io.Files;
-import net.minecraft.client.MinecraftClient;
 import com.mojang.authlib.minecraft.client.ObjectMapper;
 import com.terraformersmc.modmenu.api.ConfigScreenFactory;
 import com.terraformersmc.modmenu.api.ModMenuApi;
-
 import dev.isxander.yacl3.api.ConfigCategory;
 import dev.isxander.yacl3.api.Option;
 import dev.isxander.yacl3.api.YetAnotherConfigLib;
 import dev.isxander.yacl3.api.controller.BooleanControllerBuilder;
 import dev.isxander.yacl3.api.controller.EnumControllerBuilder;
-import dev.isxander.yacl3.gui.controllers.BooleanController;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.text.Text;
 import tech.showierdata.pickaxe.Pickaxe;
-import net.minecraft.client.gui.screen.Screen;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.Objects;
 
 
 public class ModMenuIntergrationImpl implements ModMenuApi  {
@@ -42,6 +40,7 @@ public class ModMenuIntergrationImpl implements ModMenuApi  {
 		}
 	}
 
+	@SuppressWarnings("ResultOfMethodCallIgnored")
 	public void saveConfig() {
 		Pickaxe.LOGGER.info("Saving config");
 		
@@ -77,15 +76,14 @@ public class ModMenuIntergrationImpl implements ModMenuApi  {
                 	    .name(Text.literal("General"))
                     	.option(Option.<Boolean>createBuilder()
                         	    .name(Text.literal("Enable Mod"))
-                            	.binding(true, () -> Options.getInstance().enabled, e -> { 
-										if (Pickaxe.getInstance().isInPickaxe()) {
-											if (!e) {
-												MinecraftClient.getInstance().getNetworkHandler().sendChatCommand("c g");
-
-											} else {
-												MinecraftClient.getInstance().getNetworkHandler().sendChatCommand("c l");
-											}
+								.binding(true, () -> Options.getInstance().enabled, e -> {
+									if (Pickaxe.getInstance().isInPickaxe()) {
+										if (!e) {
+											Objects.requireNonNull(MinecraftClient.getInstance().getNetworkHandler()).sendChatCommand("c g");
+										} else {
+											Objects.requireNonNull(MinecraftClient.getInstance().getNetworkHandler()).sendChatCommand("c l");
 										}
+									}
                                 		Options.getInstance().enabled = e;
                            		})
 
@@ -95,9 +93,7 @@ public class ModMenuIntergrationImpl implements ModMenuApi  {
 						.option(Option.<XPBarEnum>createBuilder()
 
 								.name(Text.literal("XP Bar Control"))
-								.binding(XPBarEnum.Radiation,() -> Options.getInstance().XPBarType, e -> {
-									Options.getInstance().XPBarType = e;
-								})
+								.binding(XPBarEnum.Radiation, () -> Options.getInstance().XPBarType, e -> Options.getInstance().XPBarType = e)
 								.controller((opt) -> EnumControllerBuilder.create(opt)
 									.enumClass(XPBarEnum.class)
 								)
@@ -105,9 +101,13 @@ public class ModMenuIntergrationImpl implements ModMenuApi  {
 						)
 						.option(Option.<Boolean>createBuilder()
 								.name(Text.literal("Automaticly send /c l"))
-								.binding(false, () -> Options.getInstance().AutoCL, e -> {
-									Options.getInstance().AutoCL = e;
-								})
+								.binding(false, () -> Options.getInstance().AutoCL, e -> Options.getInstance().AutoCL = e)
+								.controller(BooleanControllerBuilder::create)
+								.build()
+						)
+						.option(Option.<Boolean>createBuilder()
+								.name(Text.literal("Show Lock Icon"))
+								.binding(false, () -> Options.getInstance().ShowLockIcon, e -> Options.getInstance().ShowLockIcon = e)
 								.controller(BooleanControllerBuilder::create)
 								.build()
 						)
@@ -119,8 +119,6 @@ public class ModMenuIntergrationImpl implements ModMenuApi  {
 	}
 
     public ConfigScreenFactory<?> getModConfigScreenFactory() {
-		return (screen) -> {
-			return getConfigScreen(screen);
-		};
+		return this::getConfigScreen;
     }
 }
