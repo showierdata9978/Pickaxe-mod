@@ -25,6 +25,7 @@ import net.minecraft.text.Text;
 import net.minecraft.text.TranslatableTextContent;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.Vec3d;
+import org.jetbrains.annotations.NotNull;
 import org.lwjgl.glfw.GLFW;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -92,7 +93,7 @@ public class Pickaxe implements ModInitializer {
 
 	public boolean lastConnectedStatus = false;
 
-	private static boolean buttonHasText(ClickableWidget button, @SuppressWarnings("SameParameterValue") String translationKey) {
+	private static boolean buttonHasText(@NotNull ClickableWidget button, @SuppressWarnings("SameParameterValue") String translationKey) {
 		Text content = button.getMessage();
 		return content instanceof TranslatableTextContent tr && tr.getKey().equals(translationKey);
 	}
@@ -233,7 +234,7 @@ public class Pickaxe implements ModInitializer {
 			boolean foundRadBossBar = false;
 
 			//noinspection RedundantCast
-			for (ClientBossBar bar : ((IBossBarHudMixin) (Object) client.inGameHud.getBossBarHud()).getBossBars()
+			for (ClientBossBar bar : ((IBossBarHudMixin) (Object) client.inGameHud.getBossBarHud()).pickaxe_mod$getBossBars()
 					.values()) {
 				foundRadBossBar = Options.getInstance().XPBarType.detect(bar);
 			}

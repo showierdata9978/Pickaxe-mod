@@ -6,6 +6,7 @@ import net.minecraft.network.packet.s2c.play.GameJoinS2CPacket;
 import net.minecraft.text.Text;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
@@ -23,11 +24,12 @@ public abstract class ClientPlayNetworkHandlerMixin  {
 	private static final PickaxeCommand[] PickCommands = Pickaxe.getCommands();
 	private static final HashMap<String, PickaxeCommand> PickHandledCommands = Pickaxe.getHandledCommands();
 
+    @Unique
+	private boolean joinedGame = false;
+
 	@SuppressWarnings("SameParameterValue")
 	@Shadow
-	abstract void sendChatCommand(String message);
-
-	private boolean joinedGame = false;
+    public abstract void sendChatCommand(String message);
 
 	@Inject(at = @At("TAIL"), method = "onGameJoin")
 	public void onGameJoin(GameJoinS2CPacket packet, CallbackInfo info) {

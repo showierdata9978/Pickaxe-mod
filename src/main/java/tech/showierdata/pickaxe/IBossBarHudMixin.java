@@ -1,10 +1,10 @@
 package tech.showierdata.pickaxe;
 
+import net.minecraft.client.gui.hud.ClientBossBar;
+
 import java.util.Map;
 import java.util.UUID;
 
-import net.minecraft.client.gui.hud.ClientBossBar;
-
 public interface IBossBarHudMixin {
-	public Map<UUID, ClientBossBar> getBossBars();
+	Map<UUID, ClientBossBar> pickaxe_mod$getBossBars();
 }
