@@ -13,6 +13,7 @@ import tech.showierdata.pickaxe.Pickaxe;
 import tech.showierdata.pickaxe.server.Plot;
 import tech.showierdata.pickaxe.server.Regexs;
 
+@SuppressWarnings("UnusedMixin")
 @Mixin(MessageHandler.class)
 public class MessageHandlerMixin {
 	@Inject(at = @At("HEAD"), method = "onChatMessage", cancellable = true)

@@ -21,7 +21,10 @@ import java.util.HashMap;
 
 @Mixin(ClientPlayNetworkHandler.class)
 public abstract class ClientPlayNetworkHandlerMixin  {
+
+	@Unique
 	private static final PickaxeCommand[] PickCommands = Pickaxe.getCommands();
+	@Unique
 	private static final HashMap<String, PickaxeCommand> PickHandledCommands = Pickaxe.getHandledCommands();
 
     @Unique
