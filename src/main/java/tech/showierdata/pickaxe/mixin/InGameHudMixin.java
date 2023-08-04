@@ -1,11 +1,17 @@
 package tech.showierdata.pickaxe.mixin;
 
 
+import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.hud.InGameHud;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.item.ItemStack;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.ModifyArg;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import tech.showierdata.pickaxe.Pickaxe;
+
 
 @Mixin(InGameHud.class)
 public abstract class InGameHudMixin {
@@ -51,7 +57,11 @@ public abstract class InGameHudMixin {
     private int modifyHungerQuad6(int value) {
         if (Pickaxe.getInstance().isInPickaxe()) return 0; // set the width to 0
         return value;
-    }   
+    }
+    @Inject(at=@At("TAIL"), method = "renderHotbarItem")
+    private void renderHotbarIcons(DrawContext context, int x, int y, float f, PlayerEntity player, ItemStack stack, int seed, CallbackInfo ci) {
+        Pickaxe.getInstance().renderHotbarIcons(context, x, y, stack);
+    }
 
 
 }
