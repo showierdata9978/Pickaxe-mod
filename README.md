@@ -10,6 +10,9 @@ A mod for the game ⛏️ on Minecraft Diamondfire.
 - Coins covering the hunger bar
 - XP Bar can be any supported Boss bar
 - @up keybind (bound to R by default)
+- Sage Icon
+- Overclock icon
+- itemlock Icon
 
 ## Configuration
 - XP bar 
@@ -18,6 +21,8 @@ A mod for the game ⛏️ on Minecraft Diamondfire.
    - Radiation (Default)
 - Mod enabler/disabler (Enabled by default)
 - Auto /c l (Disabled by default)
+- Icon x, y (0, 0) by default
+- Enable/disable icons (off by default)
 - Keybinds
    - @up (default R)
 
