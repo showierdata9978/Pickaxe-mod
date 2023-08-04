@@ -1,14 +1,16 @@
 {
-	"required": true,
-	"package": "tech.showierdata.pickaxe.mixin",
-	"compatibilityLevel": "JAVA_17",
-	"mixins": [
-		"ClientPlayNetworkHandlerMixin",
-		"PlayerHudListMixin",
-		"BossBarHudMixin",
-		"InGameHudMixin"
-	],
-	"injectors": {
-		"defaultRequire": 1
-	}
+  "required": true,
+  "package": "tech.showierdata.pickaxe.mixin",
+  "compatibilityLevel": "JAVA_17",
+  "mixins": [
+    "BossBarHudMixin",
+    "ClientPlayNetworkHandlerMixin",
+    "InGameHudMixin",
+    "PlayerHudListMixin",
+    "HandledScreenMixin"
+
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
 }

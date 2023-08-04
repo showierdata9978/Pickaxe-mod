@@ -28,5 +28,11 @@ public class Constants {
         return node + "." + SERVER_IP;
     }
 
+    public static  final  int NATRAL_OVERCLOCK_VALUE = 3;
+    public static final int MANUAL_OVERCLOCK_VALUE = 4;
+    public static final int NATRAL_SAGE_VALUE = 1;
+    public static  final int MANUAL_SAGE_VALUE = 2;
+
+
 
 }

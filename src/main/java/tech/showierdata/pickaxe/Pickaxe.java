@@ -21,6 +21,7 @@ import net.minecraft.client.network.ServerAddress;
 import net.minecraft.client.network.ServerInfo;
 import net.minecraft.client.option.KeyBinding;
 import net.minecraft.client.util.InputUtil;
+import net.minecraft.item.ItemStack;
 import net.minecraft.text.Text;
 import net.minecraft.text.TranslatableTextContent;
 import net.minecraft.util.Identifier;
@@ -86,7 +87,6 @@ public class Pickaxe implements ModInitializer {
 		}
 		return ret;
 	}
-
 
 	public Vec3d rel_spawn = new Vec3d(0, 0, 0);
 
@@ -325,4 +325,39 @@ public class Pickaxe implements ModInitializer {
 
 	}
 
+	public void renderHotbarIcons(DrawContext context, int x, int y, ItemStack stack) {
+		MinecraftClient client = MinecraftClient.getInstance();
+		Options options = Options.getInstance();
+		if (this.isInPickaxe()) {
+			// Calculate the position for the text icon above the item icon
+			int textOffsetX = x + options.itemconfig.x;
+			int textOffsetY = y - options.itemconfig.y; // You can adjust the offset based on your preference
+
+			// Draw the item quantity as text above the item icon
+			String text = "";
+			int color = 0xFFFFFF;
+			if (stack.getOrCreateNbt().contains("PublicBukkitValues") && Options.getInstance().ShowLockIcon) {
+
+                switch ((int) Objects.requireNonNull(stack.getSubNbt("PublicBukkitValues")).getDouble("hypercube:recomb")) {
+                    case Constants.MANUAL_OVERCLOCK_VALUE, Constants.NATRAL_OVERCLOCK_VALUE -> {
+                        text = "⛨";
+                        color = 0xFF0000;
+                    }
+                    case Constants.MANUAL_SAGE_VALUE, Constants.NATRAL_SAGE_VALUE -> {
+                        text = "⯫"; // Hermit star
+                        color = 0x000000;
+                    }
+                }
+
+
+				if (Objects.requireNonNull(stack.getSubNbt("PublicBukkitValues")).getFloat("hypercube:nodrop") == 1.0d) {
+					text = "⚓";
+					color = 0x808080;
+				}
+			}
+			context.drawText(client.textRenderer, text, textOffsetX, textOffsetY, color, false); // You can set the color (0xFFFFFF for white)
+
+		}
+
+	}
 } 
