@@ -35,6 +35,7 @@ import tech.showierdata.pickaxe.config.Options;
 import tech.showierdata.pickaxe.mixin.PlayerHudListMixin;
 import tech.showierdata.pickaxe.server.CommandHelper;
 
+import java.awt.*;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
@@ -333,29 +334,43 @@ public class Pickaxe implements ModInitializer {
 			int textOffsetX = x + options.itemconfig.x;
 			int textOffsetY = y - options.itemconfig.y; // You can adjust the offset based on your preference
 
+			boolean debug = false;
+			//noinspection ConstantValue
+			if (debug) {
+				try {
+					Pickaxe.LOGGER.info(String.format("%s: %s", Objects.requireNonNull(stack.getSubNbt("PublicBukkitValues")).getString("hypercube:id"), stack.getOrCreateNbt().asString()));
+				} catch (Exception ignored) {
+
+				}
+			}
 			// Draw the item quantity as text above the item icon
 			String text = "";
-			int color = 0xFFFFFF;
+			Color color = new Color(0xFFFFFF);
 			if (stack.getOrCreateNbt().contains("PublicBukkitValues") && Options.getInstance().ShowLockIcon) {
+
+				if (Objects.requireNonNull(stack.getSubNbt("PublicBukkitValues")).getDouble("hypercube:sanded") == 1.0d) {
+					text = "▒";
+					color = options.itemconfig.sanded_color;
+				}
 
                 switch ((int) Objects.requireNonNull(stack.getSubNbt("PublicBukkitValues")).getDouble("hypercube:recomb")) {
                     case Constants.MANUAL_OVERCLOCK_VALUE, Constants.NATRAL_OVERCLOCK_VALUE -> {
                         text = "⛨";
-                        color = 0xFF0000;
+						color = options.itemconfig.overclocker_color;
                     }
                     case Constants.MANUAL_SAGE_VALUE, Constants.NATRAL_SAGE_VALUE -> {
                         text = "⯫"; // Hermit star
-                        color = 0x000000;
+						color = options.itemconfig.sage_color;
                     }
                 }
 
 
 				if (Objects.requireNonNull(stack.getSubNbt("PublicBukkitValues")).getFloat("hypercube:nodrop") == 1.0d) {
 					text = "⚓";
-					color = 0x808080;
+					color = new Color(0x808080);
 				}
 			}
-			context.drawText(client.textRenderer, text, textOffsetX, textOffsetY, color, false); // You can set the color (0xFFFFFF for white)
+			context.drawText(client.textRenderer, text, textOffsetX, textOffsetY, color.getRGB(), false); // You can set the color (0xFFFFFF for white)
 
 		}
 

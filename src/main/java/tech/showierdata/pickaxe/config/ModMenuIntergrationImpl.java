@@ -1,6 +1,7 @@
 package tech.showierdata.pickaxe.config;
 
 import com.google.common.io.Files;
+import com.google.gson.GsonBuilder;
 import com.mojang.authlib.minecraft.client.ObjectMapper;
 import com.terraformersmc.modmenu.api.ConfigScreenFactory;
 import com.terraformersmc.modmenu.api.ModMenuApi;
@@ -8,6 +9,7 @@ import dev.isxander.yacl3.api.ConfigCategory;
 import dev.isxander.yacl3.api.Option;
 import dev.isxander.yacl3.api.YetAnotherConfigLib;
 import dev.isxander.yacl3.api.controller.BooleanControllerBuilder;
+import dev.isxander.yacl3.api.controller.ColorControllerBuilder;
 import dev.isxander.yacl3.api.controller.EnumControllerBuilder;
 import dev.isxander.yacl3.api.controller.IntegerFieldControllerBuilder;
 import net.minecraft.client.MinecraftClient;
@@ -16,6 +18,7 @@ import net.minecraft.text.Text;
 import org.jetbrains.annotations.NotNull;
 import tech.showierdata.pickaxe.Pickaxe;
 
+import java.awt.*;
 import java.io.File;
 import java.io.IOException;
 import java.util.Objects;
@@ -23,6 +26,10 @@ import java.util.Objects;
 
 public class ModMenuIntergrationImpl implements ModMenuApi  {
 	public static final String configPath = "config/pickaxe.properties.json";
+	ObjectMapper mapper = new ObjectMapper(new GsonBuilder()
+			.registerTypeAdapter(Color.class, new ColorTypeAdapter())
+			.create()
+	);
 	public ModMenuIntergrationImpl() {
 		File file = new File(configPath);
 
@@ -30,7 +37,6 @@ public class ModMenuIntergrationImpl implements ModMenuApi  {
 			try {
 				String data = new String(Files.toByteArray(file));
 
-				ObjectMapper mapper = ObjectMapper.create();
 
 				Options options = mapper.readValue(data, Options.class);
 
@@ -55,8 +61,6 @@ public class ModMenuIntergrationImpl implements ModMenuApi  {
 				file.createNewFile();
 			}
 
-			
-			ObjectMapper mapper = ObjectMapper.create();
 
 			String data = mapper.writeValueAsString(Options.getInstance());
 
@@ -124,6 +128,24 @@ public class ModMenuIntergrationImpl implements ModMenuApi  {
 						.name(Text.literal("y"))
 						.binding(0, () -> Options.getInstance().itemconfig.y, e -> Options.getInstance().itemconfig.y = e)
 						.controller(IntegerFieldControllerBuilder::create)
+						.build()
+				)
+				.option(Option.<Color>createBuilder()
+						.name(Text.literal("Overclocker Icon color"))
+						.binding(new Color(0xFF0000), () -> Options.getInstance().itemconfig.overclocker_color, e -> Options.getInstance().itemconfig.overclocker_color = e)
+						.controller(ColorControllerBuilder::create)
+						.build()
+				)
+				.option(Option.<Color>createBuilder()
+						.name(Text.literal("Sage Icon Color"))
+						.binding(new Color(0x000000), () -> Options.getInstance().itemconfig.sage_color, e -> Options.getInstance().itemconfig.sage_color = e)
+						.controller(ColorControllerBuilder::create)
+						.build()
+				)
+				.option(Option.<Color>createBuilder()
+						.name(Text.literal("Sanded Icon Color"))
+						.binding(new Color(0xD9C664), () -> Options.getInstance().itemconfig.sanded_color, e -> Options.getInstance().itemconfig.sanded_color = e)
+						.controller(ColorControllerBuilder::create)
 						.build()
 				)
 				.build()

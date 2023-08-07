@@ -13,6 +13,7 @@ public class Constants {
 	public static final int PLOT_ID = 50644;
     public static final String SERVER_IP = "mcdiamondfire.com";
 
+
     public static final int nodes = 7;
     public static final String NODE_IP = getNode(PLOT_ID);
 
