@@ -148,6 +148,11 @@ public class Pickaxe implements ModInitializer {
 			}
 	}
 
+	@SuppressWarnings("unused")
+	public String chatPrefix = "§6[§rPickaxe§6]§r ";
+
+
+
 	@Override
 	public void onInitialize() {
 		// This code runs as soon as Minecraft is in a mod-load-ready state.
@@ -166,6 +171,7 @@ public class Pickaxe implements ModInitializer {
 
 		LOGGER.info(String.format("Finished loading %s...", Constants.PICKAXE_STRING));
 
+		Options.loadConfig();
 	}
 
 	private void drawCoinBar(DrawContext context, TextRenderer renderer, MinecraftClient client) {
@@ -211,7 +217,7 @@ public class Pickaxe implements ModInitializer {
 				int xhpRight = xhp + hpWidth;
 
 				// Draw the custom hunger bar
-				String coins = '⛃' + "0 (Error)";
+				String coins = "⛃0 (Error)";
 				int coinsWidth = renderer.getWidth(coins);
 				context.drawTextWithShadow(renderer, coins, xhpRight - coinsWidth, ybottom, 0xFFFF00);
 
@@ -243,6 +249,7 @@ public class Pickaxe implements ModInitializer {
 			if (!foundRadBossBar) {
 				client.player.experienceProgress = 0;
 			}
+
 
 			//disable keybind in all areas except main mine; mesa mine; and sputtrooms
 			while (keyBinding.wasPressed()) {
@@ -276,7 +283,6 @@ public class Pickaxe implements ModInitializer {
 
 
 		});
-
 
 
 		ScreenEvents.AFTER_INIT.register(new Identifier("pickaxe", "button"), (client, screen, scaledWidth, scaledHeight) -> {

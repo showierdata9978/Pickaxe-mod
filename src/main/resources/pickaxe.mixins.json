@@ -5,12 +5,14 @@
   "mixins": [
     "BossBarHudMixin",
     "ClientPlayNetworkHandlerMixin",
+    "HandledScreenMixin",
     "InGameHudMixin",
-    "PlayerHudListMixin",
-    "HandledScreenMixin"
-
+    "PlayerHudListMixin"
   ],
   "injectors": {
     "defaultRequire": 1
-  }
+  },
+  "client": [
+    "PlayerHudClassMixin"
+  ]
 }

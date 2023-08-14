@@ -30,30 +30,15 @@ public class ModMenuIntergrationImpl implements ModMenuApi  {
 			.registerTypeAdapter(Color.class, new ColorTypeAdapter())
 			.create()
 	);
+
 	public ModMenuIntergrationImpl() {
-		File file = new File(configPath);
-
-		if (file.exists()) {
-			try {
-				String data = new String(Files.toByteArray(file));
-
-
-				Options options = mapper.readValue(data, Options.class);
-
-				Options.setInstance(options);
-
-			} catch (IOException e) {
-				Pickaxe.LOGGER.error("Failed to load config", e);
-			}
-		}
 	}
 
 	@SuppressWarnings("ResultOfMethodCallIgnored")
 	public void saveConfig() {
 		Pickaxe.LOGGER.info("Saving config");
-		
-	
-		
+
+
 		try {
 			File file = new File(configPath);
 			if (!file.exists()) {
@@ -64,13 +49,13 @@ public class ModMenuIntergrationImpl implements ModMenuApi  {
 
 			String data = mapper.writeValueAsString(Options.getInstance());
 
-			
+
 			Files.write(data.getBytes(), file);
 		} catch (IOException e) {
 			Pickaxe.LOGGER.error("Failed to save config", e);
 		}
-		
-		
+
+
 	}
 
 	public void createGeneralScreen(YetAnotherConfigLib.@NotNull Builder builder) {
@@ -109,6 +94,12 @@ public class ModMenuIntergrationImpl implements ModMenuApi  {
 				.option(Option.<Boolean>createBuilder()
 						.name(Text.literal("Show Lock Icon"))
 						.binding(false, () -> Options.getInstance().ShowLockIcon, e -> Options.getInstance().ShowLockIcon = e)
+						.controller(BooleanControllerBuilder::create)
+						.build()
+				)
+				.option(Option.<Boolean>createBuilder()
+						.name(Text.literal("Hide Players not on pickaxe in tab"))
+						.binding(true, () -> Options.getInstance().hideNonPickaxePlayers, e -> Options.getInstance().hideNonPickaxePlayers = e)
 						.controller(BooleanControllerBuilder::create)
 						.build()
 				)
