@@ -143,7 +143,7 @@ public class ModMenuIntergrationImpl implements ModMenuApi  {
 		);
 	}
 
-	public void createCCTConfig(YetAnotherConfigLib.@NutNull Builder builder) {
+	public void createCCTConfig(YetAnotherConfigLib.@NotNull Builder builder) {
 		builder.category(ConfigCategory.createBuilder()
 			.name(Text.literal("Chest Cooldown Timer"))
 			.option(Option.<Boolean>createBuilder()
@@ -160,12 +160,12 @@ public class ModMenuIntergrationImpl implements ModMenuApi  {
 			)
 			.option(Option.<Boolean>createBuilder()
 				.name(Text.literal("Function Outside Pickaxe"))
-				.binding(false, () -> Option.getInstance().cctconfig.enabledOutsidePickaxe, e -> Options.getInstance().cctconfig.enabledOutsidePickaxe = e)
+				.binding(false, () -> Options.getInstance().cctconfig.enabledOutsidePickaxe, e -> Options.getInstance().cctconfig.enabledOutsidePickaxe = e)
 				.controller(BooleanControllerBuilder::create)
 				.build()
 			)
-			.build();
-		)
+			.build()
+		);
 	}
 
 	public Screen getConfigScreen(Screen parent) {
