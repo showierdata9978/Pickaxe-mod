@@ -143,12 +143,38 @@ public class ModMenuIntergrationImpl implements ModMenuApi  {
 		);
 	}
 
+	public void createCCTConfig(YetAnotherConfigLib.@NutNull Builder builder) {
+		builder.category(ConfigCategory.createBuilder()
+			.name(Text.literal("Chest Cooldown Timer"))
+			.option(Option.<Boolean>createBuilder()
+				.name(Text.literal("Enabled"))
+				.binding(true, () -> Options.getInstance().cctconfig.enabled, e -> Options.getInstance().cctconfig.enabled = e)
+				.controller(BooleanControllerBuilder::create)
+				.build()
+			)
+			.option(Option.<Boolean>createBuilder()
+				.name(Text.literal("Play Sound When Chest Ready"))
+				.binding(false, () -> Options.getInstance().cctconfig.soundEnabled, e -> Options.getInstance().cctconfig.soundEnabled = e)
+				.controller(BooleanControllerBuilder::create)
+				.build()
+			)
+			.option(Option.<Boolean>createBuilder()
+				.name(Text.literal("Function Outside Pickaxe"))
+				.binding(false, () -> Option.getInstance().cctconfig.enabledOutsidePickaxe, e -> Options.getInstance().cctconfig.enabledOutsidePickaxe = e)
+				.controller(BooleanControllerBuilder::create)
+				.build()
+			)
+			.build();
+		)
+	}
+
 	public Screen getConfigScreen(Screen parent) {
     	YetAnotherConfigLib.Builder builder =  YetAnotherConfigLib.createBuilder()
         	    .title(Text.literal("Pickaxe Mod Settings"));
 
 		createGeneralScreen(builder);
 		createItemConfig(builder);
+		createCCTConfig(builder);
 
 		return builder.save(this::saveConfig)
 				.build()

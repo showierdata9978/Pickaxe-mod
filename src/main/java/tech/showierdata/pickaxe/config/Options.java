@@ -20,11 +20,13 @@ public class Options {
 			.create()
 	);
 	public ItemConfig itemconfig;
+	public CCTConfig cctconfig;
 	public boolean hideNonPickaxePlayers = true;
 	static Options INSTANCE;
 
 	public Options() { // all default vals
 		this.itemconfig = new ItemConfig();
+		this.cctconfig = new CCTConfig();
 		INSTANCE = this;
 	}
 
