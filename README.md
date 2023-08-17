@@ -13,6 +13,7 @@ A mod for the game ⛏️ on Minecraft Diamondfire.
 - Sage Icon
 - Overclock icon
 - itemlock Icon
+- Chest Cooldown Timer (CCT)
 
 ## Configuration
 - XP bar 
@@ -25,6 +26,7 @@ A mod for the game ⛏️ on Minecraft Diamondfire.
 - Enable/disable icons (off by default)
 - Keybinds
    - @up (default R)
+- Various CCT Options
 
 ## Acknowledgements
 
@@ -50,3 +52,5 @@ Install pickaxe-mod via [modrinth](https://modrinth.com/mod/pickaxe-mod)
 - [@ShowierData9978](https://www.github.com/ShowierData9978)
 - [@ArrowAced](https://www.github.com/ArrowAced)
     - @UP
+- [@HappyNBoy](https://www.github.com/HappyNBoy) (RotemRotem ingame)
+    - Chest Cooldown Timer
