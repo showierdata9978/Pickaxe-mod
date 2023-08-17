@@ -22,8 +22,12 @@ import net.minecraft.client.network.ServerInfo;
 import net.minecraft.client.option.KeyBinding;
 import net.minecraft.client.util.InputUtil;
 import net.minecraft.item.ItemStack;
+import net.minecraft.text.Style;
 import net.minecraft.text.Text;
+import net.minecraft.text.Texts;
 import net.minecraft.text.TranslatableTextContent;
+import net.minecraft.util.Colors;
+import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.Vec3d;
 import org.jetbrains.annotations.NotNull;
@@ -31,11 +35,13 @@ import org.lwjgl.glfw.GLFW;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import tech.showierdata.pickaxe.Commands.PickaxeCommandManager;
+import tech.showierdata.pickaxe.config.CCTLocation;
 import tech.showierdata.pickaxe.config.Options;
 import tech.showierdata.pickaxe.mixin.PlayerHudListMixin;
 import tech.showierdata.pickaxe.server.CommandHelper;
 
 import java.awt.*;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
@@ -49,6 +55,7 @@ public class Pickaxe implements ModInitializer {
 	public static Pickaxe instence;
 
 	public boolean connectButtenPressed = false;
+	public int chestTimer = 0;
 	public static final CommandHelper commandHelper = CommandHelper.getInstance();
 
 	public static Pickaxe getInstance() {
@@ -224,6 +231,30 @@ public class Pickaxe implements ModInitializer {
 			}
 	}
 
+	private void drawCCT(DrawContext context, TextRenderer renderer) {
+            List<Text> texts = new ArrayList<>();
+            texts.add(Text.literal("Pickaxe Chest:").setStyle(Style.EMPTY.withColor(0xD27D2D)));
+            StringBuilder sb = new StringBuilder();
+		MinecraftClient client = MinecraftClient.getInstance();
+            if (chestTimer == 0) sb.append("READY");
+            else {
+                if (chestTimer >= 60) {
+                    sb.append(chestTimer / 60);
+                    sb.append("m ");
+                }
+                sb.append(chestTimer % 60);
+                sb.append("s");
+            }
+            texts.add(Text.literal(sb.toString()).setStyle(Style.EMPTY.withColor(chestTimer == 0 ? Formatting.GREEN : Formatting.WHITE)));
+		int y = 5;
+
+		if (Options.getInstance().cctconfig.location == CCTLocation.BOTTEMRIGHT) {
+			y = client.getWindow().getScaledHeight() - client.textRenderer.fontHeight - 5;
+		}
+
+		context.drawTextWithShadow(renderer, Texts.join(texts, Text.literal(" ")), 5, y, Colors.WHITE);
+	}
+
 	private void register_callbacks() {
 		// @up keybind
 		KeyBinding keyBinding = KeyBindingHelper.registerKeyBinding(
@@ -262,12 +293,19 @@ public class Pickaxe implements ModInitializer {
 
 		HudRenderCallback.EVENT.register((context, tickDelta) -> {
 
-			if (!isInPickaxe()) {
-				return;
-			}
-
 			MinecraftClient client = MinecraftClient.getInstance();
 			TextRenderer renderer = client.textRenderer; // ignore
+			
+			boolean inPickaxe = isInPickaxe();
+			Options options = Options.getInstance();
+
+			if (options.cctconfig.enabled && (inPickaxe || options.cctconfig.enabledOutsidePickaxe)) try {
+				drawCCT(context, renderer);
+			} catch (Exception e) {
+				Pickaxe.LOGGER.error("Error while drawing CCT", e);
+			}
+
+			if (!inPickaxe) return;
 
 			try {
 				drawCoords(context, renderer);
@@ -280,8 +318,6 @@ public class Pickaxe implements ModInitializer {
 			} catch (Exception e) {
 				Pickaxe.LOGGER.error("Error while drawing coin bar", e);
 			}
-
-
 		});
 
 
