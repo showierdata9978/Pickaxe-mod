@@ -249,6 +249,67 @@ public class Pickaxe implements ModInitializer {
 			}
 	}
 
+	private void drawForge(DrawContext context, TextRenderer renderer, MinecraftClient client) {
+
+			try {
+				String[] footer = ((PlayerHudListMixin) client.inGameHud.getPlayerListHud()).getFooter().getString()
+						.split("\n");
+
+				// get the forge from the footer
+				String forge = footer[4].replaceAll("(Forge:|remaining)?\s*", "");
+
+				// Calculate the hunger bar values
+				int xhp = client.getWindow().getScaledWidth() / 2 - 91;
+				int ybottom = client.getWindow().getScaledHeight() - 39;
+
+				// Define the height of the hunger bar
+
+				// Calculate the health and hunger bar widths
+				int hpWidth = Math.round(20 / 2.0f * 18.0f);
+
+				// Calculate the x-coordinate of the right edge of the health bar
+				int xhpRight = xhp + hpWidth;
+
+				// Draw the custom hunger bar
+
+				// Draw the forge value
+				int forgeWidth = renderer.getWidth(forge);
+				int forgeColor = 0x000000;
+				switch (forge) {
+					case "Ready":
+						forgeColor = 0x00FF00;
+						break;
+					case "FINISHED":
+						forgeColor = 0x11DD11;
+						break;
+					default:
+						forgeColor = 0xaaaaaa;
+						break;
+				}
+				context.drawTextWithShadow(renderer, forge, xhpRight - forgeWidth, ybottom - 11, forgeColor);
+			} catch (Exception e) {
+				Pickaxe.LOGGER.error("Error while drawing custom hunger bar (Forge)", e);
+
+				// Draw a empty hunger bar with 0 coins
+				// Calculate the hunger bar values
+				int xhp = client.getWindow().getScaledWidth() / 2 - 91;
+				int ybottom = client.getWindow().getScaledHeight() - 39;
+
+				// Define the height of the hunger bar
+
+				// Calculate the health and hunger bar widths
+				int hpWidth = Math.round(20 / 2.0f * 18.0f);
+
+				// Calculate the x-coordinate of the right edge of the health bar
+				int xhpRight = xhp + hpWidth;
+
+				// Draw the custom hunger bar
+				String forge = "Forge: ERROR";
+				int forgeWidth = renderer.getWidth(forge);
+				context.drawTextWithShadow(renderer, forge, xhpRight - forgeWidth, ybottom - 11, 0xFF0000);
+			}
+	}
+
 	private void drawCCT(DrawContext context, TextRenderer renderer) {
             List<Text> texts = new ArrayList<>();
             texts.add(Text.literal("Pickaxe Chest:").setStyle(Style.EMPTY.withColor(0xD27D2D)));
@@ -335,6 +396,12 @@ public class Pickaxe implements ModInitializer {
 				drawCoinBar(context, renderer, client);
 			} catch (Exception e) {
 				Pickaxe.LOGGER.error("Error while drawing coin bar", e);
+			}
+
+			try {
+				drawForge(context, renderer, client);
+			} catch (Exception e) {
+				Pickaxe.LOGGER.error("Error while drawing forge UI", e);
 			}
 		});
 
