@@ -189,6 +189,7 @@ public class Pickaxe implements ModInitializer {
 
 				// get the coins from the footer
 				String coins = '⛃' + footer[2].replaceAll("[^0-9.]", "");
+				String forge = "Forge: " + footer[4].replaceAll("[^0-9.]", "");
 
 				// Calculate the hunger bar values
 				int xhp = client.getWindow().getScaledWidth() / 2 - 91;
@@ -206,7 +207,9 @@ public class Pickaxe implements ModInitializer {
 
 				// Draw the coins value
 				int coinsWidth = renderer.getWidth(coins);
+				int forgeWidth = renderer.getWidth(forge);
 				context.drawTextWithShadow(renderer, coins, xhpRight - coinsWidth, ybottom, 0xFFFF00);
+				context.drawTextWithShadow(renderer, forge, xhpRight - forgeWidth, ybottom + 10, 0xFFFF00);
 			} catch (Exception e) {
 				Pickaxe.LOGGER.error("Error while drawing custom hunger bar", e);
 
@@ -225,8 +228,11 @@ public class Pickaxe implements ModInitializer {
 
 				// Draw the custom hunger bar
 				String coins = "⛃0 (Error)";
+				String forge = "Forge: ERROR";
 				int coinsWidth = renderer.getWidth(coins);
+				int forgeWidth = renderer.getWidth(forge);
 				context.drawTextWithShadow(renderer, coins, xhpRight - coinsWidth, ybottom, 0xFFFF00);
+				context.drawTextWithShadow(renderer, forge, xhpRight - forgeWidth, ybottom + 10, 0xFFFF00);
 
 			}
 	}
