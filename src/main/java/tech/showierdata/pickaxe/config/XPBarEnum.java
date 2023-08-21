@@ -50,7 +50,7 @@ public enum XPBarEnum {
 		return detected;
 	}
 
-	public boolean detectClient(ClientBossBar bar) {
+	public boolean detect(ClientBossBar bar) {
 		boolean detected = false;
 		String[] split = bar.getName().getString().split(" ");
 

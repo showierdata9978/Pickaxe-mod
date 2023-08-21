@@ -1,6 +1,7 @@
 package tech.showierdata.pickaxe.mixin;
 
 import com.google.common.collect.Maps;
+import com.google.common.collect.Iterators;
 
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
@@ -85,18 +86,9 @@ public class BossBarHudMixin implements IBossBarHudMixin {
 	
 	}
 
-	@ModifyVariable(method = "render(Lnet/minecraft/client/gui/DrawContext;)V", ordinal = 0, at = @At(value = "INVOKE", target = "java/util/Iterator.next ()Ljava/lang/Object;", ordinal = 0))
+	@ModifyVariable(method = "render(Lnet/minecraft/client/gui/DrawContext;)V", ordinal = 0, at = @At(value = "STORE", ordinal = 0))
 	public Iterator<ClientBossBar> bossBarFix(Iterator<ClientBossBar> var4) {
 		if (!Pickaxe.getInstance().isInPickaxe()) { return var4; }
-
-		Options options = Options.getInstance();
-		Pickaxe.LOGGER.info("The XP Bar is: " + options.XPBarType);
-		Pickaxe.LOGGER.info("The variable is: " + var4.next());
-		//if (Options.getInstance().XPBarType.detect((BossBar)var4)) {
-		//	MinecraftClient client = MinecraftClient.getInstance();
-		//	assert client.player != null;
-		//	//var4.next();
-		//}
-		return var4;
+		return Iterators.filter(var4, (clientBossBar) -> { return !(Options.getInstance().XPBarType.detect(clientBossBar)); });
 	}
 }
