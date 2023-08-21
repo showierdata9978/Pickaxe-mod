@@ -1,6 +1,7 @@
 package tech.showierdata.pickaxe.mixin;
 
 import com.google.common.collect.Maps;
+
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.hud.BossBarHud;
@@ -13,6 +14,7 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import tech.showierdata.pickaxe.IBossBarHudMixin;
 import tech.showierdata.pickaxe.Pickaxe;
@@ -20,6 +22,7 @@ import tech.showierdata.pickaxe.config.Options;
 
 import java.util.Map;
 import java.util.UUID;
+import java.util.Iterator;
 @Mixin(BossBarHud.class) //
 public class BossBarHudMixin implements IBossBarHudMixin {
 
@@ -80,5 +83,20 @@ public class BossBarHudMixin implements IBossBarHudMixin {
 
 		} 
 	
+	}
+
+	@ModifyVariable(method = "render(Lnet/minecraft/client/gui/DrawContext;)V", ordinal = 0, at = @At(value = "INVOKE", target = "java/util/Iterator.next ()Ljava/lang/Object;", ordinal = 0))
+	public Iterator<ClientBossBar> bossBarFix(Iterator<ClientBossBar> var4) {
+		if (!Pickaxe.getInstance().isInPickaxe()) { return var4; }
+
+		Options options = Options.getInstance();
+		Pickaxe.LOGGER.info("The XP Bar is: " + options.XPBarType);
+		Pickaxe.LOGGER.info("The variable is: " + var4.next());
+		//if (Options.getInstance().XPBarType.detect((BossBar)var4)) {
+		//	MinecraftClient client = MinecraftClient.getInstance();
+		//	assert client.player != null;
+		//	//var4.next();
+		//}
+		return var4;
 	}
 }
