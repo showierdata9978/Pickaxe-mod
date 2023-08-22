@@ -19,7 +19,6 @@ public abstract class InGameHudMixin {
 
     @ModifyConstant(method = "renderStatusBars(Lnet/minecraft/client/gui/DrawContext;)V", constant = @Constant(intValue = 0, ordinal = 2, log = true))
     private int modifyHungerLoop(int zero) {
-        //Pickaxe.LOGGER.info("Const caught:" + zero);
         if (Pickaxe.getInstance().isInPickaxe()) return 9;
         return zero;
     }
