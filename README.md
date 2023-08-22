@@ -14,6 +14,7 @@ A mod for the game ⛏️ on Minecraft Diamondfire.
 - Overclock icon
 - itemlock Icon
 - Chest Cooldown Timer (CCT)
+- Forge Timer 
 
 ## Configuration
 - XP bar 
@@ -54,3 +55,5 @@ Install pickaxe-mod via [modrinth](https://modrinth.com/mod/pickaxe-mod)
     - @UP
 - [@HappyNBoy](https://www.github.com/HappyNBoy) (RotemRotem ingame)
     - Chest Cooldown Timer
+- [@MystWraith](https://github.com/MystWraith) (LonesomeInk ingame)
+   - Forge Timer
