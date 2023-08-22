@@ -237,10 +237,11 @@ public class Pickaxe implements ModInitializer {
 						.split("\n");
 
 				// get the forge from the footer
-				String forge = footer[4].replaceAll("(Forge:|remaining)? *", "");
-				if (footer[4].contains("2x")) {
-					forge = footer[5].replaceAll("(Forge:|remaining)? *", "");
+				int forgePos = 4;
+				while (!footer[forgePos].contains("Forge")) {
+					forgePos++;
 				}
+				String forge = footer[forgePos].replaceAll("(Forge:|remaining)? *", "");
 
 				// Calculate the hunger bar values
 				int xhp = client.getWindow().getScaledWidth() / 2 - 91;
