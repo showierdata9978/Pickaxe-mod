@@ -268,6 +268,10 @@ public class Pickaxe implements ModInitializer {
 						break;
 				}
 				context.drawTextWithShadow(renderer, forge, xhpRight - forgeWidth, ybottom - 11, forgeColor);
+
+				String tag = "Forge: ";
+				int tagWidth = renderer.getWidth(tag);
+				context.drawTextWithShadow(renderer, tag, xhpRight - forgeWidth - tagWidth, ybottom - 11, 0xFFFFFF);
 			} catch (Exception e) {
 				Pickaxe.LOGGER.error("Error while drawing custom hunger bar (Forge)", e);
 
