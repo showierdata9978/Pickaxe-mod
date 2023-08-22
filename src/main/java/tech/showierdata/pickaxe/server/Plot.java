@@ -1,10 +1,10 @@
 package tech.showierdata.pickaxe.server;
 
 public class Plot {
-	public String server;
-	public String owner;
-	public String name;
-	public String id;
+	public final String server;
+	public final String owner;
+	public final String name;
+	public final String id;
 
 	public Plot(String owner, String name, String server, String id) {
 		this.owner = owner;

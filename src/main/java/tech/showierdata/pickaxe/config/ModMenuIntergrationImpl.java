@@ -5,9 +5,7 @@ import com.google.gson.GsonBuilder;
 import com.mojang.authlib.minecraft.client.ObjectMapper;
 import com.terraformersmc.modmenu.api.ConfigScreenFactory;
 import com.terraformersmc.modmenu.api.ModMenuApi;
-import dev.isxander.yacl3.api.ConfigCategory;
-import dev.isxander.yacl3.api.Option;
-import dev.isxander.yacl3.api.YetAnotherConfigLib;
+import dev.isxander.yacl3.api.*;
 import dev.isxander.yacl3.api.controller.BooleanControllerBuilder;
 import dev.isxander.yacl3.api.controller.ColorControllerBuilder;
 import dev.isxander.yacl3.api.controller.EnumControllerBuilder;
@@ -21,12 +19,13 @@ import tech.showierdata.pickaxe.Pickaxe;
 import java.awt.*;
 import java.io.File;
 import java.io.IOException;
+import java.util.List;
 import java.util.Objects;
 
 
 public class ModMenuIntergrationImpl implements ModMenuApi  {
 	public static final String configPath = "config/pickaxe.properties.json";
-	ObjectMapper mapper = new ObjectMapper(new GsonBuilder()
+	final ObjectMapper mapper = new ObjectMapper(new GsonBuilder()
 			.registerTypeAdapter(Color.class, new ColorTypeAdapter())
 			.create()
 	);
@@ -103,8 +102,11 @@ public class ModMenuIntergrationImpl implements ModMenuApi  {
 						.controller(BooleanControllerBuilder::create)
 						.build()
 				)
+
 				.build()
 		);
+
+
 	}
 	public void createItemConfig(YetAnotherConfigLib.@NotNull Builder builder) {
 		builder.category(ConfigCategory.createBuilder()
@@ -173,8 +175,33 @@ public class ModMenuIntergrationImpl implements ModMenuApi  {
 
 						.build()
 				)
+
 			.build()
 		);
+	}
+
+	private void createPOIConfig(YetAnotherConfigLib.@NotNull Builder builder) {
+		builder.category(ConfigCategory.createBuilder()
+				.name(Text.literal("POI Config"))
+				.option(Option.<Boolean>createBuilder()
+						.name(Text.literal("Enable POI Hiding"))
+						.binding(true, () -> Options.getInstance().enable_poi, e -> Options.getInstance().enable_poi = e)
+						.controller(BooleanControllerBuilder::create)
+						.build()
+				)
+				.option(ListOption.<POI>createBuilder()
+						.name(Text.literal("POIS"))
+						.description(OptionDescription.of(Text.literal("POI Config")))
+						.binding(List.of(POI.values()), () -> List.of(Options.getInstance().pois), e -> Options.getInstance().pois = e.toArray(new POI[0]))
+						.controller(opt -> {
+							return EnumControllerBuilder.create(opt)
+									.enumClass(POI.class);
+
+						})
+						.initial(POI.SPAWN)
+						.build()
+				)
+				.build());
 	}
 
 	public Screen getConfigScreen(Screen parent) {
@@ -184,6 +211,7 @@ public class ModMenuIntergrationImpl implements ModMenuApi  {
 		createGeneralScreen(builder);
 		createItemConfig(builder);
 		createCCTConfig(builder);
+		createPOIConfig(builder);
 
 		return builder.save(this::saveConfig)
 				.build()

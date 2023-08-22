@@ -1,8 +1,7 @@
 package tech.showierdata.pickaxe.mixin;
 
-import com.google.common.collect.Maps;
 import com.google.common.collect.Iterators;
-
+import com.google.common.collect.Maps;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.hud.BossBarHud;
@@ -21,15 +20,15 @@ import tech.showierdata.pickaxe.IBossBarHudMixin;
 import tech.showierdata.pickaxe.Pickaxe;
 import tech.showierdata.pickaxe.config.Options;
 
+import java.util.Iterator;
 import java.util.Map;
 import java.util.UUID;
-import java.util.Iterator;
 @Mixin(BossBarHud.class) //
 public class BossBarHudMixin implements IBossBarHudMixin {
 
 
     @Unique
-	public Map<UUID, Text> bossBarNames = Maps.newLinkedHashMap();
+	public final Map<UUID, Text> bossBarNames = Maps.newLinkedHashMap();
     @Final
 	@Shadow
     Map<UUID, ClientBossBar> bossBars;
@@ -89,6 +88,6 @@ public class BossBarHudMixin implements IBossBarHudMixin {
 	@ModifyVariable(method = "render(Lnet/minecraft/client/gui/DrawContext;)V", ordinal = 0, at = @At(value = "STORE", ordinal = 0))
 	public Iterator<ClientBossBar> bossBarFix(Iterator<ClientBossBar> var4) {
 		if (!Pickaxe.getInstance().isInPickaxe()) { return var4; }
-		return Iterators.filter(var4, (clientBossBar) -> { return !(Options.getInstance().XPBarType.detect(clientBossBar)); });
+		return Iterators.filter(var4, (clientBossBar) -> !(Options.getInstance().XPBarType.detect(clientBossBar)));
 	}
 }

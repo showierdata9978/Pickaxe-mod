@@ -55,7 +55,7 @@ public class Pickaxe implements ModInitializer {
 	public static Pickaxe instence;
 
 	public boolean connectButtenPressed = false;
-	public int chestTimer = 0;
+	public double chestTimer = 0;
 	public static final CommandHelper commandHelper = CommandHelper.getInstance();
 
 	public static Pickaxe getInstance() {
@@ -237,7 +237,7 @@ public class Pickaxe implements ModInitializer {
 						.split("\n");
 
 				// get the forge from the footer
-				String forge = footer[4].replaceAll("(Forge:|remaining)?\s*", "");
+				String forge = footer[4].replaceAll("(Forge:|remaining)? *", "");
 
 				// Calculate the hunger bar values
 				int xhp = client.getWindow().getScaledWidth() / 2 - 91;
@@ -256,6 +256,7 @@ public class Pickaxe implements ModInitializer {
 				// Draw the forge value
 				int forgeWidth = renderer.getWidth(forge);
 				int forgeColor = 0x000000;
+				//noinspection EnhancedSwitchMigration
 				switch (forge) {
 					case "Ready":
 						forgeColor = 0x00FF00;

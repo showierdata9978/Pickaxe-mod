@@ -10,8 +10,8 @@ import java.util.ArrayList;
 import java.util.Date;
 
 public class BackupHandler {
-	MinecraftClient client;
-	ArrayList<Inventory> stack = new ArrayList<>();
+	final MinecraftClient client;
+	final ArrayList<Inventory> stack = new ArrayList<>();
 
 	public BackupHandler(MinecraftClient client) {
 		this.client = client;

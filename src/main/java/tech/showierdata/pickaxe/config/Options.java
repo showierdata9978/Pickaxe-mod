@@ -19,10 +19,13 @@ public class Options {
 			.registerTypeAdapter(Color.class, new ColorTypeAdapter())
 			.create()
 	);
-	public ItemConfig itemconfig;
-	public CCTConfig cctconfig;
+	public final ItemConfig itemconfig;
+	public final CCTConfig cctconfig;
 	public boolean hideNonPickaxePlayers = true;
+	public POI[] pois = POI.values();
+	public boolean enable_poi = true;
 	static Options INSTANCE;
+
 
 	public Options() { // all default vals
 		this.itemconfig = new ItemConfig();

@@ -1,6 +1,8 @@
 package tech.showierdata.pickaxe.server;
+
 import net.minecraft.client.MinecraftClient;
-import tech.showierdata.pickaxe.Pickaxe;
+
+import java.util.Objects;
 
 public class CommandHelper {
 	String lastSentCommand = "";
@@ -8,8 +10,6 @@ public class CommandHelper {
 
 	private CommandHelper() {
 		//call sendLocate() every 5 seconds
-		final Pickaxe[] p = {Pickaxe.getInstance()}; // declare p as final array
-		MinecraftClient mc = MinecraftClient.getInstance();
 
 		/* 
 		new Thread(() -> {
@@ -65,7 +65,7 @@ public class CommandHelper {
 		
 		// to the client
 
-		MinecraftClient.getInstance().player.networkHandler.sendChatCommand("locate");
+		Objects.requireNonNull(MinecraftClient.getInstance().player).networkHandler.sendChatCommand("locate");
 
 	}
 
