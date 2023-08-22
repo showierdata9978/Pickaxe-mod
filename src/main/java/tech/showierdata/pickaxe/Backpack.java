@@ -6,11 +6,11 @@ import net.minecraft.item.SkullItem;
 
 @SuppressWarnings("unused")
 public class Backpack {
-	int id;
-	int i;
+	final int id;
+	final int i;
 
-	Inventory inventory;
-	ItemStack head;
+	final Inventory inventory;
+	final ItemStack head;
 
 	public Backpack(int id, int i, Inventory inventory, ItemStack head) {
 		this.id = id;
