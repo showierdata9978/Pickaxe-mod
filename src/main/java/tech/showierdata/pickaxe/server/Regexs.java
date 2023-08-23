@@ -22,9 +22,14 @@ public class Regexs {
 		return Pattern.compile("Server: (Node \\d)");
 	}
 
+	public static Pattern getLuckyChestPattern() {
+		return Pattern.compile("\\w* found a \\w* in a chest");
+	}
+
 	public static final Pattern PlotOwnerPattern = getPlotOwnerPattern();
 	public static final Pattern PlotNamePattern = getPlotNamePattern();
 	public static final Pattern ServerPattern = getServerPattern();
+	public static final Pattern LuckyChestPattern = getLuckyChestPattern();
 
 	public static boolean isLocateCommand(String message) {
 		Matcher plotOwnerMatcher = PlotOwnerPattern.matcher(message);
