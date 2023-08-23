@@ -10,6 +10,8 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Constant;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.ModifyConstant;
+import org.spongepowered.asm.mixin.injection.ModifyVariable;
+import org.spongepowered.asm.mixin.injection.Slice;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import tech.showierdata.pickaxe.Pickaxe;
 
@@ -17,12 +19,23 @@ import tech.showierdata.pickaxe.Pickaxe;
 @Mixin(InGameHud.class)
 public abstract class InGameHudMixin {
 
-    @ModifyConstant(method = "renderStatusBars(Lnet/minecraft/client/gui/DrawContext;)V", constant = @Constant(intValue = 0, ordinal = 2))
+    @ModifyConstant(method = "renderStatusBars", constant = @Constant(intValue = 0, ordinal = 2))
     private int modifyHungerLoop(int zero) {
         if (Pickaxe.getInstance().isInPickaxe()) return 10;
         return zero;
     }
 
+    @ModifyVariable(method = "renderMountHealth", slice = @Slice(from = @At(value = "INVOKE", target = "net/minecraft/client/gui/hud/InGameHud.getHeartCount (Lnet/minecraft/entity/LivingEntity;)I")), at = @At(value = "STORE", ordinal = 0), ordinal = 0)
+    private int modifyMountBar(int o) {
+        if (Pickaxe.getInstance().isInPickaxe()) return 0;
+        return o;
+    }
+
+    @ModifyVariable(method = "renderStatusBars", slice = @Slice(from = @At(value = "INVOKE", target = "net/minecraft/entity/player/PlayerEntity.getMaxAir ()I")), at = @At(value = "STORE", ordinal = 0), ordinal = 14, print = true)
+    private int modifyAirBar(int y) {
+        if (Pickaxe.getInstance().isInPickaxe()) return 0;
+        return y;
+    }
 
     @Inject(at=@At("TAIL"), method = "renderHotbarItem")
     private void renderHotbarIcons(DrawContext context, int x, int y, float f, PlayerEntity player, ItemStack stack, int seed, CallbackInfo ci) {
