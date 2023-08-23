@@ -31,7 +31,7 @@ public abstract class InGameHudMixin {
         return o;
     }
 
-    @ModifyVariable(method = "renderStatusBars", slice = @Slice(from = @At(value = "INVOKE", target = "net/minecraft/entity/player/PlayerEntity.getMaxAir ()I")), at = @At(value = "STORE", ordinal = 0), ordinal = 14, print = true)
+    @ModifyVariable(method = "renderStatusBars", slice = @Slice(from = @At(value = "INVOKE", target = "net/minecraft/entity/player/PlayerEntity.getMaxAir ()I")), at = @At(value = "STORE", ordinal = 0), ordinal = 14)
     private int modifyAirBar(int y) {
         if (Pickaxe.getInstance().isInPickaxe()) return 0;
         return y;
