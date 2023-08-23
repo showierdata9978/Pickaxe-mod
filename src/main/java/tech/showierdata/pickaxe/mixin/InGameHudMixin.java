@@ -19,22 +19,28 @@ import tech.showierdata.pickaxe.Pickaxe;
 @Mixin(InGameHud.class)
 public abstract class InGameHudMixin {
 
-    @ModifyConstant(method = "renderStatusBars", constant = @Constant(intValue = 0, ordinal = 2))
+    @ModifyVariable(method = "renderStatusBars", at = @At(value = "STORE", ordinal = 0))
+    PlayerEntity modifPlayerEntity(PlayerEntity playerEntity) {
+        if (Pickaxe.getInstance().isInPickaxe()) return null;
+        return playerEntity;
+    }
+
+    /*@ModifyConstant(method = "renderStatusBars", constant = @Constant(intValue = 0, ordinal = 2))
     private int modifyHungerLoop(int zero) {
         if (Pickaxe.getInstance().isInPickaxe()) return 10;
         return zero;
-    }
-
-    @ModifyVariable(method = "renderMountHealth", slice = @Slice(from = @At(value = "INVOKE", target = "net/minecraft/client/gui/hud/InGameHud.getHeartCount (Lnet/minecraft/entity/LivingEntity;)I")), at = @At(value = "STORE", ordinal = 0), ordinal = 0)
-    private int modifyMountBar(int o) {
-        if (Pickaxe.getInstance().isInPickaxe()) return 0;
-        return o;
     }
 
     @ModifyVariable(method = "renderStatusBars", slice = @Slice(from = @At(value = "INVOKE", target = "net/minecraft/entity/player/PlayerEntity.getMaxAir ()I")), at = @At(value = "STORE", ordinal = 0), ordinal = 14)
     private int modifyAirBar(int y) {
         if (Pickaxe.getInstance().isInPickaxe()) return 0;
         return y;
+    }*/
+
+    @ModifyVariable(method = "renderMountHealth", slice = @Slice(from = @At(value = "INVOKE", target = "net/minecraft/client/gui/hud/InGameHud.getHeartCount (Lnet/minecraft/entity/LivingEntity;)I")), at = @At(value = "STORE", ordinal = 0), ordinal = 0)
+    private int modifyMountBar(int o) {
+        if (Pickaxe.getInstance().isInPickaxe()) return 0;
+        return o;
     }
 
     @Inject(at=@At("TAIL"), method = "renderHotbarItem")
