@@ -47,8 +47,6 @@ public class Regexs {
 	public static boolean isPlotAd(String message) {
 		Matcher plotAdMatcher = PlotAdPattern.matcher(message);
 
-		Pickaxe.LOGGER.info("This is the matches: ", plotAdMatcher.results());
-
 		return plotAdMatcher.find();
 	}
 
@@ -63,8 +61,6 @@ public class Regexs {
 			String name = plotNameMatcher.group(1);
 			String id = plotNameMatcher.group(2);
 			String server = serverMatcher.group(1);
-
-			Pickaxe.LOGGER.info(String.format("I found this: %s, %s, %s, %s", owner, name, id, server));
 
 			return new Plot(owner, name, server, id);
 		}
