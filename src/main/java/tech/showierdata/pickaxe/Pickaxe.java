@@ -4,6 +4,8 @@ import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
+import net.fabricmc.fabric.api.client.message.v1.ClientReceiveMessageEvents;
+import net.fabricmc.fabric.api.client.message.v1.ClientSendMessageEvents;
 import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
 import net.fabricmc.fabric.api.client.screen.v1.ScreenEvents;
 import net.fabricmc.fabric.api.client.screen.v1.Screens;
@@ -39,6 +41,9 @@ import tech.showierdata.pickaxe.config.CCTLocation;
 import tech.showierdata.pickaxe.config.Options;
 import tech.showierdata.pickaxe.mixin.PlayerHudListMixin;
 import tech.showierdata.pickaxe.server.CommandHelper;
+import tech.showierdata.pickaxe.server.Plot;
+import tech.showierdata.pickaxe.server.Ad;
+import tech.showierdata.pickaxe.server.Regexs;
 
 import java.awt.*;
 import java.util.ArrayList;
@@ -437,8 +442,19 @@ public class Pickaxe implements ModInitializer {
 				}
 		});
 
-		CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) -> {
-
+		ClientReceiveMessageEvents.ALLOW_GAME.register((message, overlay) -> {
+			Plot plot = Regexs.getLocateDetails(message.getString());
+			if (plot != null) {
+				Pickaxe.LOGGER.info("Located plot: " + plot.name);
+				return true;
+			}
+			Ad ad = Regexs.getAdDetails(message.getString());
+			if (ad != null) {
+				if (!Pickaxe.getInstance().isInPickaxe()) return true;
+				Pickaxe.LOGGER.info(String.format("An ad was skipped!: %s by %s, %s", ad.plot.name, ad.plot.owner, ad.desc));
+				return false;
+			}
+			return true;
 		});
 
 	}

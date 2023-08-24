@@ -102,6 +102,12 @@ public class ModMenuIntergrationImpl implements ModMenuApi  {
 						.controller(BooleanControllerBuilder::create)
 						.build()
 				)
+				.option(Option.<Boolean>createBuilder()
+						.name(Text.literal("Hide Plot Ads"))
+						.binding(true, () -> Options.getInstance().hide_plot_ads, e -> Options.getInstance().hide_plot_ads = e)
+						.controller(BooleanControllerBuilder::create)
+						.build()
+				)
 
 				.build()
 		);
