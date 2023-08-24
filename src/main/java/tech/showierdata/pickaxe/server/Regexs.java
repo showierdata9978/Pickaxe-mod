@@ -1,21 +1,26 @@
 package tech.showierdata.pickaxe.server;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import tech.showierdata.pickaxe.Pickaxe;
+
 import java.util.Arrays;
 
 
 public class Regexs {
 	
 	public static Pattern getPlotOwnerPattern() {
-		String donorRanksRegex = String.join("|", Arrays.stream(DonorRank.values())
+		/*String donorRanksRegex = String.join("|", Arrays.stream(DonorRank.values())
             .map(DonorRank::toString)
             .toArray(String[]::new));
 		
-		return Pattern.compile(String.format("Owner: (?:\\[%s\\])(\\w+)", donorRanksRegex));
+		return Pattern.compile(String.format("Owner: (?:\\[%s\\])(\\w+)", donorRanksRegex));*/
+		return Pattern.compile("Owner: (?:\\[.*\\])?(\\w+)");
 	}
 
 	public static Pattern getPlotNamePattern() {
-		return Pattern.compile("You are currently (?:playing on|at): \n\n (\\w+) (:?\\[(\\d+)\\])");
+		//return Pattern.compile("You are currently (?:playing on|at): \\n\\n. (.*) (\\[(\\d+)\\])");
+		return Pattern.compile(". (.*) (\\[(\\d+)\\])");
 	}
 
 	public static Pattern getServerPattern() {
@@ -23,7 +28,7 @@ public class Regexs {
 	}
 
 	public static Pattern getPlotAdPattern() {
-		return Pattern.compile("\\s*\\[ Plot Ad \\]\\s*");
+		return Pattern.compile("\\[ Plot Ad \\]");
 	}
 
 	public static final Pattern PlotOwnerPattern = getPlotOwnerPattern();
@@ -42,6 +47,8 @@ public class Regexs {
 	public static boolean isPlotAd(String message) {
 		Matcher plotAdMatcher = PlotAdPattern.matcher(message);
 
+		Pickaxe.LOGGER.info("This is the matches: ", plotAdMatcher.results());
+
 		return plotAdMatcher.find();
 	}
 
@@ -56,6 +63,8 @@ public class Regexs {
 			String name = plotNameMatcher.group(1);
 			String id = plotNameMatcher.group(2);
 			String server = serverMatcher.group(1);
+
+			Pickaxe.LOGGER.info(String.format("I found this: %s, %s, %s, %s", owner, name, id, server));
 
 			return new Plot(owner, name, server, id);
 		}

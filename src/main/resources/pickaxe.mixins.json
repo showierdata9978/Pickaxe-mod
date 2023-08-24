@@ -14,7 +14,6 @@
   },
   "client": [
     "OtherClientPlayerEntityMixin",
-    "PlayerHudClassMixin",
-    "MessageHandlerMixin"
+    "PlayerHudClassMixin"
   ]
 }
