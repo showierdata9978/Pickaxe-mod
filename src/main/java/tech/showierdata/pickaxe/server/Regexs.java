@@ -23,7 +23,7 @@ public class Regexs {
 	}
 
 	public static Pattern getLuckyChestPattern() {
-		return Pattern.compile("\\w* found a \\w* in a chest");
+		return Pattern.compile("\\[.\\] \\w* has found a \\w* in a chest!!!");
 	}
 
 	public static final Pattern PlotOwnerPattern = getPlotOwnerPattern();
@@ -37,6 +37,12 @@ public class Regexs {
 		Matcher serverMatcher = ServerPattern.matcher(message);
 
 		return plotOwnerMatcher.find() && plotNameMatcher.find() && serverMatcher.find();
+	}
+
+	public static boolean isLuckyChest(String message) {
+		Matcher luckyChestMatcher = LuckyChestPattern.matcher(message);
+
+		return luckyChestMatcher.find();
 	}
 
 

@@ -102,6 +102,12 @@ public class ModMenuIntergrationImpl implements ModMenuApi  {
 						.controller(BooleanControllerBuilder::create)
 						.build()
 				)
+				.option(Option.<Boolean>createBuilder()
+						.name(Text.literal("Enable Auto GG"))
+						.binding(false, () -> Options.getInstance().auto_gg, e -> Options.getInstance().auto_gg = e)
+						.controller(BooleanControllerBuilder::create)
+						.build()
+				)
 
 				.build()
 		);

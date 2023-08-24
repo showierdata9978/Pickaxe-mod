@@ -1,6 +1,8 @@
 package tech.showierdata.pickaxe.mixin;
 
 import com.mojang.authlib.GameProfile;
+
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.message.MessageHandler;
 import net.minecraft.network.message.MessageType;
 import net.minecraft.network.message.SignedMessage;
@@ -10,6 +12,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import tech.showierdata.pickaxe.Pickaxe;
+import tech.showierdata.pickaxe.config.Options;
 import tech.showierdata.pickaxe.server.Plot;
 import tech.showierdata.pickaxe.server.Regexs;
 
@@ -27,6 +30,11 @@ public class MessageHandlerMixin {
 				Pickaxe.LOGGER.info("Located plot: " + plot.name);
 				info.cancel(); // stop the message from being shown to the player.
 			}
+		}
+		if (Regexs.isLuckyChest(message.getContent().getString())) {
+			if (!Options.getInstance().auto_gg) return;
+			MinecraftClient client = MinecraftClient.getInstance();
+			client.player.networkHandler.sendChatMessage("gg");
 		}
 	}
 }
