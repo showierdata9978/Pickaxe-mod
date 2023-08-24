@@ -24,6 +24,7 @@ public class Options {
 	public boolean hideNonPickaxePlayers = true;
 	public POI[] pois = POI.values();
 	public boolean enable_poi = true;
+	public boolean hide_plot_ads = true;
 	static Options INSTANCE;
 
 

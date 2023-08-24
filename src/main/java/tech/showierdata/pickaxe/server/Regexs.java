@@ -22,9 +22,14 @@ public class Regexs {
 		return Pattern.compile("Server: (Node \\d)");
 	}
 
+	public static Pattern getPlotAdPattern() {
+		return Pattern.compile("\\s*\\[ Plot Ad \\]\\s*");
+	}
+
 	public static final Pattern PlotOwnerPattern = getPlotOwnerPattern();
 	public static final Pattern PlotNamePattern = getPlotNamePattern();
 	public static final Pattern ServerPattern = getServerPattern();
+	public static final Pattern PlotAdPattern = getPlotAdPattern();
 
 	public static boolean isLocateCommand(String message) {
 		Matcher plotOwnerMatcher = PlotOwnerPattern.matcher(message);
@@ -32,6 +37,12 @@ public class Regexs {
 		Matcher serverMatcher = ServerPattern.matcher(message);
 
 		return plotOwnerMatcher.find() && plotNameMatcher.find() && serverMatcher.find();
+	}
+
+	public static boolean isPlotAd(String message) {
+		Matcher plotAdMatcher = PlotAdPattern.matcher(message);
+
+		return plotAdMatcher.find();
 	}
 
 

@@ -10,6 +10,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import tech.showierdata.pickaxe.Pickaxe;
+import tech.showierdata.pickaxe.config.Options;
 import tech.showierdata.pickaxe.server.Plot;
 import tech.showierdata.pickaxe.server.Regexs;
 
@@ -27,6 +28,12 @@ public class MessageHandlerMixin {
 				Pickaxe.LOGGER.info("Located plot: " + plot.name);
 				info.cancel(); // stop the message from being shown to the player.
 			}
+		}
+		if (Regexs.isPlotAd(message.getContent().getString())) {
+			if (!Options.getInstance().hide_plot_ads) return;
+			if (!Pickaxe.getInstance().isInPickaxe()) return;
+
+			info.cancel(); // hide the ad :)
 		}
 	}
 }
