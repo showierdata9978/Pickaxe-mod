@@ -42,6 +42,7 @@ import tech.showierdata.pickaxe.config.Options;
 import tech.showierdata.pickaxe.mixin.PlayerHudListMixin;
 import tech.showierdata.pickaxe.server.CommandHelper;
 import tech.showierdata.pickaxe.server.Plot;
+import tech.showierdata.pickaxe.server.Ad;
 import tech.showierdata.pickaxe.server.Regexs;
 
 import java.awt.*;
@@ -442,16 +443,15 @@ public class Pickaxe implements ModInitializer {
 		});
 
 		ClientReceiveMessageEvents.ALLOW_GAME.register((message, overlay) -> {
-			Plot plot = Regexs.getPlotDetails(message.getString());
+			Plot plot = Regexs.getLocateDetails(message.getString());
 			if (plot != null) {
 				Pickaxe.LOGGER.info("Located plot: " + plot.name);
 				return true;
 			}
-			if (Regexs.isPlotAd(message.getString())) {
+			Ad ad = Regexs.getAdDetails(message.getString());
+			if (ad != null) {
 				if (!Pickaxe.getInstance().isInPickaxe()) return true;
-
-				Pickaxe.LOGGER.info("An ad was skipped!:", message);
-
+				Pickaxe.LOGGER.info(String.format("An ad was skipped!: %s by %s, %s", ad.plot.name, ad.plot.owner, ad.desc));
 				return false;
 			}
 			return true;

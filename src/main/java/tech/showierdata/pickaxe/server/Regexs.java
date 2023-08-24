@@ -28,7 +28,7 @@ public class Regexs {
 	}
 
 	public static Pattern getPlotAdPattern() {
-		return Pattern.compile("\\[ Plot Ad \\]");
+		return Pattern.compile("\\[ Plot Ad \\].*\\n(.*) by ([\\w\\d]*): (.*)");
 	}
 
 	public static final Pattern PlotOwnerPattern = getPlotOwnerPattern();
@@ -50,8 +50,26 @@ public class Regexs {
 		return plotAdMatcher.find();
 	}
 
+	public static Ad getAdDetails(String message) {
+		/*
+		 * Returns a the plot in the ad.
+		 * server and id are null.
+		 */
+		Matcher plotAdMatcher = PlotAdPattern.matcher(message);
 
-	public static Plot getPlotDetails(String message) {
+		if (plotAdMatcher.find()) {
+			String name = plotAdMatcher.group(1);
+			String owner = plotAdMatcher.group(2);
+			String desc = plotAdMatcher.group(3);
+
+			return new Ad(new Plot(owner, name, null, null), desc);
+		}
+
+		return null;
+	}
+
+
+	public static Plot getLocateDetails(String message) {
 		Matcher plotOwnerMatcher = PlotOwnerPattern.matcher(message);
 		Matcher plotNameMatcher = PlotNamePattern.matcher(message);
 		Matcher serverMatcher = ServerPattern.matcher(message);

@@ -22,7 +22,7 @@ public class MessageHandlerMixin {
 		if (Regexs.isLocateCommand(message.getContent().getString())) {
 			//if (Pickaxe.commandHelper.getLastSentCommand().equals("locate")) {
 			Pickaxe.commandHelper.clearLastSentCommand();
-			Plot plot = Regexs.getPlotDetails(message.getContent().getString());
+			Plot plot = Regexs.getLocateDetails(message.getContent().getString());
 			/*pickaxe.currentPlot = plot;*/
 			assert plot != null;
 			Pickaxe.LOGGER.info("Located plot: " + plot.name);
