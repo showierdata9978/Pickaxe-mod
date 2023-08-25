@@ -5,11 +5,9 @@ import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallba
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
 import net.fabricmc.fabric.api.client.message.v1.ClientReceiveMessageEvents;
-import net.fabricmc.fabric.api.client.message.v1.ClientSendMessageEvents;
 import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
 import net.fabricmc.fabric.api.client.screen.v1.ScreenEvents;
 import net.fabricmc.fabric.api.client.screen.v1.Screens;
-import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
@@ -40,9 +38,9 @@ import tech.showierdata.pickaxe.Commands.PickaxeCommandManager;
 import tech.showierdata.pickaxe.config.CCTLocation;
 import tech.showierdata.pickaxe.config.Options;
 import tech.showierdata.pickaxe.mixin.PlayerHudListMixin;
+import tech.showierdata.pickaxe.server.Ad;
 import tech.showierdata.pickaxe.server.CommandHelper;
 import tech.showierdata.pickaxe.server.Plot;
-import tech.showierdata.pickaxe.server.Ad;
 import tech.showierdata.pickaxe.server.Regexs;
 
 import java.awt.*;
@@ -51,6 +49,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
 
+@SuppressWarnings("ReassignedVariable")
 public class Pickaxe implements ModInitializer {
 	// This logger is used to write text to the console and the log file.
 	// It is considered best practice to use your mod id as the logger's name.
@@ -310,16 +309,16 @@ public class Pickaxe implements ModInitializer {
             texts.add(Text.literal("Pickaxe Chest:").setStyle(Style.EMPTY.withColor(0xD27D2D)));
             StringBuilder sb = new StringBuilder();
 		MinecraftClient client = MinecraftClient.getInstance();
-            if (chestTimer == 0) sb.append("READY");
+		if ((int) chestTimer == 0) sb.append("READY");
             else {
                 if (chestTimer >= 60) {
-                    sb.append(chestTimer / 60);
+					sb.append((int) (chestTimer / 60));
                     sb.append("m ");
                 }
-                sb.append(chestTimer % 60);
+			sb.append((int) (chestTimer % 60));
                 sb.append("s");
             }
-            texts.add(Text.literal(sb.toString()).setStyle(Style.EMPTY.withColor(chestTimer == 0 ? Formatting.GREEN : Formatting.WHITE)));
+		texts.add(Text.literal(sb.toString()).setStyle(Style.EMPTY.withColor(((int) chestTimer == 0) ? Formatting.GREEN : Formatting.WHITE)));
 		int y = 5;
 
 		if (Options.getInstance().cctconfig.location == CCTLocation.BOTTEMRIGHT) {
