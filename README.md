@@ -14,7 +14,8 @@ A mod for the game ⛏️ on Minecraft Diamondfire.
 - Overclock icon
 - itemlock Icon
 - Chest Cooldown Timer (CCT)
-- Forge Timer 
+- Forge Timer
+- Plot ad hider
 
 ## Configuration
 - XP bar 
@@ -28,6 +29,7 @@ A mod for the game ⛏️ on Minecraft Diamondfire.
 - Keybinds
    - @up (default R)
 - Various CCT Options
+- Enable / desable plot ads
 
 ## Acknowledgements
 
@@ -57,3 +59,4 @@ Install pickaxe-mod via [modrinth](https://modrinth.com/mod/pickaxe-mod)
     - Chest Cooldown Timer
 - [@MystWraith](https://github.com/MystWraith) (LonesomeInk ingame)
    - Forge Timer
+   - Plot ad hider
