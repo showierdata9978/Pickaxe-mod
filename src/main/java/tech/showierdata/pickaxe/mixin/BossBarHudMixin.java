@@ -12,6 +12,7 @@ import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import tech.showierdata.pickaxe.IBossBarHudMixin;
 import tech.showierdata.pickaxe.Pickaxe;
 import tech.showierdata.pickaxe.config.Options;
+import tech.showierdata.pickaxe.config.XPBarEnum;
 
 import java.util.Iterator;
 import java.util.Map;
@@ -39,6 +40,8 @@ public class BossBarHudMixin implements IBossBarHudMixin {
 				assert client.player != null;
 				client.player.experienceProgress = clientBossBar.getPercent();
 
+				if (Options.getInstance().XPBarType == XPBarEnum.Depth)
+					client.player.experienceLevel = (int)Pickaxe.getInstance().rel_spawn.y;
 			}
 			return val;
 		});
