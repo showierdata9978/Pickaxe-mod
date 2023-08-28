@@ -108,6 +108,12 @@ public class ModMenuIntergrationImpl implements ModMenuApi  {
 						.controller(BooleanControllerBuilder::create)
 						.build()
 				)
+				.option(Option.<Boolean>createBuilder()
+						.name(Text.literal("Message Stacking"))
+						.binding(true, () -> Options.getInstance().hideSpam, e -> Options.getInstance().hideSpam = e)
+						.controller(BooleanControllerBuilder::create)
+						.build()
+				)
 
 				.build()
 		);
