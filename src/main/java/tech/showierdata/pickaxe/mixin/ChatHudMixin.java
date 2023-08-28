@@ -12,6 +12,7 @@ import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import net.minecraft.text.Text;
+import tech.showierdata.pickaxe.config.Options;
 import tech.showierdata.pickaxe.hook.ChatHudHook;
 import tech.showierdata.pickaxe.hook.IChatHudHook;
 import net.minecraft.client.gui.hud.ChatHud;
@@ -42,6 +43,8 @@ public abstract class ChatHudMixin implements IChatHudHook {
         argsOnly = true
     )
     private Text stackMessages(Text message, Text parameterMessage, MessageSignatureData data, int ticks, MessageIndicator indicator, boolean refreshing) {
+        if (!Options.getInstance().messageStack) return message;
+        
         /*
          * If we are refreshing, it's probably our own doing
          * Don't want to cause and infinite loop :O

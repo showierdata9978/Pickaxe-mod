@@ -25,7 +25,7 @@ public class Options {
 	public POI[] pois = POI.values();
 	public boolean enable_poi = true;
 	public boolean hide_plot_ads = true;
-	public boolean hideSpam = true;
+	public boolean messageStack = true;
 	static Options INSTANCE;
 
 
