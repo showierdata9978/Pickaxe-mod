@@ -26,7 +26,10 @@ public class ChatHudHook {
         this.prevMessage = withoutTimestamps;
 
         // Return if this is new message.
-        if (!withoutTimestamps.equals(prevMessage)) return message;
+        if (!withoutTimestamps.equals(prevMessage)) {
+            this.count = 1;
+            return message;
+        }
 
         removeMessage(message);
 

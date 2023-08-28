@@ -38,7 +38,7 @@ public class Regexs {
 	}
 
 	public static Pattern getMessageStackPattern() {
-		return Pattern.compile("\\[x(\\d+)\\]$");
+		return Pattern.compile("§8\\[§bx\\d+§8\\]$");
 	}
 
 	public static final Pattern PlotOwnerPattern = getPlotOwnerPattern();
@@ -111,25 +111,6 @@ public class Regexs {
 
         String string = literalTextContent.string();
         String withoutTimestamps = string.replaceAll(".?\\d{1,2}:\\d{2}(:\\d{2})*.?", "");
-        if (withoutTimestamps.equals(string)) {
-            return text;
-        }
-
-        MutableText newText = Text.literal(withoutTimestamps.trim());
-        newText.setStyle(newText.getStyle());
-        newText.getSiblings().addAll(text.getSiblings());
-
-        return newText;
-	}
-
-	public static Text removeStackAdditions(Text text) {
-		TextContent content = text.getContent();
-        if (!(content instanceof LiteralTextContent literalTextContent)) {
-            return text;
-        }
-
-        String string = literalTextContent.string();
-        String withoutTimestamps = string.replaceAll("\\[x\\d+\\]$", "");
         if (withoutTimestamps.equals(string)) {
             return text;
         }
