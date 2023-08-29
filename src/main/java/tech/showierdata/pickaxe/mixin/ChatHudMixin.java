@@ -27,7 +27,9 @@ public abstract class ChatHudMixin {
     @Unique
     private int count = 1;
 
-    @Shadow @Final private List<ChatHudLine> messages;
+    @Shadow
+    @Final
+    private List<ChatHudLine> messages;
 
     @Shadow
     public abstract void reset();
@@ -49,28 +51,6 @@ public abstract class ChatHudMixin {
          */
         if (refreshing) return message;
 
-        return compactChatMessage(message);
-    }
-
-    public void removeMessage(Text originalMessage) {
-        ListIterator<ChatHudLine> iterator = messages.listIterator();
-        while (iterator.hasNext()) {
-            ChatHudLine chatHudLine = iterator.next();
-
-            // Remove previously stacked versions too
-            Text contentWithoutOccurrences = Regexs.removeStackMods(chatHudLine.content());
-            Text textWithoutOccurrences = Regexs.removeStackMods(originalMessage);
-
-            if (contentWithoutOccurrences.equals(textWithoutOccurrences)) {
-                iterator.remove();
-                reset();
-
-                return;
-            }
-        }
-    }
-
-    public Text compactChatMessage(Text message) {
         // Timestamps are removed to compare texts (otherwise none would match)
         Text withoutTimestamps = Regexs.removeTimestamps(message);
 
@@ -83,7 +63,23 @@ public abstract class ChatHudMixin {
             return message;
         }
 
-        removeMessage(message);
+        // Iterate and remove
+        ListIterator<ChatHudLine> iterator = messages.listIterator();
+        while (iterator.hasNext()) {
+            ChatHudLine chatHudLine = iterator.next();
+
+            // Undo changes
+            Text contentWithoutOccurrences = Regexs.removeStackMods(chatHudLine.content());
+            Text textWithoutOccurrences = Regexs.removeStackMods(message);
+
+            // Test if they are equal
+            if (contentWithoutOccurrences.equals(textWithoutOccurrences)) {
+                iterator.remove();
+                reset();
+
+                break; // Found the instance, we're done here
+            }
+        }
 
         this.count++;
         return message.copy().append(String.format(" §8[§bx%s§8]", count));

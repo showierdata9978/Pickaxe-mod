@@ -104,34 +104,29 @@ public class Regexs {
 	}
 
 	public static Text removeTimestamps(Text text) {
-		TextContent content = text.getContent();
-        if (!(content instanceof LiteralTextContent literalTextContent)) {
-            return text;
-        }
-
-        String string = literalTextContent.string();
+		
+		String string = text.getString();
         String withoutTimestamps = string.replaceAll(".?\\d{1,2}:\\d{2}(:\\d{2})*.?", "");
-        if (withoutTimestamps.equals(string)) {
-            return text;
-        }
 
+		// No changes? No action
+        if (withoutTimestamps.equals(string)) return text;
+
+		/*
+		 * Create new Text that contains new text
+		 * - Set text
+		 * - Copy style
+		 * - Copy Changes (Siblings)
+		 */
         MutableText newText = Text.literal(withoutTimestamps.trim());
         newText.setStyle(newText.getStyle());
         newText.getSiblings().addAll(text.getSiblings());
 
         return newText;
 	}
-	
-	public static Text removeTextSiblings(Text parent, Predicate<Text> predicate) {
-        Text copy = parent.copy();
-        copy.getSiblings().removeIf(predicate);
-
-        return copy;
-    }
 
 	public static Text removeStackMods(Text modifiedText) {
-		Text res = Regexs.removeTimestamps(modifiedText);
-		res = Regexs.removeTextSiblings(res, (text) -> { return Regexs.hasBeenStacked(text.getString()); });
+		MutableText res = Regexs.removeTimestamps(modifiedText).copy();
+        res.getSiblings().removeIf((text) -> { return Regexs.hasBeenStacked(text.getString()); });
         return res;
     }
 }
