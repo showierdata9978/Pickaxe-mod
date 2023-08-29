@@ -5,10 +5,12 @@ import com.google.common.io.Files;
 import com.google.gson.GsonBuilder;
 import com.mojang.authlib.minecraft.client.ObjectMapper;
 import tech.showierdata.pickaxe.Pickaxe;
+import tech.showierdata.pickaxe.config.MessageStackingBorderEnum;
 
 import java.awt.*;
 import java.io.File;
 import java.io.IOException;
+import java.util.function.Function;
 
 public class Options {
 	public boolean enabled = true;
@@ -25,7 +27,11 @@ public class Options {
 	public POI[] pois = POI.values();
 	public boolean enable_poi = true;
 	public boolean hide_plot_ads = true;
-	public boolean messageStack = true;
+	public boolean messageStackEnabled = true;
+	public MessageStackingBorderEnum messageStackingBorder = MessageStackingBorderEnum.Square;
+
+	public Object chatClear;
+
 	static Options INSTANCE;
 
 
@@ -62,5 +68,4 @@ public class Options {
 	public static void setInstance(Options instance) {
 		INSTANCE = instance;
 	}
-
 }

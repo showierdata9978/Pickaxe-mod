@@ -21,6 +21,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 import java.util.Objects;
+import java.util.function.Function;
 
 
 public class ModMenuIntergrationImpl implements ModMenuApi  {
@@ -37,6 +38,7 @@ public class ModMenuIntergrationImpl implements ModMenuApi  {
 	public void saveConfig() {
 		Pickaxe.LOGGER.info("Saving config");
 
+		((Function<Boolean, Boolean>)Options.getInstance().chatClear).apply(false); // Result is ignored
 
 		try {
 			File file = new File(configPath);
@@ -105,12 +107,6 @@ public class ModMenuIntergrationImpl implements ModMenuApi  {
 				.option(Option.<Boolean>createBuilder()
 						.name(Text.literal("Hide Plot Ads"))
 						.binding(true, () -> Options.getInstance().hide_plot_ads, e -> Options.getInstance().hide_plot_ads = e)
-						.controller(BooleanControllerBuilder::create)
-						.build()
-				)
-				.option(Option.<Boolean>createBuilder()
-						.name(Text.literal("Message Stacking"))
-						.binding(true, () -> Options.getInstance().messageStack, e -> Options.getInstance().messageStack = e)
 						.controller(BooleanControllerBuilder::create)
 						.build()
 				)
@@ -216,6 +212,27 @@ public class ModMenuIntergrationImpl implements ModMenuApi  {
 				.build());
 	}
 
+	public void createMessageStackingConfig(YetAnotherConfigLib.@NotNull Builder builder) {
+		builder.category(ConfigCategory.createBuilder()
+			.name(Text.literal("Message Stacker"))
+			.option(Option.<Boolean>createBuilder()
+					.name(Text.literal("Enable"))
+					.binding(true, () -> Options.getInstance().messageStackEnabled, e -> Options.getInstance().messageStackEnabled = e)
+					.controller(BooleanControllerBuilder::create)
+					.build()
+			)
+			.option(Option.<MessageStackingBorderEnum>createBuilder()
+					.name(Text.literal("Brackets"))
+					.binding(MessageStackingBorderEnum.Square, () -> Options.getInstance().messageStackingBorder, e -> Options.getInstance().messageStackingBorder = e)
+						.controller((opt) -> EnumControllerBuilder.create(opt)
+								.enumClass(MessageStackingBorderEnum.class)
+						)
+					.build()
+			)
+			.build()
+		);
+	}
+
 	public Screen getConfigScreen(Screen parent) {
     	YetAnotherConfigLib.Builder builder =  YetAnotherConfigLib.createBuilder()
         	    .title(Text.literal("Pickaxe Mod Settings"));
@@ -224,6 +241,7 @@ public class ModMenuIntergrationImpl implements ModMenuApi  {
 		createItemConfig(builder);
 		createCCTConfig(builder);
 		createPOIConfig(builder);
+		createMessageStackingConfig(builder);
 
 		return builder.save(this::saveConfig)
 				.build()

@@ -2,6 +2,7 @@ package tech.showierdata.pickaxe.mixin;
 
 import java.util.List;
 import java.util.ListIterator;
+import java.util.function.Function;
 
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -13,8 +14,10 @@ import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import net.minecraft.text.Text;
+import tech.showierdata.pickaxe.config.MessageStackingBorderEnum;
 import tech.showierdata.pickaxe.config.Options;
 import tech.showierdata.pickaxe.server.Regexs;
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.hud.ChatHud;
 import net.minecraft.client.gui.hud.ChatHudLine;
 import net.minecraft.client.gui.hud.MessageIndicator;
@@ -37,13 +40,33 @@ public abstract class ChatHudMixin {
     @Shadow
     public abstract void clear(boolean clearHistory);
 
+    @Inject(method = "<init>", at = @At("TAIL"))
+    public void optionUpdateClear(MinecraftClient client, CallbackInfo info) {
+        /*
+         * Generic function setting
+         * Wanted to do void but can't return void for some reason
+         * Instead I return a "success" boolean
+         */
+        Options.getInstance().chatClear = new Function<Boolean,Boolean>() {
+            public Boolean apply(Boolean clearHistory) {
+                try {
+                    clear(clearHistory);
+                    return true;
+                }
+                catch (Error ignored) {
+                    return false;
+                }
+            }
+        };
+    }
+    
     @ModifyVariable(
         method = "addMessage(Lnet/minecraft/text/Text;Lnet/minecraft/network/message/MessageSignatureData;ILnet/minecraft/client/gui/hud/MessageIndicator;Z)V",
         at = @At("HEAD"),
         argsOnly = true
     )
     private Text stackMessages(Text message, Text parameterMessage, MessageSignatureData data, int ticks, MessageIndicator indicator, boolean refreshing) {
-        if (!Options.getInstance().messageStack) return message;
+        if (!Options.getInstance().messageStackEnabled) return message;
         
         /*
          * If we are refreshing, it's probably our own doing
@@ -63,14 +86,18 @@ public abstract class ChatHudMixin {
             return message;
         }
 
+        // Get current loadout
+        assert Options.getInstance().messageStackingBorder != null;
+        MessageStackingBorderEnum stack = Options.getInstance().messageStackingBorder;
+
         // Iterate and remove
         ListIterator<ChatHudLine> iterator = messages.listIterator();
         while (iterator.hasNext()) {
             ChatHudLine chatHudLine = iterator.next();
 
             // Undo changes
-            Text contentWithoutOccurrences = Regexs.removeStackMods(chatHudLine.content());
-            Text textWithoutOccurrences = Regexs.removeStackMods(message);
+            Text contentWithoutOccurrences = stack.removeStackMods(chatHudLine.content());
+            Text textWithoutOccurrences = stack.removeStackMods(message);
 
             // Test if they are equal
             if (contentWithoutOccurrences.equals(textWithoutOccurrences)) {
@@ -82,7 +109,7 @@ public abstract class ChatHudMixin {
         }
 
         this.count++;
-        return message.copy().append(String.format(" §8[§bx%s§8]", count));
+        return message.copy().append(" " + stack.getBorderString(count));
     }
 
     @Inject(method = "clear", at = @At("RETURN"))

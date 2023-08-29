@@ -1,16 +1,15 @@
 package tech.showierdata.pickaxe.server;
 
-import net.minecraft.text.LiteralTextContent;
 import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
-import net.minecraft.text.TextContent;
 
 import tech.showierdata.pickaxe.Pickaxe;
+import tech.showierdata.pickaxe.config.MessageStackingBorderEnum;
+import tech.showierdata.pickaxe.config.Options;
 
 import java.util.Arrays;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.function.Predicate;
 
 
 public class Regexs {
@@ -37,15 +36,10 @@ public class Regexs {
 		return Pattern.compile("\\[ Plot Ad \\].*\\n(.*) by ([\\w\\d]*): (.*)");
 	}
 
-	public static Pattern getMessageStackPattern() {
-		return Pattern.compile("§8\\[§bx\\d+§8\\]$");
-	}
-
 	public static final Pattern PlotOwnerPattern = getPlotOwnerPattern();
 	public static final Pattern PlotNamePattern = getPlotNamePattern();
 	public static final Pattern ServerPattern = getServerPattern();
 	public static final Pattern PlotAdPattern = getPlotAdPattern();
-	public static final Pattern MessageStackPattern = getMessageStackPattern();
 
 	public static boolean isLocateCommand(String message) {
 		Matcher plotOwnerMatcher = PlotOwnerPattern.matcher(message);
@@ -59,12 +53,6 @@ public class Regexs {
 		Matcher plotAdMatcher = PlotAdPattern.matcher(message);
 
 		return plotAdMatcher.find();
-	}
-
-	public static boolean hasBeenStacked(String message) {
-		Matcher messageMatcher = MessageStackPattern.matcher(message);
-
-		return messageMatcher.find();
 	}
 
 	public static Ad getAdDetails(String message) {
@@ -104,7 +92,7 @@ public class Regexs {
 	}
 
 	public static Text removeTimestamps(Text text) {
-		
+
 		String string = text.getString();
         String withoutTimestamps = string.replaceAll(".?\\d{1,2}:\\d{2}(:\\d{2})*.?", "");
 
@@ -123,10 +111,4 @@ public class Regexs {
 
         return newText;
 	}
-
-	public static Text removeStackMods(Text modifiedText) {
-		MutableText res = Regexs.removeTimestamps(modifiedText).copy();
-        res.getSiblings().removeIf((text) -> { return Regexs.hasBeenStacked(text.getString()); });
-        return res;
-    }
 }
