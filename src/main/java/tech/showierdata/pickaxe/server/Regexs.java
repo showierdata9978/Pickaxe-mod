@@ -4,7 +4,7 @@ import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
 
 import tech.showierdata.pickaxe.Pickaxe;
-import tech.showierdata.pickaxe.config.MessageStackingBorderEnum;
+import tech.showierdata.pickaxe.config.BracketEnum;
 import tech.showierdata.pickaxe.config.Options;
 
 import java.util.Arrays;

@@ -5,7 +5,7 @@ import com.google.common.io.Files;
 import com.google.gson.GsonBuilder;
 import com.mojang.authlib.minecraft.client.ObjectMapper;
 import tech.showierdata.pickaxe.Pickaxe;
-import tech.showierdata.pickaxe.config.MessageStackingBorderEnum;
+import tech.showierdata.pickaxe.config.BracketEnum;
 
 import java.awt.*;
 import java.io.File;
@@ -28,7 +28,9 @@ public class Options {
 	public boolean enable_poi = true;
 	public boolean hide_plot_ads = true;
 	public boolean messageStackEnabled = true;
-	public MessageStackingBorderEnum messageStackingBorder = MessageStackingBorderEnum.Square;
+	public BracketEnum messageStackingBorder = BracketEnum.Square;
+	public String messageStackPrefix = "";
+	public String messageStackSufix = "";
 
 	public Object chatClear;
 

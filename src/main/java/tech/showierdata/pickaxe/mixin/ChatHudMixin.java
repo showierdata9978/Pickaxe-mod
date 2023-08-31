@@ -14,7 +14,7 @@ import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import net.minecraft.text.Text;
-import tech.showierdata.pickaxe.config.MessageStackingBorderEnum;
+import tech.showierdata.pickaxe.config.BracketEnum;
 import tech.showierdata.pickaxe.config.Options;
 import tech.showierdata.pickaxe.server.Regexs;
 import net.minecraft.client.MinecraftClient;
@@ -88,7 +88,7 @@ public abstract class ChatHudMixin {
 
         // Get current loadout
         assert Options.getInstance().messageStackingBorder != null;
-        MessageStackingBorderEnum stack = Options.getInstance().messageStackingBorder;
+        BracketEnum stack = Options.getInstance().messageStackingBorder;
 
         // Iterate and remove
         ListIterator<ChatHudLine> iterator = messages.listIterator();
