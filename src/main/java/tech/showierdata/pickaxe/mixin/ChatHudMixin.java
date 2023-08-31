@@ -66,7 +66,7 @@ public abstract class ChatHudMixin {
         argsOnly = true
     )
     private Text stackMessages(Text message, Text parameterMessage, MessageSignatureData data, int ticks, MessageIndicator indicator, boolean refreshing) {
-        if (!Options.getInstance().messageStackEnabled) return message;
+        if (!Options.getInstance().msgStackConfig.enabled) return message;
         
         /*
          * If we are refreshing, it's probably our own doing
@@ -87,8 +87,8 @@ public abstract class ChatHudMixin {
         }
 
         // Get current loadout
-        assert Options.getInstance().messageStackingBorder != null;
-        BracketEnum stack = Options.getInstance().messageStackingBorder;
+        assert Options.getInstance().msgStackConfig.border != null;
+        BracketEnum stack = Options.getInstance().msgStackConfig.border;
 
         // Iterate and remove
         ListIterator<ChatHudLine> iterator = messages.listIterator();

@@ -5,12 +5,10 @@ import com.google.common.io.Files;
 import com.google.gson.GsonBuilder;
 import com.mojang.authlib.minecraft.client.ObjectMapper;
 import tech.showierdata.pickaxe.Pickaxe;
-import tech.showierdata.pickaxe.config.BracketEnum;
 
 import java.awt.*;
 import java.io.File;
 import java.io.IOException;
-import java.util.function.Function;
 
 public class Options {
 	public boolean enabled = true;
@@ -27,10 +25,7 @@ public class Options {
 	public POI[] pois = POI.values();
 	public boolean enable_poi = true;
 	public boolean hide_plot_ads = true;
-	public boolean messageStackEnabled = true;
-	public BracketEnum messageStackingBorder = BracketEnum.Square;
-	public String messageStackPrefix = "";
-	public String messageStackSufix = "";
+	public final MsgStackConfig msgStackConfig;
 
 	public Object chatClear;
 
@@ -40,6 +35,7 @@ public class Options {
 	public Options() { // all default vals
 		this.itemconfig = new ItemConfig();
 		this.cctconfig = new CCTConfig();
+		this.msgStackConfig = new MsgStackConfig();
 		INSTANCE = this;
 	}
 

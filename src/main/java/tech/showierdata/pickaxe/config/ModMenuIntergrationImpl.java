@@ -8,10 +8,13 @@ import com.terraformersmc.modmenu.api.ModMenuApi;
 import dev.isxander.yacl3.api.*;
 import dev.isxander.yacl3.api.controller.BooleanControllerBuilder;
 import dev.isxander.yacl3.api.controller.ColorControllerBuilder;
+import dev.isxander.yacl3.api.controller.ControllerBuilder;
 import dev.isxander.yacl3.api.controller.EnumControllerBuilder;
-import dev.isxander.yacl3.api.controller.IntegerFieldControllerBuilder;
 import dev.isxander.yacl3.api.controller.StringControllerBuilder;
-import dev.isxander.yacl3.gui.YACLScreen.CategoryTab;
+import dev.isxander.yacl3.api.controller.IntegerFieldControllerBuilder;
+import dev.isxander.yacl3.gui.AbstractWidget;
+import dev.isxander.yacl3.gui.YACLScreen;
+import dev.isxander.yacl3.api.utils.Dimension;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.text.Text;
@@ -23,8 +26,8 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 import java.util.Objects;
-import java.util.function.BiConsumer;
 import java.util.function.Function;
+import java.util.function.BiConsumer;
 
 
 public class ModMenuIntergrationImpl implements ModMenuApi  {
@@ -216,62 +219,73 @@ public class ModMenuIntergrationImpl implements ModMenuApi  {
 	}
 
 	public void createMessageStackingConfig(YetAnotherConfigLib.@NotNull Builder builder, Screen screen) {
-		boolean customBrackets = Options.getInstance().messageStackingBorder == BracketEnum.Custom;
+		boolean customBrackets = Options.getInstance().msgStackConfig.border == BracketEnum.Custom;
+
 		Option<String> prefix = Option.<String>createBuilder()
 			.name(Text.literal("Prefix"))
 			.available(customBrackets)
-			.binding("", () -> Options.getInstance().messageStackPrefix, e -> Options.getInstance().messageStackPrefix = e)
-					.controller((opt) -> StringControllerBuilder.create(opt))
-			.description(val -> OptionDescription.of(Text.literal("Preview: " + val.replaceAll("&([a-f,j-n,r,x,0-9])", "§$1"))))
+			.binding("", () -> Options.getInstance().msgStackConfig.prefix, e -> Options.getInstance().msgStackConfig.prefix = e)
+				.controller(opt -> StringControllerBuilder.create(opt))
+			.description(val -> OptionDescription.of(Text.literal("Preview: §8" + val.replaceAll("&([a-f,j-n,r,x,0-9])", "§$1"))))
 			.build();
-		Option<String> sufix = Option.<String>createBuilder()
+
+		Option<String> suffix = Option.<String>createBuilder()
 			.name(Text.literal("Suffix"))
 			.available(customBrackets)
-			.binding("", () -> Options.getInstance().messageStackSufix, e -> Options.getInstance().messageStackSufix = e)
-					.controller((opt) -> StringControllerBuilder.create(opt))
-			.description(val -> OptionDescription.of(Text.literal("Preview: " + val.replaceAll("&([a-f,j-n,r,x,0-9])", "§$1"))))
+			.binding("", () -> Options.getInstance().msgStackConfig.suffix, e -> Options.getInstance().msgStackConfig.suffix = e)
+				.controller(opt -> StringControllerBuilder.create(opt))
+			.description(val -> OptionDescription.of(Text.literal("Preview: §8" + val.replaceAll("&([a-f,j-n,r,x,0-9])", "§$1"))))
 			.build();
+
 		Option<BracketEnum> style = Option.<BracketEnum>createBuilder()
 			.name(Text.literal("Style"))
-			.binding(BracketEnum.Square, () -> Options.getInstance().messageStackingBorder,
-				(e) -> {
-					Options.getInstance().messageStackingBorder = e;
-				})
-				.controller((opt) -> EnumControllerBuilder.create(opt)
-						.enumClass(BracketEnum.class))
+			.binding(BracketEnum.Square, () -> Options.getInstance().msgStackConfig.border, e -> Options.getInstance().msgStackConfig.border = e)
+				.controller(opt -> EnumControllerBuilder.create(opt)
+					.enumClass(BracketEnum.class))
 			.listener((opt, e) -> {
 				prefix.setAvailable(e == BracketEnum.Custom);
-				sufix.setAvailable(e == BracketEnum.Custom);
+				suffix.setAvailable(e == BracketEnum.Custom);
 			})
 			.build();
-		LabelOption borders = LabelOption.createBuilder()
-			.line(Text.literal("Brackets"))	
+
+		Option<Boolean> hasX = Option.<Boolean>createBuilder()
+			.name(Text.literal("Include x"))
+			.binding(true, () -> Options.getInstance().msgStackConfig.hasX, e -> Options.getInstance().msgStackConfig.hasX = e)
+			.controller(BooleanControllerBuilder::create)
 			.build();
-		ConfigCategory cat = ConfigCategory.createBuilder()
+
+		Option<ColorsEnum> color = Option.<ColorsEnum>createBuilder()
+			.name(Text.literal("Color"))
+			.binding(ColorsEnum.Azure, () -> Options.getInstance().msgStackConfig.color, e -> Options.getInstance().msgStackConfig.color = e)
+				.controller(opt -> EnumControllerBuilder.create(opt)
+					.enumClass(ColorsEnum.class)
+					.valueFormatter(val -> Text.literal(val.name)))
+			//.description(val -> OptionDescription.of(Text.literal(val.name + val)))
+			.build();
+			
+		builder.category(ConfigCategory.createBuilder()
 			.name(Text.literal("Message Stacker"))
 			.option(Option.<Boolean>createBuilder()
 					.name(Text.literal("Enable"))
-					.binding(true, () -> Options.getInstance().messageStackEnabled, e -> Options.getInstance().messageStackEnabled = e)
-					.controller(BooleanControllerBuilder::create)
+					.binding(true, () -> Options.getInstance().msgStackConfig.enabled, e -> Options.getInstance().msgStackConfig.enabled = e)
+						.controller(BooleanControllerBuilder::create)
+					.listener((Option<Boolean> self, Boolean enabled) -> {
+						style.setAvailable(enabled);
+						prefix.setAvailable(enabled && style.pendingValue() == BracketEnum.Custom);
+						suffix.setAvailable(enabled && style.pendingValue() == BracketEnum.Custom);
+						hasX.setAvailable(enabled);
+						color.setAvailable(enabled);
+					})
 					.build()
 			)
-			.option(borders)
+			.option(LabelOption.create(Text.literal("Brackets")))
 			.option(style)
 			.option(prefix)
-			.option(sufix)
-			.build();
-		cat.groups().get(0).options().get(0).addListener((self, enabled) -> {
-				cat.groups().get(0).options().forEach((Option<?> opt) -> {
-					if (opt.equals(self)) return;
-					if (opt instanceof LabelOption) return;
-					if (cat.groups().get(0).options().indexOf(opt) == 2) {
-						opt.setAvailable((boolean)enabled);
-						return;
-					}
-					opt.setAvailable((boolean)enabled && style.pendingValue() == BracketEnum.Custom);
-				});
-			});
-		builder.category(cat);
+			.option(suffix)
+			.option(LabelOption.create(Text.literal("Inner Text")))
+			.option(hasX)
+			.option(color)
+			.build());
 	}
 
 	public Screen getConfigScreen(Screen parent) {

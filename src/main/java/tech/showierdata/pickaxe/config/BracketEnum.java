@@ -37,7 +37,7 @@ public enum BracketEnum {
     public String getBorderString(Object inside, boolean regexSafe) {
         String prefix = "";
 		String sufix = "";
-		String res = (regexSafe)? "§8\\Q%s\\E§bx%s§8\\Q%s\\E" : "§8%s§bx%s§8%s";
+		String res = (regexSafe)? "§8\\Q%s\\E%s%s%s§8\\Q%s\\E" : "§8%s§b%s%s§8%s";
 		switch (this) {
 			case Curly:
 				prefix = "{";
@@ -57,15 +57,13 @@ public enum BracketEnum {
 				break;
 			case None:
 				return String.format("§bx%s§8", inside);
-			/*case Custom:
-				break;
+			case Custom:
 				// Color codes :)
-				assert Options.getInstance() != null;
-				assert Options.getInstance().messageStackPrefix != null;
-				assert Options.getInstance().messageStackSufix != null;
-				prefix = Options.getInstance().messageStackPrefix
+				assert Options.getInstance().msgStackConfig.prefix != null;
+				assert Options.getInstance().msgStackConfig.suffix != null;
+				prefix = Options.getInstance().msgStackConfig.prefix
 					.replaceAll("&([a-f,j-n,r,x,0-9])", "§$1");
-				sufix = Options.getInstance().messageStackSufix
+				sufix = Options.getInstance().msgStackConfig.suffix
 					.replaceAll("&([a-f,j-n,r,x,0-9])", "§$1");
 				if (regexSafe) {
 					// Seems unlikely, but possible
@@ -73,9 +71,12 @@ public enum BracketEnum {
 						.replaceAll("\\\\", "\\\\");
 					sufix.replaceAll("\\\\(Q|E)", "\\\\$1")
 						.replaceAll("\\\\", "\\\\");
-				}*/
+				}
+				break;
 		}
-        return String.format(res, prefix, inside, sufix);
+		String color = Options.getInstance().msgStackConfig.color.name()
+			.replaceAll("^(..).*", "$1");
+        return String.format(res, prefix, color, (Options.getInstance().msgStackConfig.hasX)? "x" : "", inside, sufix);
     }
 
     public String getBorderString(Object inside) {
