@@ -8,13 +8,9 @@ import com.terraformersmc.modmenu.api.ModMenuApi;
 import dev.isxander.yacl3.api.*;
 import dev.isxander.yacl3.api.controller.BooleanControllerBuilder;
 import dev.isxander.yacl3.api.controller.ColorControllerBuilder;
-import dev.isxander.yacl3.api.controller.ControllerBuilder;
 import dev.isxander.yacl3.api.controller.EnumControllerBuilder;
 import dev.isxander.yacl3.api.controller.StringControllerBuilder;
 import dev.isxander.yacl3.api.controller.IntegerFieldControllerBuilder;
-import dev.isxander.yacl3.gui.AbstractWidget;
-import dev.isxander.yacl3.gui.YACLScreen;
-import dev.isxander.yacl3.api.utils.Dimension;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.text.Text;
@@ -27,7 +23,6 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.Function;
-import java.util.function.BiConsumer;
 
 
 public class ModMenuIntergrationImpl implements ModMenuApi  {
@@ -221,20 +216,12 @@ public class ModMenuIntergrationImpl implements ModMenuApi  {
 	public void createMessageStackingConfig(YetAnotherConfigLib.@NotNull Builder builder, Screen screen) {
 		boolean customBrackets = Options.getInstance().msgStackConfig.border == BracketEnum.Custom;
 
-		Option<String> prefix = Option.<String>createBuilder()
-			.name(Text.literal("Prefix"))
+		Option<String> text = Option.<String>createBuilder()
+			.name(Text.literal("Custom String"))
 			.available(customBrackets)
-			.binding("", () -> Options.getInstance().msgStackConfig.prefix, e -> Options.getInstance().msgStackConfig.prefix = e)
+			.binding("&8[&bx{num}&8]", () -> Options.getInstance().msgStackConfig.text, e -> Options.getInstance().msgStackConfig.text = e)
 				.controller(opt -> StringControllerBuilder.create(opt))
-			.description(val -> OptionDescription.of(Text.literal("Preview: §8" + val.replaceAll("&([a-f,j-n,r,x,0-9])", "§$1"))))
-			.build();
-
-		Option<String> suffix = Option.<String>createBuilder()
-			.name(Text.literal("Suffix"))
-			.available(customBrackets)
-			.binding("", () -> Options.getInstance().msgStackConfig.suffix, e -> Options.getInstance().msgStackConfig.suffix = e)
-				.controller(opt -> StringControllerBuilder.create(opt))
-			.description(val -> OptionDescription.of(Text.literal("Preview: §8" + val.replaceAll("&([a-f,j-n,r,x,0-9])", "§$1"))))
+			.description(val -> OptionDescription.of(Text.literal("Preview: " + val.replaceAll("&([a-f,j-n,r,x,0-9])", "§$1").replaceAll("\\{num\\}", "2"))))
 			.build();
 
 		Option<BracketEnum> style = Option.<BracketEnum>createBuilder()
@@ -243,24 +230,8 @@ public class ModMenuIntergrationImpl implements ModMenuApi  {
 				.controller(opt -> EnumControllerBuilder.create(opt)
 					.enumClass(BracketEnum.class))
 			.listener((opt, e) -> {
-				prefix.setAvailable(e == BracketEnum.Custom);
-				suffix.setAvailable(e == BracketEnum.Custom);
+				text.setAvailable(e == BracketEnum.Custom);
 			})
-			.build();
-
-		Option<Boolean> hasX = Option.<Boolean>createBuilder()
-			.name(Text.literal("Include x"))
-			.binding(true, () -> Options.getInstance().msgStackConfig.hasX, e -> Options.getInstance().msgStackConfig.hasX = e)
-			.controller(BooleanControllerBuilder::create)
-			.build();
-
-		Option<ColorsEnum> color = Option.<ColorsEnum>createBuilder()
-			.name(Text.literal("Color"))
-			.binding(ColorsEnum.Azure, () -> Options.getInstance().msgStackConfig.color, e -> Options.getInstance().msgStackConfig.color = e)
-				.controller(opt -> EnumControllerBuilder.create(opt)
-					.enumClass(ColorsEnum.class)
-					.valueFormatter(val -> Text.literal(val.name)))
-			//.description(val -> OptionDescription.of(Text.literal(val.name + val)))
 			.build();
 			
 		builder.category(ConfigCategory.createBuilder()
@@ -271,20 +242,13 @@ public class ModMenuIntergrationImpl implements ModMenuApi  {
 						.controller(BooleanControllerBuilder::create)
 					.listener((Option<Boolean> self, Boolean enabled) -> {
 						style.setAvailable(enabled);
-						prefix.setAvailable(enabled && style.pendingValue() == BracketEnum.Custom);
-						suffix.setAvailable(enabled && style.pendingValue() == BracketEnum.Custom);
-						hasX.setAvailable(enabled);
-						color.setAvailable(enabled);
+						text.setAvailable(enabled && style.pendingValue() == BracketEnum.Custom);
 					})
 					.build()
 			)
-			.option(LabelOption.create(Text.literal("Brackets")))
+			.option(LabelOption.create(Text.literal("Format")))
 			.option(style)
-			.option(prefix)
-			.option(suffix)
-			.option(LabelOption.create(Text.literal("Inner Text")))
-			.option(hasX)
-			.option(color)
+			.option(text)
 			.build());
 	}
 

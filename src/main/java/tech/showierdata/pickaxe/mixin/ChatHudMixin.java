@@ -15,7 +15,6 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import net.minecraft.text.Text;
 import tech.showierdata.pickaxe.Pickaxe;
-import tech.showierdata.pickaxe.config.BracketEnum;
 import tech.showierdata.pickaxe.config.MsgStackConfig;
 import tech.showierdata.pickaxe.config.Options;
 import tech.showierdata.pickaxe.server.Regexs;
@@ -99,8 +98,6 @@ public abstract class ChatHudMixin {
             // Undo changes
             Text contentWithoutOccurrences = stack.removeStackMods(chatHudLine.content());
             Text textWithoutOccurrences = stack.removeStackMods(message);
-
-            Pickaxe.LOGGER.info("content: " + contentWithoutOccurrences.getString() + "\n\ntext: " + textWithoutOccurrences.getString());
 
             // Test if they are equal
             if (contentWithoutOccurrences.equals(textWithoutOccurrences)) {
