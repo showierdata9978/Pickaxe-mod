@@ -25,6 +25,7 @@ public class Options {
 	public POI[] pois = POI.values();
 	public boolean enable_poi = true;
 	public boolean hide_plot_ads = true;
+	public boolean remove_chat_bar = true;
 	static Options INSTANCE;
 
 

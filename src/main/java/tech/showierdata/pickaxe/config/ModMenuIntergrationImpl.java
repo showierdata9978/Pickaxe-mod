@@ -108,6 +108,12 @@ public class ModMenuIntergrationImpl implements ModMenuApi  {
 						.controller(BooleanControllerBuilder::create)
 						.build()
 				)
+				.option(Option.<Boolean>createBuilder()
+						.name(Text.literal("Hide Chat Bar"))
+						.binding(true, () -> Options.getInstance().remove_chat_bar, e -> Options.getInstance().remove_chat_bar = e)
+						.controller(BooleanControllerBuilder::create)
+						.build()
+				)
 
 				.build()
 		);
