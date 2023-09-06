@@ -62,6 +62,10 @@ public abstract class InGameHudMixin {
         XPBarEnum xp = Options.getInstance().XPBarType;
         if (!Pickaxe.getInstance().isInPickaxe()) return prev;
         if (xp == XPBarEnum.Suit_Charge) return new Identifier("pickaxe", "textures/gui/yellow.png");
+        if (xp == XPBarEnum.Depth) {
+            if (Pickaxe.getInstance().rel_spawn.y < -30) return new Identifier("pickaxe", "textures/gui/purple.png");
+            return new Identifier("pickaxe", "textures/gui/red.png");
+        }
         return prev;
     }
 }
