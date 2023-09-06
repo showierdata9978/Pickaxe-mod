@@ -6,7 +6,8 @@ import net.minecraft.client.gui.hud.ClientBossBar;
 public enum XPBarEnum {
 	Radiation("Radiation"),
 	Depth("Depth"),
-	Suit_Charge("Suit Charge");
+	Suit_Charge("Suit Charge"),
+	O2("O2");
 
 
 	final String name;

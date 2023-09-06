@@ -59,12 +59,24 @@ public abstract class InGameHudMixin {
         ),
         allow = 2)
     Identifier swapIcons(Identifier prev, int x, int y, int u, int v, int width, int height) {
-        XPBarEnum xp = Options.getInstance().XPBarType;
         if (!Pickaxe.getInstance().isInPickaxe()) return prev;
+        XPBarEnum xp = Options.getInstance().XPBarType;
         if (xp == XPBarEnum.Suit_Charge) return new Identifier("pickaxe", "textures/gui/yellow.png");
         if (xp == XPBarEnum.Depth) {
             if (Pickaxe.getInstance().rel_spawn.y < -30) return new Identifier("pickaxe", "textures/gui/purple.png");
             return new Identifier("pickaxe", "textures/gui/red.png");
+        }
+        return prev;
+    }
+
+    @ModifyConstant(method = "renderExperienceBar", constant = @Constant(intValue = 8453920))
+    int ChangeLevelColor(int prev) {
+        if (!Pickaxe.getInstance().isInPickaxe()) return prev;
+        XPBarEnum xp = Options.getInstance().XPBarType;
+        if (xp == XPBarEnum.O2) return 0x33CCFF;
+        if (xp == XPBarEnum.Depth) {
+            if (Pickaxe.getInstance().rel_spawn.y < -30) return 0xCC33FF;
+            return 0xFF0000;
         }
         return prev;
     }
