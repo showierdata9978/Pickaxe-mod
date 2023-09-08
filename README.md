@@ -3,6 +3,8 @@
 
 A mod for the game ⛏️ on Minecraft Diamondfire.
 
+I dont have any ideas for this mod.
+
 ## Features
 
 - @Help command
