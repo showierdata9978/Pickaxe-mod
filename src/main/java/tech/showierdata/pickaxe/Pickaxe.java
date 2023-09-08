@@ -62,6 +62,8 @@ public class Pickaxe implements ModInitializer {
 	public double chestTimer = 0;
 	public static final CommandHelper commandHelper = CommandHelper.getInstance();
 
+	public Text prevMessage;
+
 	public static Pickaxe getInstance() {
 		return instence;
 	}

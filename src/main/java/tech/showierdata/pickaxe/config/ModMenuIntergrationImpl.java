@@ -9,6 +9,7 @@ import dev.isxander.yacl3.api.*;
 import dev.isxander.yacl3.api.controller.BooleanControllerBuilder;
 import dev.isxander.yacl3.api.controller.ColorControllerBuilder;
 import dev.isxander.yacl3.api.controller.EnumControllerBuilder;
+import dev.isxander.yacl3.api.controller.StringControllerBuilder;
 import dev.isxander.yacl3.api.controller.IntegerFieldControllerBuilder;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.Screen;
@@ -21,6 +22,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 import java.util.Objects;
+import java.util.function.Function;
 
 
 public class ModMenuIntergrationImpl implements ModMenuApi  {
@@ -37,6 +39,7 @@ public class ModMenuIntergrationImpl implements ModMenuApi  {
 	public void saveConfig() {
 		Pickaxe.LOGGER.info("Saving config");
 
+		((Function<Boolean, Boolean>)Options.getInstance().chatClear).apply(false); // Result is ignored
 
 		try {
 			File file = new File(configPath);
@@ -210,6 +213,45 @@ public class ModMenuIntergrationImpl implements ModMenuApi  {
 				.build());
 	}
 
+	public void createMessageStackingConfig(YetAnotherConfigLib.@NotNull Builder builder, Screen screen) {
+		boolean customBrackets = Options.getInstance().msgStackConfig.border == BracketEnum.Custom;
+
+		Option<String> text = Option.<String>createBuilder()
+			.name(Text.literal("Custom String"))
+			.available(customBrackets)
+			.binding("&8[&bx{num}&8]", () -> Options.getInstance().msgStackConfig.text, e -> Options.getInstance().msgStackConfig.text = e)
+				.controller(opt -> StringControllerBuilder.create(opt))
+			.description(val -> OptionDescription.of(Text.literal("Preview: " + val.replaceAll("&([a-f,j-n,r,x,0-9])", "§$1").replaceAll("\\{num\\}", "2"))))
+			.build();
+
+		Option<BracketEnum> style = Option.<BracketEnum>createBuilder()
+			.name(Text.literal("Style"))
+			.binding(BracketEnum.Square, () -> Options.getInstance().msgStackConfig.border, e -> Options.getInstance().msgStackConfig.border = e)
+				.controller(opt -> EnumControllerBuilder.create(opt)
+					.enumClass(BracketEnum.class))
+			.listener((opt, e) -> {
+				text.setAvailable(e == BracketEnum.Custom);
+			})
+			.build();
+			
+		builder.category(ConfigCategory.createBuilder()
+			.name(Text.literal("Message Stacker"))
+			.option(Option.<Boolean>createBuilder()
+					.name(Text.literal("Enable"))
+					.binding(true, () -> Options.getInstance().msgStackConfig.enabled, e -> Options.getInstance().msgStackConfig.enabled = e)
+						.controller(BooleanControllerBuilder::create)
+					.listener((Option<Boolean> self, Boolean enabled) -> {
+						style.setAvailable(enabled);
+						text.setAvailable(enabled && style.pendingValue() == BracketEnum.Custom);
+					})
+					.build()
+			)
+			.option(LabelOption.create(Text.literal("Format")))
+			.option(style)
+			.option(text)
+			.build());
+	}
+
 	public Screen getConfigScreen(Screen parent) {
     	YetAnotherConfigLib.Builder builder =  YetAnotherConfigLib.createBuilder()
         	    .title(Text.literal("Pickaxe Mod Settings"));
@@ -218,6 +260,7 @@ public class ModMenuIntergrationImpl implements ModMenuApi  {
 		createItemConfig(builder);
 		createCCTConfig(builder);
 		createPOIConfig(builder);
+		createMessageStackingConfig(builder, parent);
 
 		return builder.save(this::saveConfig)
 				.build()

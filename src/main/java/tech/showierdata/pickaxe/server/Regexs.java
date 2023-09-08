@@ -1,10 +1,15 @@
 package tech.showierdata.pickaxe.server;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+
+import net.minecraft.text.MutableText;
+import net.minecraft.text.Text;
 
 import tech.showierdata.pickaxe.Pickaxe;
+import tech.showierdata.pickaxe.config.BracketEnum;
+import tech.showierdata.pickaxe.config.Options;
 
 import java.util.Arrays;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 
 public class Regexs {
@@ -86,6 +91,24 @@ public class Regexs {
 		return null;
 	}
 
+	public static Text removeTimestamps(Text text) {
 
-	
+		String string = text.getString();
+        String withoutTimestamps = string.replaceAll(".?\\d{1,2}:\\d{2}(:\\d{2})*.?", "");
+
+		// No changes? No action
+        if (withoutTimestamps.equals(string)) return text;
+
+		/*
+		 * Create new Text that contains new text
+		 * - Set text
+		 * - Copy style
+		 * - Copy Changes (Siblings)
+		 */
+        MutableText newText = Text.literal(withoutTimestamps.trim());
+        newText.setStyle(newText.getStyle());
+        newText.getSiblings().addAll(text.getSiblings());
+
+        return newText;
+	}
 }

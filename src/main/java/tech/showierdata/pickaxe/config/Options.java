@@ -25,12 +25,17 @@ public class Options {
 	public POI[] pois = POI.values();
 	public boolean enable_poi = true;
 	public boolean hide_plot_ads = true;
+	public final MsgStackConfig msgStackConfig;
+
+	public Object chatClear;
+
 	static Options INSTANCE;
 
 
 	public Options() { // all default vals
 		this.itemconfig = new ItemConfig();
 		this.cctconfig = new CCTConfig();
+		this.msgStackConfig = new MsgStackConfig();
 		INSTANCE = this;
 	}
 
@@ -61,5 +66,4 @@ public class Options {
 	public static void setInstance(Options instance) {
 		INSTANCE = instance;
 	}
-
 }
