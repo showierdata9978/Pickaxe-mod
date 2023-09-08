@@ -18,6 +18,7 @@ I dont have any ideas for this mod.
 - Chest Cooldown Timer (CCT)
 - Forge Timer
 - Plot ad hider
+- Chat Stacking
 
 ## Configuration
 - XP bar 
@@ -44,9 +45,10 @@ I dont have any ideas for this mod.
 ![App Screenshot](https://cdn.modrinth.com/data/v7NA6OIt/images/00b69392c7eee61274edc12b74383b621bf6a83e.png)
 
 (Huger Bar is outdated in the next few screenshots)
-![App Screenshot](https://cdn-raw.modrinth.com/data/v7NA6OIt/images/20d207af450fa9941a4b9771b90dacb6958c9e43.png)
+<br>
+<img src="https://cdn-raw.modrinth.com/data/v7NA6OIt/images/20d207af450fa9941a4b9771b90dacb6958c9e43.png" width="500px">
 
-![App Screenshot](https://cdn.modrinth.com/data/v7NA6OIt/images/fb6296621f01ce7bfdb31b305271872109560c4b.png)
+<img src="https://cdn.modrinth.com/data/v7NA6OIt/images/fb6296621f01ce7bfdb31b305271872109560c4b.png" width="500px" alt="Photo of mod">
 
 ![APp Screenshot](https://cdn.modrinth.com/data/v7NA6OIt/images/c58658b3eb5e01c55deaf0c27335635c43df4d1c.png)
 ## Installation
@@ -62,3 +64,5 @@ Install pickaxe-mod via [modrinth](https://modrinth.com/mod/pickaxe-mod)
 - [@MystWraith](https://github.com/MystWraith) (LonesomeInk ingame)
    - Forge Timer
    - Plot ad hider
+  - XP Bar Depth (Minor)
+  - Chat Stacking
