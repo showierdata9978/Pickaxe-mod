@@ -62,6 +62,8 @@ public class Pickaxe implements ModInitializer {
 	public double chestTimer = 0;
 	public static final CommandHelper commandHelper = CommandHelper.getInstance();
 
+	public boolean adFound = false;
+
 	public Text prevMessage;
 
 	public static Pickaxe getInstance() {
@@ -453,6 +455,7 @@ public class Pickaxe implements ModInitializer {
 			if (ad != null) {
 				if (!Pickaxe.getInstance().isInPickaxe()) return true;
 				Pickaxe.LOGGER.info(String.format("An ad was skipped!: %s by %s, %s", ad.plot.name, ad.plot.owner, ad.desc));
+				Pickaxe.getInstance().adFound = true;
 				return false;
 			}
 			return true;

@@ -15,6 +15,7 @@
   "client": [
     "OtherClientPlayerEntityMixin",
     "PlayerHudClassMixin",
-    "ChatHudMixin"
+    "ChatHudMixin",
+    "SoundMixin"
   ]
 }
