@@ -40,8 +40,10 @@ public class BossBarHudMixin implements IBossBarHudMixin {
 				assert client.player != null;
 				client.player.experienceProgress = clientBossBar.getPercent();
 
-				if (Options.getInstance().XPBarType == XPBarEnum.Depth)
-					client.player.experienceLevel = (int)Pickaxe.getInstance().rel_spawn.y;
+				if (Options.getInstance().XPBarType == XPBarEnum.Depth) {
+					int y = -1 * (int)Pickaxe.getInstance().rel_spawn.y;
+					client.player.experienceLevel = (y > 0)? y : 0;
+				}
 			}
 			return val;
 		});
