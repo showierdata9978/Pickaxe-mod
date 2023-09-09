@@ -1,15 +1,21 @@
 package tech.showierdata.pickaxe.mixin;
 
 
+import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Constant;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.ModifyArg;
+import org.spongepowered.asm.mixin.injection.ModifyConstant;
+import org.spongepowered.asm.mixin.injection.ModifyVariable;
+import org.spongepowered.asm.mixin.injection.Slice;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.hud.InGameHud;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.Identifier;
-
-import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.injection.*;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import tech.showierdata.pickaxe.Pickaxe;
 import tech.showierdata.pickaxe.config.Options;
 import tech.showierdata.pickaxe.config.XPBarEnum;
@@ -70,13 +76,33 @@ public abstract class InGameHudMixin {
     }
 
     @ModifyConstant(method = "renderExperienceBar", constant = @Constant(intValue = 8453920))
-    int ChangeLevelColor(int prev) {
+    int changeLevelColor(int prev) {
         if (!Pickaxe.getInstance().isInPickaxe()) return prev;
-        XPBarEnum xp = Options.getInstance().XPBarType;
-        if (xp == XPBarEnum.O2) return 0x33CCFF;
-        if (xp == XPBarEnum.Depth) {
-            if (Pickaxe.getInstance().rel_spawn.y < -30) return 0xCC33FF;
-            return 0xFF0000;
+        switch (Options.getInstance().XPBarType) {
+            case O2:
+                return 0x33CCFF;
+            case Depth:
+                if (Pickaxe.getInstance().rel_spawn.y < -30) return 0xCC33FF;
+                return 0xFF0000;
+            case Suit_Charge:
+                return 0xFFCC00;
+            default:
+                return prev;
+        }
+    }
+
+    @ModifyVariable(method = "renderExperienceBar",
+        slice = @Slice(
+            from = @At(
+                value = "FIELD",
+                target = "net/minecraft/client/network/ClientPlayerEntity.experienceLevel : I")),
+        at = @At(value = "STORE", ordinal = 0),
+        ordinal = 0)
+    String changeLevelString(String prev) {
+        if (!Pickaxe.getInstance().isInPickaxe()) return prev;
+        switch(Options.getInstance().XPBarType) {
+            case Suit_Charge:
+                return "⚡ " + prev;
         }
         return prev;
     }
