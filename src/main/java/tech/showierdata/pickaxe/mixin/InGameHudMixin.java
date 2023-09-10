@@ -5,9 +5,9 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Constant;
 import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.ModifyArg;
 import org.spongepowered.asm.mixin.injection.ModifyConstant;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
+import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.Slice;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
@@ -18,7 +18,6 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.Identifier;
 import tech.showierdata.pickaxe.Pickaxe;
 import tech.showierdata.pickaxe.config.Options;
-import tech.showierdata.pickaxe.config.XPBarEnum;
 
 
 @Mixin(InGameHud.class)
@@ -53,7 +52,7 @@ public abstract class InGameHudMixin {
         Pickaxe.getInstance().renderHotbarIcons(context, x, y, stack);
     }
 
-    @ModifyArg(method = "renderExperienceBar",
+    @Redirect(method = "renderExperienceBar",
         slice = @Slice(
             from = @At(
                 value = "INVOKE",
@@ -64,15 +63,26 @@ public abstract class InGameHudMixin {
             target = "net/minecraft/client/gui/DrawContext.drawTexture (Lnet/minecraft/util/Identifier;IIIIII)V"
         ),
         allow = 2)
-    Identifier swapIcons(Identifier prev, int x, int y, int u, int v, int width, int height) {
-        if (!Pickaxe.getInstance().isInPickaxe()) return prev;
-        XPBarEnum xp = Options.getInstance().XPBarType;
-        if (xp == XPBarEnum.Suit_Charge) return new Identifier("pickaxe", "textures/gui/yellow.png");
-        if (xp == XPBarEnum.Depth) {
-            if (Pickaxe.getInstance().rel_spawn.y < -30) return new Identifier("pickaxe", "textures/gui/purple.png");
-            return new Identifier("pickaxe", "textures/gui/red.png");
+    void swapIcons(DrawContext context, Identifier ICONS, int x, int y, int u, int v, int width, int height) {
+        if (!Pickaxe.getInstance().isInPickaxe()) {
+            context.drawTexture(ICONS, x, y, u, v, width, height);
+            return;
         }
-        return prev;
+        final Identifier COLORS = new Identifier("pickaxe", "textures/gui/colors.png"); // For some reason it has to be 256x256 unless you add args
+        v -= 64;
+        switch (Options.getInstance().XPBarType) {
+            case Depth:
+                v += 20;
+                if (Pickaxe.getInstance().rel_spawn.y > -30) v += 10;
+                break;
+            case Suit_Charge:
+                v += 40;
+                break;
+            case O2:
+                v += 10;
+                break;
+        }
+        context.drawTexture(COLORS, x, y, u, v, width, height);
     }
 
     @ModifyConstant(method = "renderExperienceBar", constant = @Constant(intValue = 8453920))
@@ -102,8 +112,13 @@ public abstract class InGameHudMixin {
         if (!Pickaxe.getInstance().isInPickaxe()) return prev;
         switch(Options.getInstance().XPBarType) {
             case Suit_Charge:
-                return "⚡ " + prev;
+                return "⚡" + prev;
+            case Radiation:
+                return "☢" + prev;
+            case O2:
+                //return "◌" + prev; // I dunno if I want it
+            default:
+                return prev;
         }
-        return prev;
     }
 }
