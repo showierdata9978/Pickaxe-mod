@@ -42,7 +42,7 @@ public class BossBarHudMixin implements IBossBarHudMixin {
 
 				if (Options.getInstance().XPBarType == XPBarEnum.Depth) {
 					int y = -1 * (int)Pickaxe.getInstance().rel_spawn.y;
-					client.player.experienceLevel = (y > 0)? y : 0;
+					client.player.experienceLevel = Math.max(y, 0);
 				}
 			}
 			return val;
