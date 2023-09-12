@@ -19,6 +19,7 @@ import tech.showierdata.pickaxe.Constants;
 import tech.showierdata.pickaxe.Pickaxe;
 import tech.showierdata.pickaxe.PickaxeCommand;
 import tech.showierdata.pickaxe.config.Options;
+import tech.showierdata.pickaxe.features.render.RenderCallbacks;
 
 import java.util.*;
 
@@ -44,9 +45,9 @@ public abstract class ClientPlayNetworkHandlerMixin  {
 
 		//sleep for 5 seconds
 
-		if (pickaxe.connectButtenPressed) {
+		if (RenderCallbacks.instance.connectButtenPressed) {
 			joinedGame = true;
-			pickaxe.connectButtenPressed = false;
+			RenderCallbacks.instance.connectButtenPressed = false;
 		}
 	}
 
@@ -102,7 +103,7 @@ public abstract class ClientPlayNetworkHandlerMixin  {
 	@Inject(method = "onGameMessage", at = @At("HEAD"))
 	private void onGameMessage(GameMessageS2CPacket packet, CallbackInfo ci) {
 		Pickaxe pickaxe = Pickaxe.getInstance();
-		if (pickaxe.chestTimer == 0 && packet.content().getString().matches("^\\[.] You found a chest!$") && pickaxe.isInPickaxe()) {
+		if (RenderCallbacks.instance.chestTimer == 0 && packet.content().getString().matches("^\\[.] You found a chest!$") && pickaxe.isInPickaxe()) {
 			double chestTimer = 1000;
 			MinecraftClient mc = MinecraftClient.getInstance();
 			assert mc.player != null;
@@ -116,12 +117,12 @@ public abstract class ClientPlayNetworkHandlerMixin  {
 					}
 				} catch (NullPointerException ignored) {}
 			}
-			pickaxe.chestTimer = chestTimer;
+			RenderCallbacks.instance.chestTimer = chestTimer;
 			Timer timer = new Timer();
 			timer.scheduleAtFixedRate(new TimerTask() {
 				@Override
 				public void run() {
-					if ((int) (--pickaxe.chestTimer) == 0) {
+					if ((int) (--RenderCallbacks.instance.chestTimer) == 0) {
 						if (Options.getInstance().cctconfig.soundEnabled) mc.getSoundManager().play(PositionedSoundInstance.master(SoundEvents.BLOCK_CHEST_LOCKED, 1, 1));
 						timer.cancel();
 						timer.purge();
