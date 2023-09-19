@@ -22,6 +22,7 @@ import net.minecraft.client.network.ServerInfo;
 import net.minecraft.client.option.KeyBinding;
 import net.minecraft.client.util.InputUtil;
 import net.minecraft.item.ItemStack;
+import net.minecraft.text.MutableText;
 import net.minecraft.text.Style;
 import net.minecraft.text.Text;
 import net.minecraft.text.Texts;
@@ -461,6 +462,11 @@ public class Pickaxe implements ModInitializer {
 			return true;
 		});
 
+		ClientReceiveMessageEvents.MODIFY_GAME.register((message, overlay) -> {
+			MutableText prepend = Text.literal(String.format("[ %s ] ", Pickaxe.getInstance().getTimeOfDay()));
+			return prepend.append(message);
+		});
+
 	}
 
 	public void renderHotbarIcons(DrawContext context, int x, int y, ItemStack stack) {
@@ -511,5 +517,10 @@ public class Pickaxe implements ModInitializer {
 
 		}
 
+	}
+
+	public int getTimeOfDay() {
+		MinecraftClient client = MinecraftClient.getInstance();
+		return (int)(client.world.getTimeOfDay() % 24000L);
 	}
 } 
