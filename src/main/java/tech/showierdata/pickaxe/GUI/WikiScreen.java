@@ -17,17 +17,35 @@ import net.minecraft.nbt.StringNbtReader;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.Registry;
 
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Stream;
+import java.util.Collection;
+import java.util.Iterator;
 
+import java.lang.reflect.Type;
+
+import org.apache.http.HeaderElement;
+import org.apache.http.HttpEntity;
 import org.apache.http.client.HttpClient;
+import org.apache.http.client.entity.GzipDecompressingEntity;
+import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
+import org.apache.http.impl.client.HttpClients;
+import org.apache.http.util.EntityUtils;
+import org.apache.http.Header;
+import org.apache.http.HttpHeaders;
 
+import com.google.common.reflect.TypeToken;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonPrimitive;
+
 import net.minecraft.registry.Registries;
 
 public class WikiScreen extends Screen {
@@ -47,18 +65,31 @@ public class WikiScreen extends Screen {
 				//send an http request to the api
 		//https://pickaxe.monocromeninja.replit.co/json/items
 		JsonArray data;
-		HttpClient client = HttpClientBuilder.create().build();
+		CloseableHttpClient client = HttpClients.custom()
+			.disableContentCompression()
+			.build();
 		try {
-			String body = client.execute(
-				new HttpGet("http://pickaxe.showierdata.tech/json/items")
-			).getEntity().toString();
+
+			HttpGet request = new HttpGet("https://pickaxe.showierdata.xyz/json/items");
+
+			CloseableHttpResponse response = client.execute(request);
+			HttpEntity entity = response.getEntity();
+
+			String body = EntityUtils.toString(entity, Charset.forName("UTF-8").name());
 
 			Gson gson = new Gson();
 
-			data =  gson.fromJson(body, JsonArray.class);					
-		
+			data = gson.fromJson(body, JsonArray.class);
+			
+		} catch (IllegalStateException e) {
+			Pickaxe.LOGGER.error("I can't find this error anywhere\n{}", e);
+			return new ArrayList<ItemStack>();
 		} catch (Exception e) {
 			Pickaxe.LOGGER.error("",e);
+			return new ArrayList<ItemStack>();
+		}
+		if (data == null) {
+			Pickaxe.LOGGER.error("Data is NULL");
 			return new ArrayList<ItemStack>();
 		}
 		List<ItemStack> items = new ArrayList<ItemStack>();
@@ -75,7 +106,7 @@ public class WikiScreen extends Screen {
 			    "enchanted": boolean,
 			    "rarity": string,
  			    "path": string,
-    			"lore": string[]
+    			"lore": string[] or null
 			}
 			 */
 
@@ -88,23 +119,27 @@ public class WikiScreen extends Screen {
 				itemStack.addEnchantment(Registries.ENCHANTMENT.get(new Identifier("minecraft:protection")), 1);
 			}
 
-			//add lore
-			List<JsonElement> lore = item.get("lore").getAsJsonArray().asList();
-
+			List<JsonElement> lore = null;
 			NbtList loreTag = new NbtList();
+			//add lore
+			try {
+				lore = item.get("lore").getAsJsonArray().asList();
 
-			for (int o = 0; o < lore.size(); o++) {
+				for (int o = 0; o < lore.size(); o++) {
 
-				String loreLine = lore.get(o).getAsString();
+					String loreLine = lore.get(o).getAsString();
 
-				try {
-					NbtElement loreNbtElement = StringNbtReader.parse("{\"text\":\"" + loreLine + "\"}");
-					loreTag.add(loreNbtElement);
-				} catch (Exception e) {
-					Pickaxe.LOGGER.error("",e);
+					try {
+						NbtElement loreNbtElement = StringNbtReader.parse("{\"text\":\"" + loreLine + "\"}");
+						loreTag.add(loreNbtElement);
+					} catch (Exception e) {
+						Pickaxe.LOGGER.error("",e);
 
 
+					}
 				}
+			} catch (IllegalStateException e) {
+				Pickaxe.LOGGER.error("{} has no lore\n{}", item.get("name").getAsString(), e);
 			}
 
 			itemStack.getOrCreateNbt().put("display", loreTag);

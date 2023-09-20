@@ -7,6 +7,7 @@ import net.minecraft.text.Text;
 import net.minecraft.util.math.Vec3d;
 import tech.showierdata.pickaxe.Pickaxe;
 import tech.showierdata.pickaxe.PickaxeCommand;
+import tech.showierdata.pickaxe.GUI.WikiScreen;
 import tech.showierdata.pickaxe.Constants;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -81,6 +82,7 @@ public abstract class ClientPlayNetworkHandlerMixin  {
 					client.player.sendMessage(Text.literal(
 						"-- Help --\n" + String.join("\n", s)
 					));
+					break;
 			}
 
 			info.cancel();
