@@ -114,13 +114,13 @@ public class WikiScreen extends Screen {
 
 				for (int o = 0; o < lore.size(); o++) {
 
-					String loreLine = lore.get(o).getAsString();
+					String loreLine = lore.get(o).getAsString().replace("\"", "\\\"");
 
 					try {
 						NbtElement loreNbtElement = StringNbtReader.parse("{\"text\":\"" + loreLine + "\"}");
 						loreTag.add(loreNbtElement);
 					} catch (Exception e) {
-						Pickaxe.LOGGER.error("",e);
+						Pickaxe.LOGGER.error("{} causes this problem\n{}", item.get("name").getAsString(), e);
 
 
 					}
@@ -158,8 +158,6 @@ public class WikiScreen extends Screen {
 		this.renderBackground(context);
 
 		// Reload Items Button
-		
-	
 
 	}
 
