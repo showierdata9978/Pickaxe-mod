@@ -20,31 +20,18 @@ import net.minecraft.registry.Registry;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Stream;
-import java.util.Collection;
-import java.util.Iterator;
 
-import java.lang.reflect.Type;
-
-import org.apache.http.HeaderElement;
 import org.apache.http.HttpEntity;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.entity.GzipDecompressingEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
-import org.apache.http.Header;
-import org.apache.http.HttpHeaders;
 
-import com.google.common.reflect.TypeToken;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import com.google.gson.JsonPrimitive;
 
 import net.minecraft.registry.Registries;
 
