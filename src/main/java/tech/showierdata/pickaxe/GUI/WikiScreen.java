@@ -139,7 +139,8 @@ public class WikiScreen extends Screen {
 					}
 				}
 			} catch (IllegalStateException e) {
-				Pickaxe.LOGGER.error("{} has no lore\n{}", item.get("name").getAsString(), e);
+				//Pickaxe.LOGGER.error("{} has no lore\n{}", item.get("name").getAsString(), e);
+				// Juz ignore it :)
 			}
 
 			itemStack.getOrCreateNbt().put("display", loreTag);
