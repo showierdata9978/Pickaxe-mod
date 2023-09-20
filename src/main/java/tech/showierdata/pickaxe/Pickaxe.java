@@ -67,6 +67,10 @@ public class Pickaxe implements ModInitializer {
 
 	public Text prevMessage;
 
+	public static final int MOON_TIME = 13480;
+	public static final int MOON_WINDOW = 35;
+	public static final int MOON_TICK_SPEED = 28;
+
 	public static Pickaxe getInstance() {
 		return instence;
 	}
@@ -333,6 +337,31 @@ public class Pickaxe implements ModInitializer {
 		context.drawTextWithShadow(renderer, Texts.join(texts, Text.literal(" ")), 5, y, Colors.WHITE);
 	}
 
+	private void drawMDT(DrawContext context, TextRenderer renderer) {
+		List<Text> texts = new ArrayList<>();
+		texts.add(Text.literal("Moon Door:").setStyle(Style.EMPTY.withColor(0x33CCFF)));
+		StringBuilder sb = new StringBuilder();
+		MinecraftClient client = MinecraftClient.getInstance();
+		int time = getMoonDoorTime();
+		if ((int) time < MOON_WINDOW) sb.append("NOW ");
+		if (time > 0) {
+			if (time >= 60) {
+				sb.append((int) (time / 60));
+				sb.append("m ");
+			}
+			sb.append(time % 60);
+			sb.append("s");
+		}
+		texts.add(Text.literal(sb.toString()).setStyle(Style.EMPTY.withColor((time < MOON_WINDOW) ? Formatting.AQUA : Formatting.WHITE)));
+		int y = 10 + client.textRenderer.fontHeight;
+
+		if (Options.getInstance().cctconfig.location == CCTLocation.BOTTEMRIGHT) {
+			y = client.getWindow().getScaledHeight() - 2*(client.textRenderer.fontHeight + 5);
+		}
+
+		context.drawTextWithShadow(renderer, Texts.join(texts, Text.literal(" ")), 5, y, Colors.WHITE);
+	}
+
 	private void register_callbacks() {
 		// @up keybind
 		KeyBinding keyBinding = KeyBindingHelper.registerKeyBinding(
@@ -402,6 +431,12 @@ public class Pickaxe implements ModInitializer {
 			} catch (Exception e) {
 				Pickaxe.LOGGER.error("Error while drawing forge UI", e);
 			}
+
+			try {
+				drawMDT(context, renderer);
+			} catch (Exception e) {
+				Pickaxe.LOGGER.error("Error while drawing Mood Door UI", e);
+			}
 		});
 
 
@@ -462,11 +497,6 @@ public class Pickaxe implements ModInitializer {
 			return true;
 		});
 
-		ClientReceiveMessageEvents.MODIFY_GAME.register((message, overlay) -> {
-			MutableText prepend = Text.literal(String.format("[ %s ] ", Pickaxe.getInstance().getTimeOfDay()));
-			return prepend.append(message);
-		});
-
 	}
 
 	public void renderHotbarIcons(DrawContext context, int x, int y, ItemStack stack) {
@@ -522,5 +552,12 @@ public class Pickaxe implements ModInitializer {
 	public int getTimeOfDay() {
 		MinecraftClient client = MinecraftClient.getInstance();
 		return (int)(client.world.getTimeOfDay() % 24000L);
+	}
+
+	public int getMoonDoorTime() {
+		MinecraftClient client = MinecraftClient.getInstance();
+		int ctime = (int)((Pickaxe.MOON_TIME - client.world.getTimeOfDay()) % 24000L);
+		if (ctime < 0) ctime += 24000; // You can get negative numbers, which is not useful >:(
+		return Math.floorDiv(ctime, MOON_TICK_SPEED); // For some reason it ticks by 28 per second;
 	}
 } 
