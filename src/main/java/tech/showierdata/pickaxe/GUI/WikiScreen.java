@@ -68,14 +68,11 @@ public class WikiScreen extends Screen {
 
 			data = gson.fromJson(body, JsonArray.class);
 			
-		} catch (IllegalStateException e) {
-			Pickaxe.LOGGER.error("I can't find this error anywhere\n{}", e);
-			return new ArrayList<ItemStack>();
 		} catch (Exception e) {
-			Pickaxe.LOGGER.error("",e);
+			Pickaxe.LOGGER.error("", e);
 			return new ArrayList<ItemStack>();
 		}
-		if (data == null) {
+		if (data == null) { // Don't think this can trigger
 			Pickaxe.LOGGER.error("Data is NULL");
 			return new ArrayList<ItemStack>();
 		}
