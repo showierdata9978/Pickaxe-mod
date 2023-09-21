@@ -5,5 +5,5 @@ public class CCTConfig {
     public boolean soundEnabled = false;
     public boolean enabledOutsidePickaxe = false;
 
-    public CCTLocation location = CCTLocation.TOPRIGHT;
+    public TimerLocation location = TimerLocation.TOPRIGHT;
 }

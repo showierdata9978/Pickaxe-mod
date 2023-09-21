@@ -8,7 +8,7 @@ public class MDTConfig {
 	public static final int MOON_WINDOW = 35;
 	public static final int MOON_TICK_SPEED = 28;
 
-    public CCTLocation location = CCTLocation.TOPRIGHT;
+    public TimerLocation location = TimerLocation.TOPRIGHT;
 
     public boolean soundEnabled = false;
     public boolean reverseCCTorder = false;
