@@ -1,6 +1,11 @@
 package tech.showierdata.pickaxe.config;
 
+import java.util.Timer;
+import java.util.TimerTask;
+
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.sound.PositionedSoundInstance;
+import net.minecraft.sound.SoundEvents;
 
 public class MDTConfig {
 
@@ -37,7 +42,50 @@ public class MDTConfig {
 	public int getMoonDoorTime() {
 		MinecraftClient client = MinecraftClient.getInstance();
 		int ctime = (int)((MOON_TIME - client.world.getTimeOfDay()) % 24000L);
-		if (ctime < 0) ctime += 24000; // You can get negative numbers, which is not useful >:(
+		if (ctime < 0) {
+            ctime += 24000; // You can get negative numbers, which is not useful >:(
+			mdtReadySounded = false;
+			mdtNowSounded = false;
+        }
 		return Math.floorDiv(ctime, MOON_TICK_SPEED);
 	}
+
+    private boolean mdtReadySounded = false; // To prevent it from creating a ton of timers and crashing the game
+	private boolean mdtNowSounded = false;
+    public void prepSounds() {
+        MinecraftClient client = MinecraftClient.getInstance();
+        int time = getMoonDoorTime();
+
+		if (time > MDTConfig.MOON_WINDOW && !mdtReadySounded) {
+			mdtReadySounded = true;
+			Timer timer = new Timer();
+			timer.scheduleAtFixedRate(new TimerTask() {
+				@Override
+				public void run() {
+					MDTConfig mdt = Options.getInstance().mdtConfig;
+					int time = mdt.getMoonDoorTime();
+					if (time == MDTConfig.MOON_WINDOW) {
+						if (mdt.soundEnabled) client.getSoundManager().play(PositionedSoundInstance.master(SoundEvents.BLOCK_BEACON_POWER_SELECT, 1, 1));
+						timer.cancel();
+						timer.purge();
+					}
+				}
+			}, 1000, 1000);
+		} else if (time > 0 && !mdtNowSounded) {
+			mdtNowSounded = true;
+			Timer timer = new Timer();
+			timer.scheduleAtFixedRate(new TimerTask() {
+				@Override
+				public void run() {
+					MDTConfig mdt = Options.getInstance().mdtConfig;
+					int time = mdt.getMoonDoorTime();
+					if (time == 0) {
+						if (mdt.soundEnabled) client.getSoundManager().play(PositionedSoundInstance.master(SoundEvents.BLOCK_BEACON_DEACTIVATE, 1, 1));
+						timer.cancel();
+						timer.purge();
+					}
+				}
+			}, 1000, 1000);
+		}
+    }
 }
