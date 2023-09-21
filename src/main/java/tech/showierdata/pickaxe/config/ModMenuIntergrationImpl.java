@@ -189,6 +189,35 @@ public class ModMenuIntergrationImpl implements ModMenuApi  {
 		);
 	}
 
+	public void createMDTConfig(YetAnotherConfigLib.@NotNull Builder builder) {
+		builder.category(ConfigCategory.createBuilder()
+			.name(Text.literal("Moon Door Timer"))
+			.option(Option.<Boolean>createBuilder()
+				.name(Text.literal("Enabled"))
+				.binding(true, () -> Options.getInstance().mdtConfig.enabled, e -> Options.getInstance().mdtConfig.enabled = e)
+				.controller(BooleanControllerBuilder::create)
+				.build()
+			)
+			.option(Option.<Boolean>createBuilder()
+				.name(Text.literal("Play Sound When Door Ready"))
+				.binding(false, () -> Options.getInstance().mdtConfig.soundEnabled, e -> Options.getInstance().mdtConfig.soundEnabled = e)
+				.controller(BooleanControllerBuilder::create)
+				.build()
+			)
+			.option(Option.<CCTLocation>createBuilder()
+				.name(Text.literal("MDT Location"))
+				.binding(CCTLocation.TOPRIGHT, () -> Options.getInstance().mdtConfig.location, e -> Options.getInstance().mdtConfig.location = e)
+				.controller((opt) -> EnumControllerBuilder.create(opt)
+						.enumClass(CCTLocation.class)
+				)
+
+				.build()
+			)
+
+			.build()
+		);
+	}
+
 	private void createPOIConfig(YetAnotherConfigLib.@NotNull Builder builder) {
 		builder.category(ConfigCategory.createBuilder()
 				.name(Text.literal("POI Config"))
@@ -259,6 +288,7 @@ public class ModMenuIntergrationImpl implements ModMenuApi  {
 		createGeneralScreen(builder);
 		createItemConfig(builder);
 		createCCTConfig(builder);
+		createMDTConfig(builder);
 		createPOIConfig(builder);
 		createMessageStackingConfig(builder, parent);
 

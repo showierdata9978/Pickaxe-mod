@@ -20,8 +20,11 @@ import net.minecraft.client.gui.widget.ClickableWidget;
 import net.minecraft.client.network.ServerAddress;
 import net.minecraft.client.network.ServerInfo;
 import net.minecraft.client.option.KeyBinding;
+import net.minecraft.client.sound.PositionedSoundInstance;
+import net.minecraft.client.sound.SoundManager;
 import net.minecraft.client.util.InputUtil;
 import net.minecraft.item.ItemStack;
+import net.minecraft.sound.SoundEvents;
 import net.minecraft.text.MutableText;
 import net.minecraft.text.Style;
 import net.minecraft.text.Text;
@@ -36,7 +39,8 @@ import org.lwjgl.glfw.GLFW;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import tech.showierdata.pickaxe.Commands.PickaxeCommandManager;
-import tech.showierdata.pickaxe.config.CCTLocation;
+import tech.showierdata.pickaxe.config.TimerLocation;
+import tech.showierdata.pickaxe.config.MDTConfig;
 import tech.showierdata.pickaxe.config.Options;
 import tech.showierdata.pickaxe.mixin.PlayerHudListMixin;
 import tech.showierdata.pickaxe.server.Ad;
@@ -49,6 +53,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
+import java.util.Timer;
+import java.util.TimerTask;
 
 @SuppressWarnings("ReassignedVariable")
 public class Pickaxe implements ModInitializer {
@@ -66,10 +72,6 @@ public class Pickaxe implements ModInitializer {
 	public boolean adFound = false;
 
 	public Text prevMessage;
-
-	public static final int MOON_TIME = 13480;
-	public static final int MOON_WINDOW = 35;
-	public static final int MOON_TICK_SPEED = 28;
 
 	public static Pickaxe getInstance() {
 		return instence;
@@ -328,23 +330,42 @@ public class Pickaxe implements ModInitializer {
                 sb.append("s");
             }
 		texts.add(Text.literal(sb.toString()).setStyle(Style.EMPTY.withColor(((int) chestTimer == 0) ? Formatting.GREEN : Formatting.WHITE)));
-		int y = 5;
 
-		if (Options.getInstance().cctconfig.location == CCTLocation.BOTTEMRIGHT) {
+		TimerLocation cctLoc = Options.getInstance().cctconfig.location;
+		TimerLocation mdtLoc = Options.getInstance().mdtConfig.location;
+		boolean rev = Options.getInstance().mdtConfig.reverseCCTorder;
+
+		int y = 5;
+		if (mdtLoc == TimerLocation.TOPRIGHT && rev) {
+			y += 5 + client.textRenderer.fontHeight;
+		}
+
+		if (cctLoc == TimerLocation.BOTTEMRIGHT) {
 			y = client.getWindow().getScaledHeight() - client.textRenderer.fontHeight - 5;
+			if (mdtLoc == TimerLocation.BOTTEMRIGHT && rev) {
+				y -= 5 + client.textRenderer.fontHeight;
+			}
 		}
 
 		context.drawTextWithShadow(renderer, Texts.join(texts, Text.literal(" ")), 5, y, Colors.WHITE);
 	}
 
+	private boolean mdtSounded = false; // To prevent it from creating a ton of timers and crashing the game
 	private void drawMDT(DrawContext context, TextRenderer renderer) {
 		List<Text> texts = new ArrayList<>();
 		texts.add(Text.literal("Moon Door:").setStyle(Style.EMPTY.withColor(0x33CCFF)));
 		StringBuilder sb = new StringBuilder();
 		MinecraftClient client = MinecraftClient.getInstance();
-		int time = getMoonDoorTime();
-		if ((int) time < MOON_WINDOW) sb.append("NOW ");
-		if (time > 0) {
+		int time = Options.getInstance().mdtConfig.getMoonDoorTime();
+		if (time == -MDTConfig.MOON_WINDOW) { 
+			sb.append("NOW");
+			mdtSounded = false;
+		}
+		else {
+			if (time < 0) {
+				sb.append("READY ");
+				time += MDTConfig.MOON_WINDOW;
+			}
 			if (time >= 60) {
 				sb.append((int) (time / 60));
 				sb.append("m ");
@@ -352,14 +373,42 @@ public class Pickaxe implements ModInitializer {
 			sb.append(time % 60);
 			sb.append("s");
 		}
-		texts.add(Text.literal(sb.toString()).setStyle(Style.EMPTY.withColor((time < MOON_WINDOW) ? Formatting.AQUA : Formatting.WHITE)));
-		int y = 10 + client.textRenderer.fontHeight;
+		texts.add(Text.literal(sb.toString()).setStyle(Style.EMPTY.withColor((time < MDTConfig.MOON_WINDOW) ? (time == 0)? Formatting.RED : Formatting.AQUA : Formatting.WHITE)));
+		
+		TimerLocation cctLoc = Options.getInstance().cctconfig.location;
+		TimerLocation mdtLoc = Options.getInstance().mdtConfig.location;
+		boolean rev = !Options.getInstance().mdtConfig.reverseCCTorder;
 
-		if (Options.getInstance().cctconfig.location == CCTLocation.BOTTEMRIGHT) {
-			y = client.getWindow().getScaledHeight() - 2*(client.textRenderer.fontHeight + 5);
+		int y = 5;
+		if (cctLoc == TimerLocation.TOPRIGHT && rev) {
+			y += 5 + client.textRenderer.fontHeight;
+		}
+
+		if (mdtLoc == TimerLocation.BOTTEMRIGHT) {
+			y = client.getWindow().getScaledHeight() - client.textRenderer.fontHeight - 5;
+			if (cctLoc == TimerLocation.BOTTEMRIGHT && rev) {
+				y -= client.textRenderer.fontHeight + 5;
+			}
 		}
 
 		context.drawTextWithShadow(renderer, Texts.join(texts, Text.literal(" ")), 5, y, Colors.WHITE);
+		
+		if (time > 0 && !mdtSounded) {
+			mdtSounded = true;
+			Timer timer = new Timer();
+			timer.scheduleAtFixedRate(new TimerTask() {
+				@Override
+				public void run() {
+					MDTConfig mdt = Options.getInstance().mdtConfig;
+					int time = mdt.getMoonDoorTime();
+					if (time == 0) {
+						if (mdt.soundEnabled) client.getSoundManager().play(PositionedSoundInstance.master(SoundEvents.BLOCK_BEACON_POWER_SELECT, 1, 1));
+						timer.cancel();
+						timer.purge();
+					}
+				}
+			}, 1000, 1000);
+		}
 	}
 
 	private void register_callbacks() {
@@ -432,7 +481,7 @@ public class Pickaxe implements ModInitializer {
 				Pickaxe.LOGGER.error("Error while drawing forge UI", e);
 			}
 
-			try {
+			if (options.mdtConfig.enabled && inPickaxe) try {
 				drawMDT(context, renderer);
 			} catch (Exception e) {
 				Pickaxe.LOGGER.error("Error while drawing Mood Door UI", e);
@@ -547,17 +596,5 @@ public class Pickaxe implements ModInitializer {
 
 		}
 
-	}
-
-	public int getTimeOfDay() {
-		MinecraftClient client = MinecraftClient.getInstance();
-		return (int)(client.world.getTimeOfDay() % 24000L);
-	}
-
-	public int getMoonDoorTime() {
-		MinecraftClient client = MinecraftClient.getInstance();
-		int ctime = (int)((Pickaxe.MOON_TIME - client.world.getTimeOfDay()) % 24000L);
-		if (ctime < 0) ctime += 24000; // You can get negative numbers, which is not useful >:(
-		return Math.floorDiv(ctime, MOON_TICK_SPEED); // For some reason it ticks by 28 per second;
 	}
 } 

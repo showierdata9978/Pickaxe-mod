@@ -26,6 +26,7 @@ public class Options {
 	public boolean enable_poi = true;
 	public boolean hide_plot_ads = true;
 	public final MsgStackConfig msgStackConfig;
+	public final MDTConfig mdtConfig;
 
 	public Object chatClear;
 
@@ -36,6 +37,7 @@ public class Options {
 		this.itemconfig = new ItemConfig();
 		this.cctconfig = new CCTConfig();
 		this.msgStackConfig = new MsgStackConfig();
+		this.mdtConfig = new MDTConfig();
 		INSTANCE = this;
 	}
 
