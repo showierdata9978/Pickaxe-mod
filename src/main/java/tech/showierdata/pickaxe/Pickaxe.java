@@ -357,16 +357,18 @@ public class Pickaxe implements ModInitializer {
 		texts.add(Text.literal("Moon Door:").setStyle(Style.EMPTY.withColor(0x33CCFF)));
 		StringBuilder sb = new StringBuilder();
 		MinecraftClient client = MinecraftClient.getInstance();
+
 		int time = Options.getInstance().mdtConfig.getMoonDoorTime();
+
+		Text color = Text.literal(sb.toString()).setStyle(Style.EMPTY.withColor((time < MDTConfig.MOON_WINDOW)? (time == 0)? Formatting.RED : Formatting.AQUA : Formatting.WHITE));
+
 		if (time == 0) { 
 			sb.append("NOW");
 			mdtReadySounded = false;
-		}
-		else {
-			if (time < MDTConfig.MOON_WINDOW) {
-				sb.append("READY ");
-				mdtNowSounded = false;
-			} else time -= MDTConfig.MOON_WINDOW;
+			mdtNowSounded = false;
+		} else {
+			if (time < MDTConfig.MOON_WINDOW) sb.append("READY ");
+			else time -= MDTConfig.MOON_WINDOW;
 
 			if (time >= 60) {
 				sb.append((int) (time / 60));
@@ -375,7 +377,7 @@ public class Pickaxe implements ModInitializer {
 			sb.append(time % 60);
 			sb.append("s");
 		}
-		texts.add(Text.literal(sb.toString()).setStyle(Style.EMPTY.withColor((time < MDTConfig.MOON_WINDOW)? (time == 0)? Formatting.RED : Formatting.AQUA : Formatting.WHITE)));
+		texts.add(color);
 		
 		TimerLocation cctLoc = Options.getInstance().cctconfig.location;
 		TimerLocation mdtLoc = Options.getInstance().mdtConfig.location;
@@ -395,6 +397,7 @@ public class Pickaxe implements ModInitializer {
 
 		context.drawTextWithShadow(renderer, Texts.join(texts, Text.literal(" ")), 5, y, Colors.WHITE);
 
+		// Sounds
 		if (time > MDTConfig.MOON_WINDOW && !mdtReadySounded) {
 			mdtReadySounded = true;
 			Timer timer = new Timer();
