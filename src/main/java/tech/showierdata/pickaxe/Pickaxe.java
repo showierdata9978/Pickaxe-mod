@@ -397,12 +397,18 @@ public class Pickaxe implements ModInitializer {
 			mdtSounded = true;
 			Timer timer = new Timer();
 			timer.scheduleAtFixedRate(new TimerTask() {
+				private boolean readySounded = false;
+
 				@Override
 				public void run() {
 					MDTConfig mdt = Options.getInstance().mdtConfig;
 					int time = mdt.getMoonDoorTime();
-					if (time == 0) {
+					if (time == 0 && !readySounded) {
 						if (mdt.soundEnabled) client.getSoundManager().play(PositionedSoundInstance.master(SoundEvents.BLOCK_BEACON_POWER_SELECT, 1, 1));
+						readySounded = true;
+					}
+					if (time == -MDTConfig.MOON_WINDOW) {
+						if (mdt.soundEnabled) client.getSoundManager().play(PositionedSoundInstance.master(SoundEvents.BLOCK_BEACON_DEACTIVATE, 1, 1));
 						timer.cancel();
 						timer.purge();
 					}
