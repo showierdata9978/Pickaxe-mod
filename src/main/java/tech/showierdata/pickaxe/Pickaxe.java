@@ -350,21 +350,23 @@ public class Pickaxe implements ModInitializer {
 		context.drawTextWithShadow(renderer, Texts.join(texts, Text.literal(" ")), 5, y, Colors.WHITE);
 	}
 
-	
+	private boolean mdtReadySounded = false; // To prevent it from creating a ton of timers and crashing the game
+	private boolean mdtNowSounded = false;
 	private void drawMDT(DrawContext context, TextRenderer renderer) {
 		List<Text> texts = new ArrayList<>();
 		texts.add(Text.literal("Moon Door:").setStyle(Style.EMPTY.withColor(0x33CCFF)));
 		StringBuilder sb = new StringBuilder();
 		MinecraftClient client = MinecraftClient.getInstance();
-
 		int time = Options.getInstance().mdtConfig.getMoonDoorTime();
-
-		Text color = Text.literal(sb.toString()).setStyle(Style.EMPTY.withColor((time < MDTConfig.MOON_WINDOW)? (time == 0)? Formatting.RED : Formatting.AQUA : Formatting.WHITE));
-
-		if (time == 0) sb.append("NOW");
+		if (time == 0) { 
+			sb.append("NOW");
+			mdtReadySounded = false;
+		}
 		else {
-			if (time < MDTConfig.MOON_WINDOW) sb.append("READY ");
-			else time -= MDTConfig.MOON_WINDOW;
+			if (time < MDTConfig.MOON_WINDOW) {
+				sb.append("READY ");
+				mdtNowSounded = false;
+			} else time -= MDTConfig.MOON_WINDOW;
 
 			if (time >= 60) {
 				sb.append((int) (time / 60));
@@ -373,8 +375,7 @@ public class Pickaxe implements ModInitializer {
 			sb.append(time % 60);
 			sb.append("s");
 		}
-
-		texts.add(color);
+		texts.add(Text.literal(sb.toString()).setStyle(Style.EMPTY.withColor((time < MDTConfig.MOON_WINDOW)? (time == 0)? Formatting.RED : Formatting.AQUA : Formatting.WHITE)));
 		
 		TimerLocation cctLoc = Options.getInstance().cctconfig.location;
 		TimerLocation mdtLoc = Options.getInstance().mdtConfig.location;
@@ -394,7 +395,37 @@ public class Pickaxe implements ModInitializer {
 
 		context.drawTextWithShadow(renderer, Texts.join(texts, Text.literal(" ")), 5, y, Colors.WHITE);
 
-		Options.getInstance().mdtConfig.prepSounds();
+		if (time > MDTConfig.MOON_WINDOW && !mdtReadySounded) {
+			mdtReadySounded = true;
+			Timer timer = new Timer();
+			timer.scheduleAtFixedRate(new TimerTask() {
+				@Override
+				public void run() {
+					MDTConfig mdt = Options.getInstance().mdtConfig;
+					int time = mdt.getMoonDoorTime();
+					if (time == MDTConfig.MOON_WINDOW) {
+						if (mdt.soundEnabled) client.getSoundManager().play(PositionedSoundInstance.master(SoundEvents.BLOCK_BEACON_POWER_SELECT, 1, 1));
+						timer.cancel();
+						timer.purge();
+					}
+				}
+			}, 1000, 1000);
+		} else if (time > 0 && !mdtNowSounded) {
+			mdtNowSounded = true;
+			Timer timer = new Timer();
+			timer.scheduleAtFixedRate(new TimerTask() {
+				@Override
+				public void run() {
+					MDTConfig mdt = Options.getInstance().mdtConfig;
+					int time = mdt.getMoonDoorTime();
+					if (time == 0) {
+						if (mdt.soundEnabled) client.getSoundManager().play(PositionedSoundInstance.master(SoundEvents.BLOCK_BEACON_DEACTIVATE, 1, 1));
+						timer.cancel();
+						timer.purge();
+					}
+				}
+			}, 1000, 1000);
+		}
 	}
 
 	private void register_callbacks() {
