@@ -360,12 +360,10 @@ public class Pickaxe implements ModInitializer {
 
 		int time = Options.getInstance().mdtConfig.getMoonDoorTime();
 
-		Text color = Text.literal(sb.toString()).setStyle(Style.EMPTY.withColor((time < MDTConfig.MOON_WINDOW)? (time == 0)? Formatting.RED : Formatting.AQUA : Formatting.WHITE));
+		Style color = Style.EMPTY.withColor((time < MDTConfig.MOON_WINDOW)? (time == 0)? Formatting.RED : Formatting.AQUA : Formatting.WHITE);
 
 		if (time == 0) { 
 			sb.append("NOW");
-			mdtReadySounded = false;
-			mdtNowSounded = false;
 		} else {
 			if (time < MDTConfig.MOON_WINDOW) sb.append("READY ");
 			else time -= MDTConfig.MOON_WINDOW;
@@ -377,7 +375,7 @@ public class Pickaxe implements ModInitializer {
 			sb.append(time % 60);
 			sb.append("s");
 		}
-		texts.add(color);
+		texts.add(Text.literal(sb.toString()).setStyle(color));
 		
 		TimerLocation cctLoc = Options.getInstance().cctconfig.location;
 		TimerLocation mdtLoc = Options.getInstance().mdtConfig.location;
@@ -423,7 +421,9 @@ public class Pickaxe implements ModInitializer {
 					int time = mdt.getMoonDoorTime();
 					if (time == 0) {
 						if (mdt.soundEnabled) client.getSoundManager().play(PositionedSoundInstance.master(SoundEvents.BLOCK_BEACON_DEACTIVATE, 1, 1));
-						timer.cancel();
+						mdtReadySounded = false;
+                        mdtNowSounded = false;
+                        timer.cancel();
 						timer.purge();
 					}
 				}
