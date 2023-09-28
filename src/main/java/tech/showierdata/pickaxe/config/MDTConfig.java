@@ -15,8 +15,14 @@ public class MDTConfig {
 
     public TimerLocation location = TimerLocation.TOPRIGHT;
 
+    /** Is sound enabled? */
     public boolean soundEnabled = false;
-    public boolean reverseCCTorder = false;
+
+    /** 
+     * Setting for showierdata9978
+     * <p>Allows you to switch which timer is on top
+     */
+    public boolean reverseCCTOrder = false;
 
     public boolean enabled = true;
 
@@ -37,7 +43,7 @@ public class MDTConfig {
 	public int getMoonDoorTime() {
 		MinecraftClient client = MinecraftClient.getInstance();
 		int ctime = (int)((MOON_TIME - client.world.getTimeOfDay()) % 24000L);
-		if (ctime < 0) ctime += 24000; // You can get negative numbers, which is not useful >:(
+		if (ctime < -MOON_TICK_SPEED) ctime += 24000; // You can get negative numbers, which is not useful >:(
 		return Math.floorDiv(ctime, MOON_TICK_SPEED);
 	}
 }

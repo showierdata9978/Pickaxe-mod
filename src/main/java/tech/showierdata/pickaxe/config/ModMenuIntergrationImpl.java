@@ -213,6 +213,12 @@ public class ModMenuIntergrationImpl implements ModMenuApi  {
 
 				.build()
 			)
+			.option(Option.<Boolean>createBuilder()
+				.name(Text.literal("Swap MDT and CCT"))
+				.binding(false, () -> Options.getInstance().mdtConfig.reverseCCTOrder, e -> Options.getInstance().mdtConfig.reverseCCTOrder = e)
+				.controller(BooleanControllerBuilder::create)
+				.build()
+			)
 
 			.build()
 		);
