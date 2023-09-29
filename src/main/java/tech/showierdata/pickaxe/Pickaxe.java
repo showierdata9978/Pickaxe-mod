@@ -63,6 +63,7 @@ public class Pickaxe implements ModInitializer {
 	public static final CommandHelper commandHelper = CommandHelper.getInstance();
 
 	public boolean adFound = false;
+	public boolean bossbarFound = true;
 
 	public Text prevMessage;
 
@@ -216,7 +217,7 @@ public class Pickaxe implements ModInitializer {
 				int coinsWidth = renderer.getWidth(coins);
 				context.drawTextWithShadow(renderer, coins, xhpRight - coinsWidth, ybottom, 0xFFFF00);
 			} catch (Exception e) {
-				Pickaxe.LOGGER.error("Error while drawing custom hunger bar", e);
+				//Pickaxe.LOGGER.error("Error while drawing custom hunger bar", e);
 
 				// Draw a empty hunger bar with 0 coins
 				// Calculate the hunger bar values
@@ -286,7 +287,7 @@ public class Pickaxe implements ModInitializer {
 				int tagWidth = renderer.getWidth(tag);
 				context.drawTextWithShadow(renderer, tag, xhpRight - forgeWidth - tagWidth, ybottom - 11, 0xFFFFFF);
 			} catch (Exception e) {
-				Pickaxe.LOGGER.error("Error while drawing custom hunger bar (Forge)", e);
+				//Pickaxe.LOGGER.error("Error while drawing custom hunger bar (Forge)", e);
 
 				// Draw a empty hunger bar with 0 coins
 				// Calculate the hunger bar values

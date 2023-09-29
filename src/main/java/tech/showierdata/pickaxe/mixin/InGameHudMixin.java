@@ -13,6 +13,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.hud.InGameHud;
+import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.Identifier;
@@ -105,11 +106,13 @@ public abstract class InGameHudMixin {
         slice = @Slice(
             from = @At(
                 value = "FIELD",
-                target = "net/minecraft/client/network/ClientPlayerEntity.experienceLevel : I")),
+                target = "net/minecraft/client/network/ClientPlayerEntity.experienceLevel : I"
+            )),
         at = @At(value = "STORE", ordinal = 0),
         ordinal = 0)
     String changeLevelString(String prev) {
         if (!Pickaxe.getInstance().isInPickaxe()) return prev;
+        if (prev.equals("0")) prev = "";
         switch(Options.getInstance().XPBarType) {
             case Suit_Charge:
                 return "⚡" + prev;
@@ -120,5 +123,24 @@ public abstract class InGameHudMixin {
             default:
                 return prev;
         }
+    }
+
+    @Redirect(
+        method = "renderExperienceBar",
+        slice = @Slice(
+            from = @At(
+                value = "INVOKE",
+                target = "net/minecraft/util/profiler/Profiler.pop ()V",
+                ordinal = 0
+            )
+        ),
+        at = @At(
+            value = "FIELD",
+            target = "net/minecraft/client/network/ClientPlayerEntity.experienceLevel : I",
+            ordinal = 0
+        )
+    )
+    int displayWithZero(ClientPlayerEntity clientPlayerEntity) {
+        return 1;
     }
 }
