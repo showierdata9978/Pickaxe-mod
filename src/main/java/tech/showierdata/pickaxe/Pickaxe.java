@@ -20,8 +20,10 @@ import net.minecraft.client.gui.widget.ClickableWidget;
 import net.minecraft.client.network.ServerAddress;
 import net.minecraft.client.network.ServerInfo;
 import net.minecraft.client.option.KeyBinding;
+import net.minecraft.client.sound.PositionedSoundInstance;
 import net.minecraft.client.util.InputUtil;
 import net.minecraft.item.ItemStack;
+import net.minecraft.sound.SoundEvents;
 import net.minecraft.text.Style;
 import net.minecraft.text.Text;
 import net.minecraft.text.Texts;
@@ -35,7 +37,8 @@ import org.lwjgl.glfw.GLFW;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import tech.showierdata.pickaxe.Commands.PickaxeCommandManager;
-import tech.showierdata.pickaxe.config.CCTLocation;
+import tech.showierdata.pickaxe.config.TimerLocation;
+import tech.showierdata.pickaxe.config.MDTConfig;
 import tech.showierdata.pickaxe.config.Options;
 import tech.showierdata.pickaxe.mixin.PlayerHudListMixin;
 import tech.showierdata.pickaxe.server.Ad;
@@ -48,6 +51,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
+import java.util.Timer;
+import java.util.TimerTask;
 
 @SuppressWarnings("ReassignedVariable")
 public class Pickaxe implements ModInitializer {
@@ -324,13 +329,91 @@ public class Pickaxe implements ModInitializer {
                 sb.append("s");
             }
 		texts.add(Text.literal(sb.toString()).setStyle(Style.EMPTY.withColor(((int) chestTimer == 0) ? Formatting.GREEN : Formatting.WHITE)));
-		int y = 5;
 
-		if (Options.getInstance().cctconfig.location == CCTLocation.BOTTEMRIGHT) {
+		TimerLocation cctLoc = Options.getInstance().cctconfig.location;
+		TimerLocation mdtLoc = Options.getInstance().mdtConfig.location;
+		boolean rev = Options.getInstance().mdtConfig.reverseCCTOrder;
+
+		int y = 5;
+		if (mdtLoc == TimerLocation.TOPRIGHT && rev) {
+			y += 5 + client.textRenderer.fontHeight;
+		}
+
+		if (cctLoc == TimerLocation.BOTTEMRIGHT) {
 			y = client.getWindow().getScaledHeight() - client.textRenderer.fontHeight - 5;
+			if (mdtLoc == TimerLocation.BOTTEMRIGHT && rev) {
+				y -= 5 + client.textRenderer.fontHeight;
+			}
 		}
 
 		context.drawTextWithShadow(renderer, Texts.join(texts, Text.literal(" ")), 5, y, Colors.WHITE);
+	}
+
+    public boolean readyPlayed = false;
+	public boolean nowPlayed = false;
+	private void drawMDT(DrawContext context, TextRenderer renderer) {
+
+		List<Text> texts = new ArrayList<>();
+		texts.add(Text.literal("Moon Door:").setStyle(Style.EMPTY.withColor(0x33CCFF)));
+		StringBuilder sb = new StringBuilder();
+		MinecraftClient client = MinecraftClient.getInstance();
+
+		boolean soundEnabled = Options.getInstance().mdtConfig.soundEnabled;
+
+		int time = Options.getInstance().mdtConfig.getMoonDoorTime();
+
+		Style color = Style.EMPTY.withColor((time <= MDTConfig.MOON_WINDOW)? (time <= 0)? Formatting.RED : Formatting.AQUA : Formatting.WHITE);
+
+		if (time <= 0) { 
+			sb.append("NOW");
+			if (soundEnabled && !nowPlayed) {
+				client.getSoundManager().play(PositionedSoundInstance.master(SoundEvents.BLOCK_ENDER_CHEST_OPEN, 1, 1));
+				nowPlayed = true;
+			}
+		} else {
+			if (time <= MDTConfig.MOON_WINDOW) {
+				sb.append("READY ");
+				if (soundEnabled && !readyPlayed) {
+					// Played twice because it is quiet and volume doesn't work
+					client.getSoundManager().play(PositionedSoundInstance.master(SoundEvents.BLOCK_BEACON_DEACTIVATE, 1, 1f));
+					client.getSoundManager().play(PositionedSoundInstance.master(SoundEvents.BLOCK_BEACON_DEACTIVATE, 1, 1f));
+					readyPlayed = true;
+				}
+			} else {
+				time -= MDTConfig.MOON_WINDOW;
+				readyPlayed = false;
+				nowPlayed = false;
+			}
+
+			if (time >= 60) {
+				sb.append((int) (time / 60));
+				sb.append("m ");
+			}
+			sb.append(time % 60);
+			sb.append("s");
+		}
+		texts.add(Text.literal(sb.toString()).setStyle(color));
+		
+		TimerLocation cctLoc = Options.getInstance().cctconfig.location;
+		TimerLocation mdtLoc = Options.getInstance().mdtConfig.location;
+		boolean norm = !Options.getInstance().mdtConfig.reverseCCTOrder;
+
+		int y = 5;
+		if (cctLoc == TimerLocation.TOPRIGHT && norm) {
+			y += 5 + client.textRenderer.fontHeight;
+		}
+
+		if (mdtLoc == TimerLocation.BOTTEMRIGHT) {
+			y = client.getWindow().getScaledHeight() - client.textRenderer.fontHeight - 5;
+			if (cctLoc == TimerLocation.BOTTEMRIGHT && norm) {
+				y -= client.textRenderer.fontHeight + 5;
+			}
+		}
+
+		context.drawTextWithShadow(renderer, Texts.join(texts, Text.literal(" ")), 5, y, Colors.WHITE);
+
+		// Sounds
+		//prepSounds(client, time);
 	}
 
 	private void register_callbacks() {
@@ -401,6 +484,12 @@ public class Pickaxe implements ModInitializer {
 				drawForge(context, renderer, client);
 			} catch (Exception e) {
 				Pickaxe.LOGGER.error("Error while drawing forge UI", e);
+			}
+
+			if (options.mdtConfig.enabled && inPickaxe) try {
+				drawMDT(context, renderer);
+			} catch (Exception e) {
+				Pickaxe.LOGGER.error("Error while drawing Mood Door UI", e);
 			}
 		});
 

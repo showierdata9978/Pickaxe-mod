@@ -175,15 +175,50 @@ public class ModMenuIntergrationImpl implements ModMenuApi  {
 				.controller(BooleanControllerBuilder::create)
 				.build()
 			)
-				.option(Option.<CCTLocation>createBuilder()
+				.option(Option.<TimerLocation>createBuilder()
 						.name(Text.literal("CCT Location"))
-						.binding(CCTLocation.TOPRIGHT, () -> Options.getInstance().cctconfig.location, e -> Options.getInstance().cctconfig.location = e)
+						.binding(TimerLocation.TOPRIGHT, () -> Options.getInstance().cctconfig.location, e -> Options.getInstance().cctconfig.location = e)
 						.controller((opt) -> EnumControllerBuilder.create(opt)
-								.enumClass(CCTLocation.class)
+								.enumClass(TimerLocation.class)
 						)
 
 						.build()
 				)
+
+			.build()
+		);
+	}
+
+	public void createMDTConfig(YetAnotherConfigLib.@NotNull Builder builder) {
+		builder.category(ConfigCategory.createBuilder()
+			.name(Text.literal("Moon Door Timer"))
+			.option(Option.<Boolean>createBuilder()
+				.name(Text.literal("Enabled"))
+				.binding(true, () -> Options.getInstance().mdtConfig.enabled, e -> Options.getInstance().mdtConfig.enabled = e)
+				.controller(BooleanControllerBuilder::create)
+				.build()
+			)
+			.option(Option.<Boolean>createBuilder()
+				.name(Text.literal("Play Sound When Door Ready"))
+				.binding(false, () -> Options.getInstance().mdtConfig.soundEnabled, e -> Options.getInstance().mdtConfig.soundEnabled = e)
+				.controller(BooleanControllerBuilder::create)
+				.build()
+			)
+			.option(Option.<TimerLocation>createBuilder()
+				.name(Text.literal("MDT Location"))
+				.binding(TimerLocation.TOPRIGHT, () -> Options.getInstance().mdtConfig.location, e -> Options.getInstance().mdtConfig.location = e)
+				.controller((opt) -> EnumControllerBuilder.create(opt)
+						.enumClass(TimerLocation.class)
+				)
+
+				.build()
+			)
+			.option(Option.<Boolean>createBuilder()
+				.name(Text.literal("Swap MDT and CCT"))
+				.binding(false, () -> Options.getInstance().mdtConfig.reverseCCTOrder, e -> Options.getInstance().mdtConfig.reverseCCTOrder = e)
+				.controller(BooleanControllerBuilder::create)
+				.build()
+			)
 
 			.build()
 		);
@@ -259,6 +294,7 @@ public class ModMenuIntergrationImpl implements ModMenuApi  {
 		createGeneralScreen(builder);
 		createItemConfig(builder);
 		createCCTConfig(builder);
+		createMDTConfig(builder);
 		createPOIConfig(builder);
 		createMessageStackingConfig(builder, parent);
 
