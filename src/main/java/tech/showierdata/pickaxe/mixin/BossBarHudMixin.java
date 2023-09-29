@@ -32,7 +32,10 @@ public class BossBarHudMixin implements IBossBarHudMixin {
 	@ModifyVariable(method = "render(Lnet/minecraft/client/gui/DrawContext;)V", ordinal = 0, at = @At(value = "STORE", ordinal = 0))
 	public Iterator<ClientBossBar> bossBarFix(Iterator<ClientBossBar> var4) {
 		if (!Pickaxe.getInstance().isInPickaxe()) { return var4; }
-		return Iterators.filter(var4, (clientBossBar) -> {
+
+		Pickaxe.getInstance().bossbarFound = false;
+
+		Iterator<ClientBossBar> iter = Iterators.filter(var4, (clientBossBar) -> {
 			boolean val = !(Options.getInstance().XPBarType.detect(clientBossBar));
 
 			if (!val) {
@@ -40,12 +43,24 @@ public class BossBarHudMixin implements IBossBarHudMixin {
 				assert client.player != null;
 				client.player.experienceProgress = clientBossBar.getPercent();
 
-				if (Options.getInstance().XPBarType == XPBarEnum.Depth) {
-					int y = -1 * (int)Pickaxe.getInstance().rel_spawn.y;
-					client.player.experienceLevel = (y > 0)? y : 0;
+				switch (Options.getInstance().XPBarType) {
+					case Depth:
+						int y = -1 * (int)Pickaxe.getInstance().rel_spawn.y;
+						client.player.experienceLevel = Math.max(y, 0);
+						break;
+					default:
+						client.player.experienceLevel = Options.getInstance().XPBarType.getBarDetails(clientBossBar);
 				}
+				Pickaxe.getInstance().bossbarFound = true;
 			}
 			return val;
 		});
+
+		if (!Pickaxe.getInstance().bossbarFound) {
+			MinecraftClient client = MinecraftClient.getInstance();
+			client.player.experienceLevel = 0;
+		}
+
+		return iter;
 	}
 }
