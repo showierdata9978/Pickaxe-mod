@@ -141,6 +141,7 @@ public abstract class InGameHudMixin {
         )
     )
     int displayWithZero(ClientPlayerEntity clientPlayerEntity) {
+        if (!Pickaxe.getInstance().isInPickaxe()) return clientPlayerEntity.experienceLevel;
         return 1;
     }
 }
