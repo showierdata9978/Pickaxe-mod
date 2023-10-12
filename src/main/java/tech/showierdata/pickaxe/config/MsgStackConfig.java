@@ -5,7 +5,6 @@ import java.util.regex.Pattern;
 
 import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
-import tech.showierdata.pickaxe.Pickaxe;
 import tech.showierdata.pickaxe.server.Regexs;
 
 public class MsgStackConfig {
@@ -29,7 +28,7 @@ public class MsgStackConfig {
     public String getBorderString(Object inside) {
         String _prefix = "";
 		String _sufix = "";
-		String res = "§8%s%s§8%s";
+		String res = "§8%s§b%s§8%s";
 		switch (border) {
 			case Curly:
 				_prefix = "{";
@@ -80,7 +79,7 @@ public class MsgStackConfig {
 	 * 
 	 * @param modifiedText {@link Text}
 	 * @return {@link Text} with all {@link MutableText#getSiblings()} matching {@link BracketEnum#hasBeenStacked()} removed
-	 * @see BracketEnum#hasBeenStacked(String)
+	 * @see #hasBeenStacked(String)
 	 */
 	public Text removeStackMods(Text modifiedText) {
 		MutableText res = Regexs.removeTimestamps(modifiedText).copy();
