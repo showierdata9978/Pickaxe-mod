@@ -102,7 +102,7 @@ public abstract class ClientPlayNetworkHandlerMixin  {
 	@Inject(method = "onGameMessage", at = @At("HEAD"))
 	private void onGameMessage(GameMessageS2CPacket packet, CallbackInfo ci) {
 		Pickaxe pickaxe = Pickaxe.getInstance();
-		if (pickaxe.chestTimer < 1 && packet.content().getString().matches("^\\[.] You found a chest!$") && pickaxe.isInPickaxe()) {
+		if ((int) pickaxe.chestTimer < 10 && packet.content().getString().matches("^\\[.] You found a chest!$") && pickaxe.isInPickaxe()) {
 			double chestTimer = 1000;
 			MinecraftClient mc = MinecraftClient.getInstance();
 			assert mc.player != null;
@@ -121,7 +121,7 @@ public abstract class ClientPlayNetworkHandlerMixin  {
 			timer.scheduleAtFixedRate(new TimerTask() {
 				@Override
 				public void run() {
-					if ((int) (--pickaxe.chestTimer) == 0) {
+					if ((int) (--pickaxe.chestTimer) <= 0) {
 						if (Options.getInstance().cctconfig.soundEnabled) mc.getSoundManager().play(PositionedSoundInstance.master(SoundEvents.BLOCK_CHEST_LOCKED, 1, 1));
 						timer.cancel();
 						timer.purge();
