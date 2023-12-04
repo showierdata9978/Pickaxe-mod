@@ -249,24 +249,12 @@ public class ModMenuIntergrationImpl implements ModMenuApi  {
 	}
 
 	public void createMessageStackingConfig(YetAnotherConfigLib.@NotNull Builder builder, Screen screen) {
-		boolean customBrackets = Options.getInstance().msgStackConfig.border == BracketEnum.Custom;
 
 		Option<String> text = Option.<String>createBuilder()
 			.name(Text.literal("Custom String"))
-			.available(customBrackets)
 			.binding("&8[&bx{num}&8]", () -> Options.getInstance().msgStackConfig.text, e -> Options.getInstance().msgStackConfig.text = e)
 				.controller(opt -> StringControllerBuilder.create(opt))
 			.description(val -> OptionDescription.of(Text.literal("Preview: " + val.replaceAll("&([a-f,j-n,r,x,0-9])", "§$1").replaceAll("\\{num\\}", "2"))))
-			.build();
-
-		Option<BracketEnum> style = Option.<BracketEnum>createBuilder()
-			.name(Text.literal("Style"))
-			.binding(BracketEnum.Square, () -> Options.getInstance().msgStackConfig.border, e -> Options.getInstance().msgStackConfig.border = e)
-				.controller(opt -> EnumControllerBuilder.create(opt)
-					.enumClass(BracketEnum.class))
-			.listener((opt, e) -> {
-				text.setAvailable(e == BracketEnum.Custom);
-			})
 			.build();
 			
 		builder.category(ConfigCategory.createBuilder()
@@ -276,13 +264,10 @@ public class ModMenuIntergrationImpl implements ModMenuApi  {
 					.binding(true, () -> Options.getInstance().msgStackConfig.enabled, e -> Options.getInstance().msgStackConfig.enabled = e)
 						.controller(BooleanControllerBuilder::create)
 					.listener((Option<Boolean> self, Boolean enabled) -> {
-						style.setAvailable(enabled);
-						text.setAvailable(enabled && style.pendingValue() == BracketEnum.Custom);
+						text.setAvailable(enabled);
 					})
 					.build()
 			)
-			.option(LabelOption.create(Text.literal("Format")))
-			.option(style)
 			.option(text)
 			.build());
 	}

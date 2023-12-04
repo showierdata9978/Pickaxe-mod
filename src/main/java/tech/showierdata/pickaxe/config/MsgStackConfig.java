@@ -10,11 +10,10 @@ import tech.showierdata.pickaxe.server.Regexs;
 public class MsgStackConfig {
 	public boolean enabled = true;
 
-	public BracketEnum border = BracketEnum.Square;
 	public String text = "&8[&bx{num}&8]";
 
     
-    /*
+    /**
      * These cannot be static as settings can change
      * Moved from Regexs
      */
@@ -26,33 +25,10 @@ public class MsgStackConfig {
 	 * @return The current Border String
 	 */
     public String getBorderString(Object inside) {
-        String _prefix = "";
-		String _sufix = "";
-		String res = "§8%s§b%s§8%s";
-		switch (border) {
-			case Curly:
-				_prefix = "{";
-				_sufix = "}";
-				break;
-			case Angled:
-				_prefix = "<";
-				_sufix = ">";
-				break;
-			case Round:
-				_prefix = "(";
-				_sufix = ")";
-				break;
-			case Square:
-				_prefix = "[";
-				_sufix = "]";
-				break;
-			case Custom:
-				res = this.text
-					.replaceAll("&([a-f,j-n,r,x,0-9])", "§$1")
-					.replaceAll("\\{num\\}", "%s");
-				return String.format(res, inside);
-		}
-        return String.format(res, _prefix, inside, _sufix);
+        String res = this.text
+			.replaceAll("&([a-f,j-n,r,x,0-9])", "§$1")
+			.replaceAll("\\{num\\}", "%s");
+		return String.format(res, inside);
     }
 
 	/**
