@@ -2,6 +2,7 @@ package tech.showierdata.pickaxe.mixin;
 
 
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Constant;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -23,6 +24,9 @@ import tech.showierdata.pickaxe.config.Options;
 
 @Mixin(InGameHud.class)
 public abstract class InGameHudMixin {
+
+    @Unique
+    final Identifier COLORS = new Identifier("pickaxe", "textures/gui/colors.png");
 
     /*@ModifyVariable(method = "renderStatusBars", at = @At(value = "STORE", ordinal = 0))
     PlayerEntity modifPlayerEntity(PlayerEntity playerEntity) {
@@ -53,6 +57,25 @@ public abstract class InGameHudMixin {
         Pickaxe.getInstance().renderHotbarIcons(context, x, y, stack);
     }
 
+    /**
+     * 
+     * UV is calculated as:
+     * (k / i, l / j)
+     * 
+     * @param context Drawing context
+     * 
+     * @param i Width of texture?
+     * @param j Height of texture?
+     * @param k Primary/starting u (of UVs)
+     * @param l Primary/starting v (of UVs)
+     * 
+     * @param x location on screen
+     * @param y location on screen
+     * @param z location on screen
+     * 
+     * @param width Width of render
+     * @param height Height of render
+     */
     @Redirect(method = "renderExperienceBar",
         slice = @Slice(
             from = @At(
@@ -61,16 +84,39 @@ public abstract class InGameHudMixin {
         ),
         at = @At(
             value = "INVOKE",
-            target = "net/minecraft/client/gui/DrawContext.drawTexture (Lnet/minecraft/util/Identifier;IIIIII)V"
+            target = "net/minecraft/client/gui/DrawContext.drawGuiTexture (Lnet/minecraft/util/Identifier;IIIIIIII)V"
         ),
-        allow = 2)
-    void swapIcons(DrawContext context, Identifier ICONS, int x, int y, int u, int v, int width, int height) {
+        allow = 1)
+    void swapIcons(DrawContext context, Identifier ICONS, int i, int j, int k, int l, int x, int y, int z, int width, DrawContext unknownContext, int height) {
         if (!Pickaxe.getInstance().isInPickaxe()) {
-            context.drawTexture(ICONS, x, y, u, v, width, height);
+            context.drawGuiTexture(ICONS, i, j, k, l, x, y, z, width, height);
             return;
         }
-        final Identifier COLORS = new Identifier("pickaxe", "textures/gui/colors.png"); // For some reason it has to be 256x256 unless you add args
-        v -= 64;
+        //renderNewExperienceBar(context, k, l, x, y, z, width, height);
+        context.drawGuiTexture(ICONS, i, j, k, l, x, y, z, width, height);
+    }
+
+    @Redirect(method = "renderExperienceBar",
+        slice = @Slice(
+            from = @At(
+                value = "INVOKE",
+                target = "net/minecraft/client/network/ClientPlayerEntity.getNextLevelExperience ()I")
+        ),
+        at = @At(
+            value = "INVOKE",
+            target = "net/minecraft/client/gui/DrawContext.drawGuiTexture (Lnet/minecraft/util/Identifier;IIII)V"
+        ),
+        allow = 1)
+    void swapIcons(DrawContext context, Identifier ICONS, int x, int y, int width, int height) {
+        if (!Pickaxe.getInstance().isInPickaxe()) {
+            context.drawGuiTexture(ICONS, x, y, width, height);
+            return;
+        }
+        //renderNewExperienceBar(context, 0, 0, x, y, 0, width, height);
+        context.drawGuiTexture(ICONS, x, y, width, height);
+    }
+
+    void renderNewExperienceBar(DrawContext context, int u, int v, int x, int y, int z, int width, int height) {
         switch (Options.getInstance().XPBarType) {
             case Depth:
                 v += 20;
@@ -83,7 +129,7 @@ public abstract class InGameHudMixin {
                 v += 10;
                 break;
         }
-        context.drawTexture(COLORS, x, y, u, v, width, height);
+        context.drawGuiTexture(COLORS, 256, 256, u, v, x, y, z, width, height);
     }
 
     @ModifyConstant(method = "renderExperienceBar", constant = @Constant(intValue = 8453920))

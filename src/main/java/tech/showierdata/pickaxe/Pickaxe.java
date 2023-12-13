@@ -19,6 +19,7 @@ import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.gui.widget.ClickableWidget;
 import net.minecraft.client.network.ServerAddress;
 import net.minecraft.client.network.ServerInfo;
+import net.minecraft.client.network.ServerInfo.ServerType;
 import net.minecraft.client.option.KeyBinding;
 import net.minecraft.client.sound.PositionedSoundInstance;
 import net.minecraft.client.util.InputUtil;
@@ -36,6 +37,9 @@ import org.jetbrains.annotations.NotNull;
 import org.lwjgl.glfw.GLFW;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.mojang.authlib.yggdrasil.request.JoinMinecraftServerRequest;
+
 import tech.showierdata.pickaxe.Commands.PickaxeCommandManager;
 import tech.showierdata.pickaxe.config.TimerLocation;
 import tech.showierdata.pickaxe.config.MDTConfig;
@@ -518,14 +522,14 @@ public class Pickaxe implements ModInitializer {
 							LOGGER.info("Joining Pickaxe...");
 
 							MinecraftClient mc = MinecraftClient.getInstance();
-									ServerAddress address = ServerAddress.parse(Constants.NODE_IP);
-							ServerInfo serverInfo = new ServerInfo("Diamondfire", Constants.SERVER_IP, false);
+							ServerAddress address = ServerAddress.parse(Constants.NODE_IP);
+							ServerInfo serverInfo = new ServerInfo("Diamondfire", Constants.SERVER_IP, ServerType.OTHER);
 
 							Pickaxe.getInstance().connectButtenPressed = true; // Just incase java is odd, and connectButtonPressed = true is odd
 							ConnectScreen.connect(screen, mc, address, serverInfo, false);
+							
 
-
-								})
+						})
 						.position(screen.width / 2 + 104, y)
 						.size(20, 20)
 						.build());

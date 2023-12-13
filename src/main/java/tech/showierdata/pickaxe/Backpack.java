@@ -1,12 +1,12 @@
 package tech.showierdata.pickaxe;
 
-import net.minecraft.inventory.Inventory;
+/*import net.minecraft.inventory.Inventory;
 import net.minecraft.item.ItemStack;
-import net.minecraft.item.SkullItem;
+import net.minecraft.item.SkullItem;*/
 
 @SuppressWarnings("unused")
 public class Backpack {
-	final int id;
+	/*final int id;
 	final int i;
 
 	final Inventory inventory;
@@ -21,5 +21,5 @@ public class Backpack {
 		assert head.getItem() instanceof SkullItem;
 
 
-	}
+	}*/
 }
