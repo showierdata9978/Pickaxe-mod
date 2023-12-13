@@ -76,7 +76,7 @@ public abstract class InGameHudMixin {
      * @param width Width of render
      * @param height Height of render
      */
-    @Redirect(method = "renderExperienceBar",
+    /*@Redirect(method = "renderExperienceBar",
         slice = @Slice(
             from = @At(
                 value = "INVOKE",
@@ -88,12 +88,13 @@ public abstract class InGameHudMixin {
         ),
         allow = 1)
     void swapIcons(DrawContext context, Identifier ICONS, int i, int j, int k, int l, int x, int y, int z, int width, DrawContext unknownContext, int height) {
-        if (!Pickaxe.getInstance().isInPickaxe()) {
+        /*if (!Pickaxe.getInstance().isInPickaxe()) {
             context.drawGuiTexture(ICONS, i, j, k, l, x, y, z, width, height);
             return;
         }
         //renderNewExperienceBar(context, k, l, x, y, z, width, height);
         context.drawGuiTexture(ICONS, i, j, k, l, x, y, z, width, height);
+        unknownContext.drawGuiTexture(ICONS, i, j, k, l, x, y, z, width, height);
     }
 
     @Redirect(method = "renderExperienceBar",
@@ -114,7 +115,7 @@ public abstract class InGameHudMixin {
         }
         //renderNewExperienceBar(context, 0, 0, x, y, 0, width, height);
         context.drawGuiTexture(ICONS, x, y, width, height);
-    }
+    }*/
 
     void renderNewExperienceBar(DrawContext context, int u, int v, int x, int y, int z, int width, int height) {
         switch (Options.getInstance().XPBarType) {
