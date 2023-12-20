@@ -43,11 +43,8 @@ public abstract class ChatHudMixin {
 
     @Inject(method = "<init>", at = @At("TAIL"))
     public void optionUpdateClear(MinecraftClient client, CallbackInfo info) {
-        /*
-         * Generic function setting
-         * Wanted to do void but can't return void for some reason
-         * Instead I return a "success" boolean
-         */
+        
+        // Generic function setting
         Options.getInstance().chatClear = new Function<Boolean, Void>() {
             public Void apply(Boolean clearHistory) {
                 clear(clearHistory);
