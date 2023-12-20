@@ -70,6 +70,8 @@ public class Pickaxe implements ModInitializer {
 
 	public Text prevMessage;
 
+	public static final Identifier COLORS = new Identifier("pickaxe", "textures/gui/colors.png");
+
 	public static Pickaxe getInstance() {
 		return instence;
 	}

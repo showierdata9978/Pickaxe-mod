@@ -25,9 +25,6 @@ import tech.showierdata.pickaxe.config.Options;
 @Mixin(InGameHud.class)
 public abstract class InGameHudMixin {
 
-    @Unique
-    final Identifier COLORS = new Identifier("pickaxe", "textures/gui/colors.png");
-
     /*@ModifyVariable(method = "renderStatusBars", at = @At(value = "STORE", ordinal = 0))
     PlayerEntity modifPlayerEntity(PlayerEntity playerEntity) {
         if (Pickaxe.getInstance().isInPickaxe()) return null;
@@ -109,7 +106,7 @@ public abstract class InGameHudMixin {
                 v += 10;
                 break;
         }
-        context.drawTexture(COLORS, x, y, 0, v, width, 5, 182, 50);
+        context.drawTexture(Pickaxe.COLORS, x, y, 0, v, width, 5, 182, 50);
     }
 
     @ModifyConstant(method = "renderExperienceBar", constant = @Constant(intValue = 8453920))
