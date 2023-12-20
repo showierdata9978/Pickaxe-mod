@@ -39,7 +39,7 @@ public class ModMenuIntergrationImpl implements ModMenuApi  {
 	public void saveConfig() {
 		Pickaxe.LOGGER.info("Saving config");
 
-		((Function<Boolean, Boolean>)Options.getInstance().chatClear).apply(false); // Result is ignored
+		Options.getInstance().chatClear.apply(false); // Result is ignored
 
 		try {
 			File file = new File(configPath);
@@ -190,7 +190,7 @@ public class ModMenuIntergrationImpl implements ModMenuApi  {
 				)
 				.build()
 			)
-			
+
 			.group(OptionGroup.createBuilder()
 				.name(Text.literal("Moon Door Timer"))
 				.option(Option.<Boolean>createBuilder()

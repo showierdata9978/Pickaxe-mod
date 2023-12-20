@@ -9,6 +9,7 @@ import tech.showierdata.pickaxe.Pickaxe;
 import java.awt.*;
 import java.io.File;
 import java.io.IOException;
+import java.util.function.Function;
 
 public class Options {
 	public boolean enabled = true;
@@ -28,7 +29,7 @@ public class Options {
 	public final MsgStackConfig msgStackConfig;
 	public final MDTConfig mdtConfig;
 
-	public Object chatClear;
+	public Function<Boolean, Void> chatClear;
 
 	static Options INSTANCE;
 

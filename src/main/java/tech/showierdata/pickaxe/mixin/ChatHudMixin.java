@@ -48,15 +48,10 @@ public abstract class ChatHudMixin {
          * Wanted to do void but can't return void for some reason
          * Instead I return a "success" boolean
          */
-        Options.getInstance().chatClear = new Function<Boolean,Boolean>() {
-            public Boolean apply(Boolean clearHistory) {
-                try {
-                    clear(clearHistory);
-                    return true;
-                }
-                catch (Error ignored) {
-                    return false;
-                }
+        Options.getInstance().chatClear = new Function<Boolean, Void>() {
+            public Void apply(Boolean clearHistory) {
+                clear(clearHistory);
+                return null;
             }
         };
     }
