@@ -38,8 +38,6 @@ import org.lwjgl.glfw.GLFW;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.mojang.authlib.yggdrasil.request.JoinMinecraftServerRequest;
-
 import tech.showierdata.pickaxe.Commands.PickaxeCommandManager;
 import tech.showierdata.pickaxe.config.TimerLocation;
 import tech.showierdata.pickaxe.config.MDTConfig;
@@ -55,14 +53,10 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
-import java.util.Timer;
-import java.util.TimerTask;
 
 @SuppressWarnings("ReassignedVariable")
 public class Pickaxe implements ModInitializer {
-	// This logger is used to write text to the console and the log file.
-	// It is considered best practice to use your mod id as the logger's name.
-	// That way, it's clear which mod wrote info, warnings, and errors.
+
 	public static final char DIAMOND_CHAR = '◆';
 	public static final Logger LOGGER = LoggerFactory.getLogger(String.format("%s", Constants.PICKAXE_STRING));
 	public static Pickaxe instence;
