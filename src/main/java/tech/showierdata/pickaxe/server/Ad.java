@@ -2,10 +2,10 @@ package tech.showierdata.pickaxe.server;
 
 public class Ad {
     public Plot plot;
-    public String desc;
+    // Descriptions have been removed in DF Plot Ads.
+    // public String desc;
 
-    public Ad(Plot plot, String desc) {
+    public Ad(Plot plot) {
         this.plot = plot;
-        this.desc = desc;
     }
 }

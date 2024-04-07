@@ -22,7 +22,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 import java.util.Objects;
-import java.util.function.Function;
 
 
 public class ModMenuIntergrationImpl implements ModMenuApi  {
@@ -39,7 +38,7 @@ public class ModMenuIntergrationImpl implements ModMenuApi  {
 	public void saveConfig() {
 		Pickaxe.LOGGER.info("Saving config");
 
-		Options.getInstance().chatClear.apply(false); // Result is ignored
+		// Options.getInstance().chatClear.apply(false);
 
 		try {
 			File file = new File(configPath);

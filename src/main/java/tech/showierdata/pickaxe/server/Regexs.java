@@ -32,7 +32,7 @@ public class Regexs {
 	}
 
 	public static Pattern getPlotAdPattern() {
-		return Pattern.compile("\\[ Plot Ad \\].*\\n(.*) by ([\\w\\d]*): (.*)");
+		return Pattern.compile(".*\\n\\s*(.*) by ([\\w\\d]*)");
 	}
 
 	public static final Pattern PlotOwnerPattern = getPlotOwnerPattern();
@@ -64,9 +64,9 @@ public class Regexs {
 		if (plotAdMatcher.find()) {
 			String name = plotAdMatcher.group(1);
 			String owner = plotAdMatcher.group(2);
-			String desc = plotAdMatcher.group(3);
+			//String desc = plotAdMatcher.group(3);
 
-			return new Ad(new Plot(owner, name, null, null), desc);
+			return new Ad(new Plot(owner, name, null, null));
 		}
 
 		return null;

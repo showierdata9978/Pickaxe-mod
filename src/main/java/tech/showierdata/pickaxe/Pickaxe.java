@@ -13,7 +13,7 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.hud.ClientBossBar;
-import net.minecraft.client.gui.screen.ConnectScreen;
+import net.minecraft.client.gui.screen.multiplayer.ConnectScreen;
 import net.minecraft.client.gui.screen.TitleScreen;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.gui.widget.ClickableWidget;
@@ -544,7 +544,7 @@ public class Pickaxe implements ModInitializer {
 			Ad ad = Regexs.getAdDetails(message.getString());
 			if (ad != null) {
 				if (!Pickaxe.getInstance().isInPickaxe()) return true;
-				Pickaxe.LOGGER.info(String.format("An ad was skipped!: %s by %s, %s", ad.plot.name, ad.plot.owner, ad.desc));
+				Pickaxe.LOGGER.info(String.format("An ad was skipped!: %s by %s", ad.plot.name, ad.plot.owner));
 				Pickaxe.getInstance().adFound = true;
 				return false;
 			}
