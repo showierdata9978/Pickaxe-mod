@@ -12,7 +12,6 @@ import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import tech.showierdata.pickaxe.IBossBarHudMixin;
 import tech.showierdata.pickaxe.Pickaxe;
 import tech.showierdata.pickaxe.config.Options;
-import tech.showierdata.pickaxe.config.XPBarEnum;
 
 import java.util.Iterator;
 import java.util.Map;
@@ -38,12 +37,14 @@ public class BossBarHudMixin implements IBossBarHudMixin {
 		Iterator<ClientBossBar> iter = Iterators.filter(var4, (clientBossBar) -> {
 			boolean val = !(Options.getInstance().XPBarType.detect(clientBossBar));
 
-			if (!val) {
+			if (!val) //noinspection RedundantSuppression
+            {
 				MinecraftClient client = MinecraftClient.getInstance();
 				assert client.player != null;
 				client.player.experienceProgress = clientBossBar.getPercent();
 
-				switch (Options.getInstance().XPBarType) {
+                //noinspection SwitchStatementWithTooFewBranches (Looks better)
+                switch (Options.getInstance().XPBarType) {
 					case Depth:
 						int y = -1 * (int)Pickaxe.getInstance().rel_spawn.y;
 						client.player.experienceLevel = Math.max(y, 0);
@@ -56,9 +57,11 @@ public class BossBarHudMixin implements IBossBarHudMixin {
 			return val;
 		});
 
-		if (!Pickaxe.getInstance().bossbarFound) {
+        //noinspection ConstantValue
+        if (!Pickaxe.getInstance().bossbarFound) {
 			MinecraftClient client = MinecraftClient.getInstance();
-			client.player.experienceLevel = 0;
+            assert client.player != null;
+            client.player.experienceLevel = 0;
 		}
 
 		return iter;

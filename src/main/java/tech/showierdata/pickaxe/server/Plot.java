@@ -1,5 +1,6 @@
 package tech.showierdata.pickaxe.server;
 
+@SuppressWarnings("ClassCanBeRecord")
 public class Plot {
 	public final String server;
 	public final String owner;

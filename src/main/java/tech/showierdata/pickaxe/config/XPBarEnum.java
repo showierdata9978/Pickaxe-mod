@@ -1,8 +1,6 @@
 package tech.showierdata.pickaxe.config;
 
 import net.minecraft.entity.boss.BossBar;
-import net.minecraft.network.packet.c2s.play.PickFromInventoryC2SPacket;
-import tech.showierdata.pickaxe.Pickaxe;
 import net.minecraft.client.gui.hud.ClientBossBar;
 
 public enum XPBarEnum {
@@ -23,9 +21,7 @@ public enum XPBarEnum {
 		String[] split = bar.getName().getString().split(" ");
 
 		// Breaks it
-		//noinspection EnhancedSwitchMigration
-		assert this != null;
-		switch (this) {
+        switch (this) {
 			case Radiation:
 				if (!(split.length > 1)) {
 					break;
@@ -67,13 +63,13 @@ public enum XPBarEnum {
 		int index = splits.length - 1;
 		if (this == O2) {
 			index--;
-			if (splits[index] == "EMPTY") {
+			if (splits[index].equals("EMPTY")) {
 				return 0;
 			} 
 		}
-		while (last == "" && index >= 0) {
+		while (last.isEmpty() && index >= 0) {
 			last = splits[index].replaceAll("[^0-9].*$", "")
-				.replaceAll("[A-Z,a-z,\\:,\\s]", "");
+				.replaceAll("[A-Z,a-z:\\s]", "");
 			index--;
 		}
 		if (index < 0) return 0;

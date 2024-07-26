@@ -25,11 +25,6 @@ import tech.showierdata.pickaxe.config.Options;
 @Mixin(InGameHud.class)
 public abstract class InGameHudMixin {
 
-    /*@ModifyVariable(method = "renderStatusBars", at = @At(value = "STORE", ordinal = 0))
-    PlayerEntity modifPlayerEntity(PlayerEntity playerEntity) {
-        if (Pickaxe.getInstance().isInPickaxe()) return null;
-        return playerEntity;
-    }*/
 
     @ModifyConstant(method = "renderStatusBars", constant = @Constant(intValue = 0, ordinal = 2))
     private int modifyHungerLoop(int zero) {
@@ -37,7 +32,6 @@ public abstract class InGameHudMixin {
         return zero;
     }
 
-    @SuppressWarnings("InvalidInjectorMethodSignature")
     @ModifyVariable(method = "renderStatusBars", slice = @Slice(from = @At(value = "INVOKE", target = "net/minecraft/entity/player/PlayerEntity.getMaxAir ()I")), at = @At(value = "STORE", ordinal = 0), ordinal = 14)
     private int modifyAirBar(int y) {
         if (Pickaxe.getInstance().isInPickaxe()) return 0;
@@ -92,6 +86,7 @@ public abstract class InGameHudMixin {
         renderNewExperienceBar(context, x, y, width, true);
     }
 
+    @Unique
     void renderNewExperienceBar(DrawContext context, int x, int y, int width, boolean isBG) {
         int v = (isBG)? 0 : 5;
         switch (Options.getInstance().XPBarType) {
@@ -112,19 +107,18 @@ public abstract class InGameHudMixin {
     @ModifyConstant(method = "renderExperienceBar", constant = @Constant(intValue = 8453920))
     int changeLevelColor(int prev) {
         if (!Pickaxe.getInstance().isInPickaxe()) return prev;
-        switch (Options.getInstance().XPBarType) {
-            case O2:
-                return 0x33CCFF;
-            case Depth:
-                if (Pickaxe.getInstance().rel_spawn.y < -30) return 0xCC33FF;
-                return 0xFF0000;
-            case Suit_Charge:
-                return 0xFFCC00;
-            default:
-                return prev;
-        }
+        return switch (Options.getInstance().XPBarType) {
+            case O2 -> 0x33CCFF;
+            case Depth -> {
+                if (Pickaxe.getInstance().rel_spawn.y < -30) yield 0xCC33FF;
+                yield 0xFF0000;
+            }
+            case Suit_Charge -> 0xFFCC00;
+            default -> prev;
+        };
     }
 
+    @SuppressWarnings("InvalidInjectorMethodSignature")
     @ModifyVariable(method = "renderExperienceBar",
         slice = @Slice(
             from = @At(
@@ -136,16 +130,12 @@ public abstract class InGameHudMixin {
     String changeLevelString(String prev) {
         if (!Pickaxe.getInstance().isInPickaxe()) return prev;
         if (prev.equals("0")) prev = "";
-        switch(Options.getInstance().XPBarType) {
-            case Suit_Charge:
-                return "⚡" + prev;
-            case Radiation:
-                return "☢" + prev;
-            case O2:
-                //return "◌" + prev; // I dunno if I want it
-            default:
-                return prev;
-        }
+        return switch (Options.getInstance().XPBarType) {
+            case Suit_Charge -> "⚡" + prev;
+            case Radiation -> "☢" + prev;
+            //return "◌" + prev; // I dunno if I want it
+            default -> prev;
+        };
     }
 
     @Redirect(

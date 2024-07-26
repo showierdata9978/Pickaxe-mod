@@ -3,28 +3,20 @@ package tech.showierdata.pickaxe.server;
 import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
 
-import tech.showierdata.pickaxe.Pickaxe;
-import tech.showierdata.pickaxe.config.Options;
 
-import java.util.Arrays;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 
-public class Regexs {
+public class Regexps {
 	
 	public static Pattern getPlotOwnerPattern() {
-		/*String donorRanksRegex = String.join("|", Arrays.stream(DonorRank.values())
-            .map(DonorRank::toString)
-            .toArray(String[]::new));
-		
-		return Pattern.compile(String.format("Owner: (?:\\[%s\\])(\\w+)", donorRanksRegex));*/
-		return Pattern.compile("Owner: (?:\\[.*\\])?(\\w+)");
+		return Pattern.compile("Owner: (?:\\[.*])?(\\w+)");
 	}
 
 	public static Pattern getPlotNamePattern() {
 		//return Pattern.compile("You are currently (?:playing on|at): \\n\\n. (.*) (\\[(\\d+)\\])");
-		return Pattern.compile(". (.*) (\\[(\\d+)\\])");
+		return Pattern.compile(". (.*) (\\[(\\d+)])");
 	}
 
 	public static Pattern getServerPattern() {
@@ -32,7 +24,7 @@ public class Regexs {
 	}
 
 	public static Pattern getPlotAdPattern() {
-		return Pattern.compile(".*\\n\\s*(.*) by ([\\w\\d]*)");
+		return Pattern.compile(".*\\n\\s*(.*) by (\\w*)");
 	}
 
 	public static final Pattern PlotOwnerPattern = getPlotOwnerPattern();
@@ -56,7 +48,7 @@ public class Regexs {
 
 	public static Ad getAdDetails(String message) {
 		/*
-		 * Returns a the plot in the ad.
+		 * Returns the plot in the ad.
 		 * server and id are null.
 		 */
 		Matcher plotAdMatcher = PlotAdPattern.matcher(message);

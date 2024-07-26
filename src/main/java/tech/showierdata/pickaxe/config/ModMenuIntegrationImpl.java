@@ -24,14 +24,14 @@ import java.util.List;
 import java.util.Objects;
 
 
-public class ModMenuIntergrationImpl implements ModMenuApi  {
+public class ModMenuIntegrationImpl implements ModMenuApi  {
 	public static final String configPath = "config/pickaxe.properties.json";
 	final ObjectMapper mapper = new ObjectMapper(new GsonBuilder()
 			.registerTypeAdapter(Color.class, new ColorTypeAdapter())
 			.create()
 	);
 
-	public ModMenuIntergrationImpl() {
+	public ModMenuIntegrationImpl() {
 	}
 
 	@SuppressWarnings("ResultOfMethodCallIgnored")
@@ -87,7 +87,7 @@ public class ModMenuIntergrationImpl implements ModMenuApi  {
 						.build()
 				)
 				.option(Option.<Boolean>createBuilder()
-						.name(Text.literal("Automaticly send /c l"))
+						.name(Text.literal("Automatically send /c l"))
 						.binding(false, () -> Options.getInstance().AutoCL, e -> Options.getInstance().AutoCL = e)
 						.controller(BooleanControllerBuilder::create)
 						.build()
@@ -157,39 +157,6 @@ public class ModMenuIntergrationImpl implements ModMenuApi  {
 		
 		builder.category(ConfigCategory.createBuilder()
 			.name(Text.literal("Timers"))
-
-			.group(OptionGroup.createBuilder()
-				.name(Text.literal("Chest Cooldown Timer"))
-				.option(Option.<Boolean>createBuilder()
-					.name(Text.literal("Enabled"))
-					.binding(true, () -> Options.getInstance().cctconfig.enabled, e -> Options.getInstance().cctconfig.enabled = e)
-					.controller(BooleanControllerBuilder::create)
-					.build()
-				)
-				.option(Option.<Boolean>createBuilder()
-					.name(Text.literal("Play Sound When Chest Ready"))
-					.binding(false, () -> Options.getInstance().cctconfig.soundEnabled, e -> Options.getInstance().cctconfig.soundEnabled = e)
-					.controller(BooleanControllerBuilder::create)
-					.build()
-				)
-				.option(Option.<Boolean>createBuilder()
-					.name(Text.literal("Function Outside Pickaxe"))
-					.binding(false, () -> Options.getInstance().cctconfig.enabledOutsidePickaxe, e -> Options.getInstance().cctconfig.enabledOutsidePickaxe = e)
-					.controller(BooleanControllerBuilder::create)
-					.build()
-				)
-				.option(Option.<TimerLocation>createBuilder()
-						.name(Text.literal("CCT Location"))
-						.binding(TimerLocation.TOPRIGHT, () -> Options.getInstance().cctconfig.location, e -> Options.getInstance().cctconfig.location = e)
-						.controller((opt) -> EnumControllerBuilder.create(opt)
-								.enumClass(TimerLocation.class)
-						)
-
-						.build()
-				)
-				.build()
-			)
-
 			.group(OptionGroup.createBuilder()
 				.name(Text.literal("Moon Door Timer"))
 				.option(Option.<Boolean>createBuilder()
@@ -215,20 +182,6 @@ public class ModMenuIntergrationImpl implements ModMenuApi  {
 				)
 				.build()
 			)
-			
-			.option(Option.<Boolean>createBuilder()
-				.name(Text.literal("Order"))
-				.binding(false, () -> Options.getInstance().mdtConfig.reverseCCTOrder, e -> Options.getInstance().mdtConfig.reverseCCTOrder = e)
-				.controller((opt) -> BooleanControllerBuilder.create(opt)
-					.formatValue((state) -> 
-						state
-							? Text.literal("MDT on top")
-							: Text.literal("CCT on top")
-					)
-				)
-				.build()
-			)
-
 			.build()
 		);
 	}
@@ -246,24 +199,21 @@ public class ModMenuIntergrationImpl implements ModMenuApi  {
 						.name(Text.literal("POIS"))
 						.description(OptionDescription.of(Text.literal("POI Config")))
 						.binding(List.of(POI.values()), () -> List.of(Options.getInstance().pois), e -> Options.getInstance().pois = e.toArray(new POI[0]))
-						.controller(opt -> {
-							return EnumControllerBuilder.create(opt)
-									.enumClass(POI.class);
-
-						})
+						.controller(opt -> EnumControllerBuilder.create(opt)
+                                .enumClass(POI.class))
 						.initial(POI.SPAWN)
 						.build()
 				)
 				.build());
 	}
 
-	public void createMessageStackingConfig(YetAnotherConfigLib.@NotNull Builder builder, Screen screen) {
+	public void createMessageStackingConfig(YetAnotherConfigLib.@NotNull Builder builder, Screen ignoredScreen) {
 
 		Option<String> text = Option.<String>createBuilder()
 			.name(Text.literal("Custom String"))
 			.binding("&8[&bx{num}&8]", () -> Options.getInstance().msgStackConfig.text, e -> Options.getInstance().msgStackConfig.text = e)
-				.controller(opt -> StringControllerBuilder.create(opt))
-			.description(val -> OptionDescription.of(Text.literal("Preview: " + val.replaceAll("&([a-f,j-n,r,x,0-9])", "§$1").replaceAll("\\{num\\}", "2"))))
+				.controller(StringControllerBuilder::create)
+			.description(val -> OptionDescription.of(Text.literal("Preview: " + val.replaceAll("&([a-f,j-nrx0-9])", "§$1").replaceAll("\\{num}", "2"))))
 			.build();
 			
 		builder.category(ConfigCategory.createBuilder()
@@ -272,9 +222,7 @@ public class ModMenuIntergrationImpl implements ModMenuApi  {
 					.name(Text.literal("Enable"))
 					.binding(true, () -> Options.getInstance().msgStackConfig.enabled, e -> Options.getInstance().msgStackConfig.enabled = e)
 						.controller(BooleanControllerBuilder::create)
-					.listener((Option<Boolean> self, Boolean enabled) -> {
-						text.setAvailable(enabled);
-					})
+					.listener((Option<Boolean> self, Boolean enabled) -> text.setAvailable(enabled))
 					.build()
 			)
 			.option(text)

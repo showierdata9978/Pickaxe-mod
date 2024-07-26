@@ -5,7 +5,7 @@ import java.util.regex.Pattern;
 
 import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
-import tech.showierdata.pickaxe.server.Regexs;
+import tech.showierdata.pickaxe.server.Regexps;
 
 public class MsgStackConfig {
 	public boolean enabled = true;
@@ -13,21 +13,20 @@ public class MsgStackConfig {
 	public String text = "&8[&bx{num}&8]";
 
     
-    /**
+    /*
      * These cannot be static as settings can change
-     * Moved from Regexs
+     * Moved from Regexps
      */
 
 	/**
 	 * Returns the current tag for message stacking
 	 * @param inside The inner content
-	 * @param regexSafe If you want it to be regex safe
 	 * @return The current Border String
 	 */
     public String getBorderString(Object inside) {
         String res = this.text
-			.replaceAll("&([a-f,j-n,r,x,0-9])", "§$1")
-			.replaceAll("\\{num\\}", "%s");
+			.replaceAll("&([a-f,j-nrx0-9])", "§$1")
+			.replaceAll("\\{num}", "%s");
 		return String.format(res, inside);
     }
 
@@ -54,11 +53,11 @@ public class MsgStackConfig {
 	/**
 	 * 
 	 * @param modifiedText {@link Text}
-	 * @return {@link Text} with all {@link MutableText#getSiblings()} matching {@link BracketEnum#hasBeenStacked()} removed
+	 * @return {@link Text} with all {@link MutableText#getSiblings()} matching  BracketEnum#hasBeenStacked() removed
 	 * @see #hasBeenStacked(String)
 	 */
 	public Text removeStackMods(Text modifiedText) {
-		MutableText res = Regexs.removeTimestamps(modifiedText).copy();
+		MutableText res = Regexps.removeTimestamps(modifiedText).copy();
         res.getSiblings().removeIf(text -> hasBeenStacked(text.getString()));
         return res;
     }

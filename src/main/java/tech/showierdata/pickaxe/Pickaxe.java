@@ -1,7 +1,6 @@
 package tech.showierdata.pickaxe;
 
 import net.fabricmc.api.ModInitializer;
-import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
 import net.fabricmc.fabric.api.client.message.v1.ClientReceiveMessageEvents;
@@ -38,7 +37,6 @@ import org.lwjgl.glfw.GLFW;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import tech.showierdata.pickaxe.Commands.PickaxeCommandManager;
 import tech.showierdata.pickaxe.config.TimerLocation;
 import tech.showierdata.pickaxe.config.MDTConfig;
 import tech.showierdata.pickaxe.config.Options;
@@ -46,7 +44,7 @@ import tech.showierdata.pickaxe.mixin.PlayerHudListMixin;
 import tech.showierdata.pickaxe.server.Ad;
 import tech.showierdata.pickaxe.server.CommandHelper;
 import tech.showierdata.pickaxe.server.Plot;
-import tech.showierdata.pickaxe.server.Regexs;
+import tech.showierdata.pickaxe.server.Regexps;
 
 import java.awt.*;
 import java.util.ArrayList;
@@ -59,9 +57,9 @@ public class Pickaxe implements ModInitializer {
 
 	public static final char DIAMOND_CHAR = '◆';
 	public static final Logger LOGGER = LoggerFactory.getLogger(String.format("%s", Constants.PICKAXE_STRING));
-	public static Pickaxe instence;
+	public static Pickaxe instance;
 
-	public boolean connectButtenPressed = false;
+	public boolean connectButtonPressed = false;
 	public double chestTimer = 0;
 	public static final CommandHelper commandHelper = CommandHelper.getInstance();
 
@@ -73,7 +71,7 @@ public class Pickaxe implements ModInitializer {
 	public static final Identifier COLORS = new Identifier("pickaxe", "textures/gui/colors.png");
 
 	public static Pickaxe getInstance() {
-		return instence;
+		return instance;
 	}
 
 	public static PickaxeCommand[] getCommands() {
@@ -85,7 +83,7 @@ public class Pickaxe implements ModInitializer {
 				new PickaxeCommand("itemlock", "Locks your held item", new String[] {}),
 				new PickaxeCommand("pay", "Pay's the specified person the amount specified", new String[] {
 						"[user]",
-						"[ammount]"
+						"[amount]"
 				}),
 				new PickaxeCommand("up", "Teleports you to the surface", new String[] {}),
 				new PickaxeCommand("bpname", "Sets the name of the backpack\n     (supports colors from /colors)",
@@ -125,14 +123,24 @@ public class Pickaxe implements ModInitializer {
 			return false;
 		}
 
+
+
 		MinecraftClient client = MinecraftClient.getInstance();
 		if (client.world == null) {
 			return false;
+
+
 		}
 		if (client.isInSingleplayer()) {
 			return false;
 		}
-		if (!Objects.requireNonNull(client.getCurrentServerEntry()).address.endsWith(Constants.SERVER_IP)) {
+
+		// replay mod fix
+		if (Objects.isNull(client.getCurrentServerEntry())) {
+			return false;
+		}
+
+		if (!client.getCurrentServerEntry().address.endsWith(Constants.SERVER_IP)) {
 			return false;
 		}
 
@@ -148,7 +156,7 @@ public class Pickaxe implements ModInitializer {
 		return status;
 	}
 
-	private void drawCoords(DrawContext context, TextRenderer renderer) {
+	private void drawCords(DrawContext context, TextRenderer renderer) {
 			String[] lines = String.format("X: %d,\nY: %d,\nZ: %d", Math.round(rel_spawn.x), Math.round(rel_spawn.y),
 					Math.round(rel_spawn.z)).split("\n");
 
@@ -179,12 +187,10 @@ public class Pickaxe implements ModInitializer {
 		// This code runs as soon as Minecraft is in a mod-load-ready state.
 		// However, some things (like resources) may still be uninitialized.
 		// Proceed with mild caution.
-		Pickaxe.instence = this;
+		Pickaxe.instance = this;
 
 		LOGGER.info(String.format("Starting %s....", Constants.PICKAXE_STRING));
 
-		PickaxeCommandManager commandManager = PickaxeCommandManager.getInstance();
-		ClientCommandRegistrationCallback.EVENT.register((dispatcher, registryAccess) -> commandManager.register(dispatcher));
 		register_callbacks();
 
 		// send a get request to https://api.modrinth.com/v2/project/{id|slug}/version
@@ -224,20 +230,13 @@ public class Pickaxe implements ModInitializer {
 			} catch (Exception e) {
 				//Pickaxe.LOGGER.error("Error while drawing custom hunger bar", e);
 
-				// Draw a empty hunger bar with 0 coins
+				// Draw an empty hunger bar with 0 coins
 				// Calculate the hunger bar values
 				int xhp = client.getWindow().getScaledWidth() / 2 - 91;
 				int ybottom = client.getWindow().getScaledHeight() - 39;
-
-				// Define the height of the hunger bar
-
-				// Calculate the health and hunger bar widths
 				int hpWidth = Math.round(20 / 2.0f * 18.0f);
-
-				// Calculate the x-coordinate of the right edge of the health bar
 				int xhpRight = xhp + hpWidth;
 
-				// Draw the custom hunger bar
 				String coins = "⛃0 (Error)";
 				int coinsWidth = renderer.getWidth(coins);
 				context.drawTextWithShadow(renderer, coins, xhpRight - coinsWidth, ybottom, 0xFFFF00);
@@ -263,30 +262,15 @@ public class Pickaxe implements ModInitializer {
 
 				// Define the height of the hunger bar
 
-				// Calculate the health and hunger bar widths
 				int hpWidth = Math.round(20 / 2.0f * 18.0f);
-
-				// Calculate the x-coordinate of the right edge of the health bar
 				int xhpRight = xhp + hpWidth;
-
-				// Draw the custom hunger bar
-
-				// Draw the forge value
 				int forgeWidth = renderer.getWidth(forge);
-				int forgeColor = 0x000000;
-				//noinspection EnhancedSwitchMigration
-				switch (forge) {
-					case "Ready":
-						forgeColor = 0x00FF00;
-						break;
-					case "FINISHED":
-						forgeColor = 0x11DD11;
-						break;
-					default:
-						forgeColor = 0xaaaaaa;
-						break;
-				}
-				context.drawTextWithShadow(renderer, forge, xhpRight - forgeWidth, ybottom - 11, forgeColor);
+				int forgeColor = switch (forge) {
+                    case "Ready" -> 0x00FF00;
+                    case "FINISHED" -> 0x11DD11;
+                    default -> 0xaaaaaa;
+                };
+                context.drawTextWithShadow(renderer, forge, xhpRight - forgeWidth, ybottom - 11, forgeColor);
 
 				String tag = "Forge: ";
 				int tagWidth = renderer.getWidth(tag);
@@ -294,7 +278,7 @@ public class Pickaxe implements ModInitializer {
 			} catch (Exception e) {
 				//Pickaxe.LOGGER.error("Error while drawing custom hunger bar (Forge)", e);
 
-				// Draw a empty hunger bar with 0 coins
+				// Draw an empty hunger bar with 0 coins
 				// Calculate the hunger bar values
 				int xhp = client.getWindow().getScaledWidth() / 2 - 91;
 				int ybottom = client.getWindow().getScaledHeight() - 39;
@@ -314,40 +298,7 @@ public class Pickaxe implements ModInitializer {
 			}
 	}
 
-	private void drawCCT(DrawContext context, TextRenderer renderer) {
-            List<Text> texts = new ArrayList<>();
-            texts.add(Text.literal("Pickaxe Chest:").setStyle(Style.EMPTY.withColor(0xD27D2D)));
-            StringBuilder sb = new StringBuilder();
-		MinecraftClient client = MinecraftClient.getInstance();
-		if ((int) chestTimer == 0) sb.append("READY");
-            else {
-                if (chestTimer >= 60) {
-					sb.append((int) (chestTimer / 60));
-                    sb.append("m ");
-                }
-			sb.append((int) (chestTimer % 60));
-                sb.append("s");
-            }
-		texts.add(Text.literal(sb.toString()).setStyle(Style.EMPTY.withColor(((int) chestTimer == 0) ? Formatting.GREEN : Formatting.WHITE)));
 
-		TimerLocation cctLoc = Options.getInstance().cctconfig.location;
-		TimerLocation mdtLoc = Options.getInstance().mdtConfig.location;
-		boolean rev = Options.getInstance().mdtConfig.reverseCCTOrder;
-
-		int y = 5;
-		if (mdtLoc == TimerLocation.TOPRIGHT && rev) {
-			y += 5 + client.textRenderer.fontHeight;
-		}
-
-		if (cctLoc == TimerLocation.BOTTEMRIGHT) {
-			y = client.getWindow().getScaledHeight() - client.textRenderer.fontHeight - 5;
-			if (mdtLoc == TimerLocation.BOTTEMRIGHT && rev) {
-				y -= 5 + client.textRenderer.fontHeight;
-			}
-		}
-
-		context.drawTextWithShadow(renderer, Texts.join(texts, Text.literal(" ")), 5, y, Colors.WHITE);
-	}
 
     public boolean readyPlayed = false;
 	public boolean nowPlayed = false;
@@ -394,20 +345,12 @@ public class Pickaxe implements ModInitializer {
 		}
 		texts.add(Text.literal(sb.toString()).setStyle(color));
 		
-		TimerLocation cctLoc = Options.getInstance().cctconfig.location;
 		TimerLocation mdtLoc = Options.getInstance().mdtConfig.location;
-		boolean norm = !Options.getInstance().mdtConfig.reverseCCTOrder;
 
 		int y = 5;
-		if (cctLoc == TimerLocation.TOPRIGHT && norm) {
-			y += 5 + client.textRenderer.fontHeight;
-		}
 
 		if (mdtLoc == TimerLocation.BOTTEMRIGHT) {
 			y = client.getWindow().getScaledHeight() - client.textRenderer.fontHeight - 5;
-			if (cctLoc == TimerLocation.BOTTEMRIGHT && norm) {
-				y -= client.textRenderer.fontHeight + 5;
-			}
 		}
 
 		context.drawTextWithShadow(renderer, Texts.join(texts, Text.literal(" ")), 5, y, Colors.WHITE);
@@ -460,18 +403,12 @@ public class Pickaxe implements ModInitializer {
 			boolean inPickaxe = isInPickaxe();
 			Options options = Options.getInstance();
 
-			if (options.cctconfig.enabled && (inPickaxe || options.cctconfig.enabledOutsidePickaxe)) try {
-				drawCCT(context, renderer);
-			} catch (Exception e) {
-				Pickaxe.LOGGER.error("Error while drawing CCT", e);
-			}
-
 			if (!inPickaxe) return;
 
 			try {
-				drawCoords(context, renderer);
+				drawCords(context, renderer);
 			} catch (Exception e) {
-				Pickaxe.LOGGER.error("Error while drawing coords", e);
+				Pickaxe.LOGGER.error("Error while drawing cords", e);
 			}
 
 			try {
@@ -486,7 +423,7 @@ public class Pickaxe implements ModInitializer {
 				Pickaxe.LOGGER.error("Error while drawing forge UI", e);
 			}
 
-			if (options.mdtConfig.enabled && inPickaxe) try {
+			if (options.mdtConfig.enabled) try {
 				drawMDT(context, renderer);
 			} catch (Exception e) {
 				Pickaxe.LOGGER.error("Error while drawing Mood Door UI", e);
@@ -519,9 +456,9 @@ public class Pickaxe implements ModInitializer {
 
 							MinecraftClient mc = MinecraftClient.getInstance();
 							ServerAddress address = ServerAddress.parse(Constants.NODE_IP);
-							ServerInfo serverInfo = new ServerInfo("Diamondfire", Constants.SERVER_IP, ServerType.OTHER);
+							ServerInfo serverInfo = new ServerInfo("DiamondFire", Constants.SERVER_IP, ServerType.OTHER);
 
-							Pickaxe.getInstance().connectButtenPressed = true; // Just incase java is odd, and connectButtonPressed = true is odd
+							Pickaxe.getInstance().connectButtonPressed = true; // Just in case java is odd, and connectButtonPressed = true is odd
 							ConnectScreen.connect(screen, mc, address, serverInfo, false);
 							
 
@@ -536,12 +473,12 @@ public class Pickaxe implements ModInitializer {
 		});
 
 		ClientReceiveMessageEvents.ALLOW_GAME.register((message, overlay) -> {
-			Plot plot = Regexs.getLocateDetails(message.getString());
+			Plot plot = Regexps.getLocateDetails(message.getString());
 			if (plot != null) {
-				Pickaxe.LOGGER.info("Located plot: " + plot.name);
+                Pickaxe.LOGGER.info("Located plot: {}", plot.name);
 				return true;
 			}
-			Ad ad = Regexs.getAdDetails(message.getString());
+			Ad ad = Regexps.getAdDetails(message.getString());
 			if (ad != null) {
 				if (!Pickaxe.getInstance().isInPickaxe()) return true;
 				Pickaxe.LOGGER.info(String.format("An ad was skipped!: %s by %s", ad.plot.name, ad.plot.owner));
@@ -581,11 +518,11 @@ public class Pickaxe implements ModInitializer {
 				}
 
                 switch ((int) Objects.requireNonNull(stack.getSubNbt("PublicBukkitValues")).getDouble("hypercube:recomb")) {
-                    case Constants.MANUAL_OVERCLOCK_VALUE, Constants.NATRAL_OVERCLOCK_VALUE -> {
+                    case Constants.MANUAL_OVERCLOCK_VALUE, Constants.NATURAL_OVERCLOCK_VALUE -> {
                         text = "⛨";
 						color = options.itemconfig.overclocker_color;
                     }
-                    case Constants.MANUAL_SAGE_VALUE, Constants.NATRAL_SAGE_VALUE -> {
+                    case Constants.MANUAL_SAGE_VALUE, Constants.NATURAL_SAGE_VALUE -> {
                         text = "⯫"; // Hermit star
 						color = options.itemconfig.sage_color;
                     }

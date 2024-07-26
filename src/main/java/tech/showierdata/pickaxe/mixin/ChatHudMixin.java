@@ -14,10 +14,9 @@ import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import net.minecraft.text.Text;
-import tech.showierdata.pickaxe.Pickaxe;
 import tech.showierdata.pickaxe.config.MsgStackConfig;
 import tech.showierdata.pickaxe.config.Options;
-import tech.showierdata.pickaxe.server.Regexs;
+import tech.showierdata.pickaxe.server.Regexps;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.hud.ChatHud;
 import net.minecraft.client.gui.hud.ChatHudLine;
@@ -68,7 +67,7 @@ public abstract class ChatHudMixin {
         if (refreshing) return message;
 
         // Timestamps are removed to compare texts (otherwise none would match)
-        Text withoutTimestamps = Regexs.removeTimestamps(message);
+        Text withoutTimestamps = Regexps.removeTimestamps(message);
 
         Text prevMessage = prevText;
         prevText = withoutTimestamps;

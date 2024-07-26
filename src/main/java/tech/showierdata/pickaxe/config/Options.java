@@ -21,7 +21,6 @@ public class Options {
 			.create()
 	);
 	public final ItemConfig itemconfig;
-	public final CCTConfig cctconfig;
 	public boolean hideNonPickaxePlayers = true;
 	public POI[] pois = POI.values();
 	public boolean enable_poi = true;
@@ -36,7 +35,6 @@ public class Options {
 
 	public Options() { // all default vals
 		this.itemconfig = new ItemConfig();
-		this.cctconfig = new CCTConfig();
 		this.msgStackConfig = new MsgStackConfig();
 		this.mdtConfig = new MDTConfig();
 		INSTANCE = this;
@@ -50,7 +48,7 @@ public class Options {
 	}
 
 	public static void loadConfig() {
-		File file = new File(ModMenuIntergrationImpl.configPath);
+		File file = new File(ModMenuIntegrationImpl.configPath);
 
 		if (file.exists()) {
 			try {

@@ -1,10 +1,8 @@
 package tech.showierdata.pickaxe.mixin;
 
-import java.util.List;
 
 import com.mojang.authlib.GameProfile;
 
-import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.message.MessageHandler;
 import net.minecraft.network.message.MessageType;
 import net.minecraft.network.message.SignedMessage;
@@ -15,24 +13,24 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import tech.showierdata.pickaxe.Pickaxe;
 import tech.showierdata.pickaxe.config.Options;
 import tech.showierdata.pickaxe.server.Plot;
-import tech.showierdata.pickaxe.server.Regexs;
+import tech.showierdata.pickaxe.server.Regexps;
 
 @SuppressWarnings("UnusedMixin")
 @Mixin(MessageHandler.class)
 public class MessageHandlerMixin {
 	@Inject(at = @At("HEAD"), method = "onChatMessage", cancellable = true)
     private void onGameMessage(SignedMessage message, GameProfile sender, MessageType.Parameters params, CallbackInfo info) {
-		if (Regexs.isLocateCommand(message.getContent().getString())) {
+		if (Regexps.isLocateCommand(message.getContent().getString())) {
 			//if (Pickaxe.commandHelper.getLastSentCommand().equals("locate")) {
 			Pickaxe.commandHelper.clearLastSentCommand();
-			Plot plot = Regexs.getLocateDetails(message.getContent().getString());
+			Plot plot = Regexps.getLocateDetails(message.getContent().getString());
 			//pickaxe.currentPlot = plot;
 			assert plot != null;
-			Pickaxe.LOGGER.info("Located plot: " + plot.name);
+            Pickaxe.LOGGER.info("Located plot: {}", plot.name);
 			info.cancel(); // stop the message from being shown to the player.
 			//}
 		}
-		if (Regexs.isPlotAd(message.getContent().getString())) {
+		if (Regexps.isPlotAd(message.getContent().getString())) {
 			if (!Options.getInstance().hide_plot_ads) return;
 			if (!Pickaxe.getInstance().isInPickaxe()) return;
 
