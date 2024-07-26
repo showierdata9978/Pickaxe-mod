@@ -38,7 +38,8 @@ public class ModMenuIntegrationImpl implements ModMenuApi  {
 	public void saveConfig() {
 		Pickaxe.LOGGER.info("Saving config");
 
-		// Options.getInstance().chatClear.apply(false);
+		// bugged config option that causes crashes
+		Options.getInstance().chatClear.apply(false);
 
 		try {
 			File file = new File(configPath);
