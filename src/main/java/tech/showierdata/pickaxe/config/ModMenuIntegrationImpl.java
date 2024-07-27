@@ -39,7 +39,6 @@ public class ModMenuIntegrationImpl implements ModMenuApi  {
 		Pickaxe.LOGGER.info("Saving config");
 
 		// bugged config option that causes crashes
-		Options.getInstance().chatClear.apply(false);
 
 		try {
 			File file = new File(configPath);
@@ -105,10 +104,16 @@ public class ModMenuIntegrationImpl implements ModMenuApi  {
 						.controller(BooleanControllerBuilder::create)
 						.build()
 				)
+				.option(Option.<Boolean>createBuilder()
+						.name(Text.literal(("Show Cords")))
+						.binding(true, () -> Options.getInstance().showCords, e -> Options.getInstance().showCords = e)
+						.controller(BooleanControllerBuilder::create)
+						.build()
+				)
+
 
 				.build()
 		);
-
 
 	}
 	public void createItemConfig(YetAnotherConfigLib.@NotNull Builder builder) {
@@ -154,6 +159,31 @@ public class ModMenuIntegrationImpl implements ModMenuApi  {
 		);
 	}
 
+	public void createHotBarConfig(YetAnotherConfigLib.@NotNull Builder builder) {
+		builder.category(ConfigCategory.createBuilder()
+				.name(Text.literal("Hotbars"))
+				.option(Option.<Boolean>createBuilder()
+						.name(Text.literal(("Show Coins in hotbar")))
+						.binding(true, () -> Options.getInstance().hotBarConfig.showCoinsInHotBar, e -> Options.getInstance().hotBarConfig.showCoinsInHotBar = e)
+						.controller(BooleanControllerBuilder::create)
+						.build()
+				)
+				.option(Option.<Boolean>createBuilder()
+						.name(Text.literal(("Show Forge Status")))
+						.binding(true, () -> Options.getInstance().hotBarConfig.showForgeStatus, e -> Options.getInstance().hotBarConfig.showForgeStatus = e)
+						.controller(BooleanControllerBuilder::create)
+						.build()
+				)
+				.option(Option.<Boolean>createBuilder()
+						.name(Text.literal("Flip Forge and coin positions"))
+						.binding(false, () -> Options.getInstance().hotBarConfig.flip, e -> Options.getInstance().hotBarConfig.flip = e)
+						.controller(BooleanControllerBuilder::create)
+						.build()
+				)
+				.build()
+		);
+	}
+
 	public void createTimerConfig(YetAnotherConfigLib.@NotNull Builder builder) {
 		
 		builder.category(ConfigCategory.createBuilder()
@@ -174,7 +204,7 @@ public class ModMenuIntegrationImpl implements ModMenuApi  {
 				)
 				.option(Option.<TimerLocation>createBuilder()
 					.name(Text.literal("MDT Location"))
-					.binding(TimerLocation.TOPRIGHT, () -> Options.getInstance().mdtConfig.location, e -> Options.getInstance().mdtConfig.location = e)
+					.binding(TimerLocation.TOPLEFT, () -> Options.getInstance().mdtConfig.location, e -> Options.getInstance().mdtConfig.location = e)
 					.controller((opt) -> EnumControllerBuilder.create(opt)
 							.enumClass(TimerLocation.class)
 					)
@@ -239,6 +269,7 @@ public class ModMenuIntegrationImpl implements ModMenuApi  {
 		createTimerConfig(builder);
 		createPOIConfig(builder);
 		createMessageStackingConfig(builder, parent);
+		createHotBarConfig(builder);
 
 		return builder.save(this::saveConfig)
 				.build()

@@ -23,7 +23,13 @@ public enum POI {
     BAZZAR(10, 0, -5),
 
     DIRT_GOD(27, 0, 50),
-    SAND_GOD(111, 5, 60);
+    SAND_GOD(111, 5, 60),
+
+    WATER_CRAFTING(112, -1, 204),
+    WATER_SHOP(111, -1, 208),
+    WATER_FORGE(116, -1, 203),
+    O2_FILL(115, -1, 208);
+
     private final Vec3d position;
 
     POI(double x, double y, double z) {

@@ -37,20 +37,6 @@ public abstract class ChatHudMixin {
     @Shadow
     public abstract void reset();
 
-    @Shadow
-    public abstract void clear(boolean clearHistory);
-
-    @Inject(method = "<init>", at = @At("TAIL"))
-    public void optionUpdateClear(MinecraftClient client, CallbackInfo info) {
-        
-        // Generic function setting
-        Options.getInstance().chatClear = new Function<Boolean, Void>() {
-            public Void apply(Boolean clearHistory) {
-                clear(clearHistory);
-                return null;
-            }
-        };
-    }
     
     @ModifyVariable(
         method = "addMessage(Lnet/minecraft/text/Text;Lnet/minecraft/network/message/MessageSignatureData;ILnet/minecraft/client/gui/hud/MessageIndicator;Z)V",

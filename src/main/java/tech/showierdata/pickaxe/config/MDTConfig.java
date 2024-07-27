@@ -13,7 +13,7 @@ public class MDTConfig {
     /** For some reason it ticks by 28 every second */
 	public static final int MOON_TICK_SPEED = 28;
 
-    public TimerLocation location = TimerLocation.TOPRIGHT;
+    public TimerLocation location = TimerLocation.TOPLEFT;
 
     /** Is sound enabled? */
     public boolean soundEnabled = false;

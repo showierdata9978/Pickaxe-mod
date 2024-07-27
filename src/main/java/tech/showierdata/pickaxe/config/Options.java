@@ -9,7 +9,6 @@ import tech.showierdata.pickaxe.Pickaxe;
 import java.awt.*;
 import java.io.File;
 import java.io.IOException;
-import java.util.function.Function;
 
 public class Options {
 	public boolean enabled = true;
@@ -28,7 +27,11 @@ public class Options {
 	public final MsgStackConfig msgStackConfig;
 	public final MDTConfig mdtConfig;
 
-	public Function<Boolean, Void> chatClear;
+	public final HotBar hotBarConfig;
+
+
+	public boolean showCords = true;
+
 
 	static Options INSTANCE;
 
@@ -37,6 +40,7 @@ public class Options {
 		this.itemconfig = new ItemConfig();
 		this.msgStackConfig = new MsgStackConfig();
 		this.mdtConfig = new MDTConfig();
+		this.hotBarConfig = new HotBar();
 		INSTANCE = this;
 	}
 

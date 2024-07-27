@@ -37,6 +37,8 @@ import org.lwjgl.glfw.GLFW;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import tech.showierdata.pickaxe.commands.HelpCommandController;
+import tech.showierdata.pickaxe.commands.PassthroughCommand;
 import tech.showierdata.pickaxe.config.TimerLocation;
 import tech.showierdata.pickaxe.config.MDTConfig;
 import tech.showierdata.pickaxe.config.Options;
@@ -48,9 +50,10 @@ import tech.showierdata.pickaxe.server.Regexps;
 
 import java.awt.*;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
+
+import static tech.showierdata.pickaxe.Constants.HOTBAR_DIFFERENCE;
 
 @SuppressWarnings("ReassignedVariable")
 public class Pickaxe implements ModInitializer {
@@ -60,13 +63,11 @@ public class Pickaxe implements ModInitializer {
 	public static Pickaxe instance;
 
 	public boolean connectButtonPressed = false;
-	public double chestTimer = 0;
 	public static final CommandHelper commandHelper = CommandHelper.getInstance();
 
 	public boolean adFound = false;
 	public boolean bossbarFound = true;
 
-	public Text prevMessage;
 
 	public static final Identifier COLORS = new Identifier("pickaxe", "textures/gui/colors.png");
 
@@ -77,36 +78,48 @@ public class Pickaxe implements ModInitializer {
 	public static PickaxeCommand[] getCommands() {
 		return new PickaxeCommand[] {
 				new PickaxeCommand("help",
-						"This command!",
-						true,
-						new String[] {}),
-				new PickaxeCommand("itemlock", "Locks your held item", new String[] {}),
+						"This command! (Added by pickaxe mod)",
+						new String[]{},
+						new HelpCommandController()
+
+                ),
+
+				new PickaxeCommand("itemlock", "Locks your held item", new String[] {}, new PassthroughCommand()),
 				new PickaxeCommand("pay", "Pay's the specified person the amount specified", new String[] {
 						"[user]",
 						"[amount]"
-				}),
-				new PickaxeCommand("up", "Teleports you to the surface", new String[] {}),
-				new PickaxeCommand("bpname", "Sets the name of the backpack\n     (supports colors from /colors)",
-						new String[] {
-								"[name]"
-						}),
-				new PickaxeCommand("dye", "Dyes a leather item to any color", new String[] {
-						"[color]"
-				})
+				}, new PassthroughCommand()),
+				new PickaxeCommand("up",
+						"Teleports you to the surface",
+						new String[] {},
+						new PassthroughCommand()
+				),
+				new PickaxeCommand("bpname",
+						"Sets the name of the backpack\n     (supports colors from /colors)",
+						new String[] {"[name]"},
+						new PassthroughCommand()
+				),
+				new PickaxeCommand("dye",
+						"Dyes a leather item to any color",
+						new String[] {"[color]"},
+						new PassthroughCommand()
+				),
+
+				new PickaxeCommand("wiki",
+						"Sends a link to the wiki (Added by Pickaxe Mod)",
+						new String[] {},
+						(name, args) -> {
+							MinecraftClient client = MinecraftClient.getInstance();
+                            assert client.player != null;
+                            client.player.sendMessage(Text.of("The Wiki is located at " + Constants.WIKI_LOCATION + "!"));
+						}
+				)
+
 		};
 
 	}
 
-	public static HashMap<String, PickaxeCommand> getHandledCommands() {
-		PickaxeCommand[] commands = getCommands();
-		HashMap<String, PickaxeCommand> ret = new HashMap<>();
-		for (PickaxeCommand command : commands) {
-			if (command.handled) {
-				ret.put(command.name, command);
-			}
-		}
-		return ret;
-	}
+	public PickaxeCommand[] commands = getCommands();
 
 	public Vec3d rel_spawn = new Vec3d(0, 0, 0);
 
@@ -157,6 +170,10 @@ public class Pickaxe implements ModInitializer {
 	}
 
 	private void drawCords(DrawContext context, TextRenderer renderer) {
+			if (!Options.getInstance().showCords) {
+				return;
+			}
+
 			String[] lines = String.format("X: %d,\nY: %d,\nZ: %d", Math.round(rel_spawn.x), Math.round(rel_spawn.y),
 					Math.round(rel_spawn.z)).split("\n");
 
@@ -201,101 +218,87 @@ public class Pickaxe implements ModInitializer {
 		Options.loadConfig();
 	}
 
-	private void drawCoinBar(DrawContext context, TextRenderer renderer, MinecraftClient client) {
 
-			try {
-				String[] footer = ((PlayerHudListMixin) client.inGameHud.getPlayerListHud()).getFooter().getString()
-						.split("\n");
 
-				// get the coins from the footer
-				String coins = '⛃' + footer[2].replaceAll("[^0-9.]", "");
 
-				// Calculate the hunger bar values
-				int xhp = client.getWindow().getScaledWidth() / 2 - 91;
-				int ybottom = client.getWindow().getScaledHeight() - 39;
-
-				// Define the height of the hunger bar
-
-				// Calculate the health and hunger bar widths
-				int hpWidth = Math.round(20 / 2.0f * 18.0f);
-
-				// Calculate the x-coordinate of the right edge of the health bar
-				int xhpRight = xhp + hpWidth;
-
-				// Draw the custom hunger bar
-
-				// Draw the coins value
-				int coinsWidth = renderer.getWidth(coins);
-				context.drawTextWithShadow(renderer, coins, xhpRight - coinsWidth, ybottom, 0xFFFF00);
-			} catch (Exception e) {
-				//Pickaxe.LOGGER.error("Error while drawing custom hunger bar", e);
-
-				// Draw an empty hunger bar with 0 coins
-				// Calculate the hunger bar values
-				int xhp = client.getWindow().getScaledWidth() / 2 - 91;
-				int ybottom = client.getWindow().getScaledHeight() - 39;
-				int hpWidth = Math.round(20 / 2.0f * 18.0f);
-				int xhpRight = xhp + hpWidth;
-
-				String coins = "⛃0 (Error)";
-				int coinsWidth = renderer.getWidth(coins);
-				context.drawTextWithShadow(renderer, coins, xhpRight - coinsWidth, ybottom, 0xFFFF00);
-			}
+	// Method to calculate common positioning values
+	private BarPositioning calculateBarPositioning(MinecraftClient client) {
+		int xhp = client.getWindow().getScaledWidth() / 2 - 91;
+		int ybottom = client.getWindow().getScaledHeight() - 39;
+		int hpWidth = Math.round(20 / 2.0f * 18.0f);
+		int xhpRight = xhp + hpWidth;
+		return new BarPositioning(xhp, ybottom, hpWidth, xhpRight);
 	}
 
+	// Utility method for drawing text on the bar
+	private void drawTextOnBar(DrawContext context, TextRenderer renderer, String text, int x, int y, int color) {
+		int textWidth = renderer.getWidth(text);
+		context.drawTextWithShadow(renderer, text, x - textWidth, y, color);
+	}
+
+
+	// Method to draw the coin bar
+	private void drawCoinBar(DrawContext context, TextRenderer renderer, MinecraftClient client) {
+		Options settings = Options.getInstance();
+		if (!settings.hotBarConfig.showCoinsInHotBar) return;
+		BarPositioning positioning = calculateBarPositioning(client);
+
+ 		if (settings.hotBarConfig.flip) {
+			 positioning.ybottom -= HOTBAR_DIFFERENCE;
+		}
+
+		try {
+			String[] footer = ((PlayerHudListMixin) client.inGameHud.getPlayerListHud()).getFooter().getString()
+					.split("\n");
+
+			// Get the coins from the footer
+			String coins = '⛃' + footer[2].replaceAll("[^0-9.]", "");
+
+			drawTextOnBar(context, renderer, coins, positioning.xhpRight, positioning.ybottom, 0xFFFF00);
+		} catch (Exception e) {
+			// Handle exception
+			String coins = "⛃0 (Error)";
+			drawTextOnBar(context, renderer, coins, positioning.xhpRight, positioning.ybottom, 0xFFFF00);
+		}
+	}
+
+	// Method to draw the forge status
 	private void drawForge(DrawContext context, TextRenderer renderer, MinecraftClient client) {
+		Options settings = Options.getInstance();
 
-			try {
-				String[] footer = ((PlayerHudListMixin) client.inGameHud.getPlayerListHud()).getFooter().getString()
-						.split("\n");
+		if (!settings.hotBarConfig.showForgeStatus) return;
+		BarPositioning positioning = calculateBarPositioning(client);
 
-				// get the forge from the footer
-				int forgePos = 4;
-				while (!footer[forgePos].contains("Forge")) {
-					forgePos++;
-				}
-				String forge = footer[forgePos].replaceAll("(Forge:|remaining)? *", "");
+		if (!settings.hotBarConfig.flip) {
+			positioning.ybottom -= HOTBAR_DIFFERENCE;
 
-				// Calculate the hunger bar values
-				int xhp = client.getWindow().getScaledWidth() / 2 - 91;
-				int ybottom = client.getWindow().getScaledHeight() - 39;
+		}
 
-				// Define the height of the hunger bar
+		try {
+			String[] footer = ((PlayerHudListMixin) client.inGameHud.getPlayerListHud()).getFooter().getString()
+					.split("\n");
 
-				int hpWidth = Math.round(20 / 2.0f * 18.0f);
-				int xhpRight = xhp + hpWidth;
-				int forgeWidth = renderer.getWidth(forge);
-				int forgeColor = switch (forge) {
-                    case "Ready" -> 0x00FF00;
-                    case "FINISHED" -> 0x11DD11;
-                    default -> 0xaaaaaa;
-                };
-                context.drawTextWithShadow(renderer, forge, xhpRight - forgeWidth, ybottom - 11, forgeColor);
-
-				String tag = "Forge: ";
-				int tagWidth = renderer.getWidth(tag);
-				context.drawTextWithShadow(renderer, tag, xhpRight - forgeWidth - tagWidth, ybottom - 11, 0xFFFFFF);
-			} catch (Exception e) {
-				//Pickaxe.LOGGER.error("Error while drawing custom hunger bar (Forge)", e);
-
-				// Draw an empty hunger bar with 0 coins
-				// Calculate the hunger bar values
-				int xhp = client.getWindow().getScaledWidth() / 2 - 91;
-				int ybottom = client.getWindow().getScaledHeight() - 39;
-
-				// Define the height of the hunger bar
-
-				// Calculate the health and hunger bar widths
-				int hpWidth = Math.round(20 / 2.0f * 18.0f);
-
-				// Calculate the x-coordinate of the right edge of the health bar
-				int xhpRight = xhp + hpWidth;
-
-				// Draw the custom hunger bar
-				String forge = "Forge: ERROR";
-				int forgeWidth = renderer.getWidth(forge);
-				context.drawTextWithShadow(renderer, forge, xhpRight - forgeWidth, ybottom - 11, 0xFF0000);
+			// Get the forge status from the footer
+			int forgePos = 4;
+			while (!footer[forgePos].contains("Forge")) {
+				forgePos++;
 			}
+			String forge = footer[forgePos].replaceAll("(Forge:|remaining)? *", "");
+
+			int forgeColor = switch (forge) {
+				case "Ready" -> 0x00FF00;
+				case "FINISHED" -> 0x11DD11;
+				default -> 0xaaaaaa;
+			};
+			drawTextOnBar(context, renderer, forge, positioning.xhpRight, positioning.ybottom, forgeColor);
+
+			String tag = "Forge: ";
+			drawTextOnBar(context, renderer, tag, positioning.xhpRight - renderer.getWidth(forge), positioning.ybottom, 0xFFFFFF);
+		} catch (Exception e) {
+			// Handle exception
+			String forge = "Forge: ERROR";
+			drawTextOnBar(context, renderer, forge, positioning.xhpRight, positioning.ybottom, 0xFF0000);
+		}
 	}
 
 
@@ -337,7 +340,7 @@ public class Pickaxe implements ModInitializer {
 			}
 
 			if (time >= 60) {
-				sb.append((int) (time / 60));
+				sb.append(time / 60);
 				sb.append("m ");
 			}
 			sb.append(time % 60);
@@ -349,7 +352,7 @@ public class Pickaxe implements ModInitializer {
 
 		int y = 5;
 
-		if (mdtLoc == TimerLocation.BOTTEMRIGHT) {
+		if (mdtLoc == TimerLocation.BOTTOMLEFT) {
 			y = client.getWindow().getScaledHeight() - client.textRenderer.fontHeight - 5;
 		}
 

@@ -18,6 +18,7 @@ public class Constants {
     public static final int NATURAL_SAGE_VALUE      = 1;
     public static final int MANUAL_SAGE_VALUE       = 2;
 
+    public static final int HOTBAR_DIFFERENCE = 11;
 
-
+    public static final String WIKI_LOCATION = "https://pickaxe.showierdata.xyz/wiki/";
 }
