@@ -78,17 +78,20 @@ public class Pickaxe implements ModInitializer {
 	public static PickaxeCommand[] getCommands() {
 		return new PickaxeCommand[] {
 				new PickaxeCommand("help",
-						"This command! (Added by pickaxe mod)",
+						"This command! (Added by Pickaxe Mod)",
 						new String[]{},
 						new HelpCommandController()
 
                 ),
-
-				new PickaxeCommand("itemlock", "Locks your held item", new String[] {}, new PassthroughCommand()),
-				new PickaxeCommand("pay", "Pay's the specified person the amount specified", new String[] {
-						"[user]",
-						"[amount]"
-				}, new PassthroughCommand()),
+				new PickaxeCommand("lockitem",
+						"Locks your held item",
+						new String[] {},
+						new PassthroughCommand()
+				),
+				new PickaxeCommand("pay", "Pay's the specified person the amount specified",
+						new String[] {"[user]", "[amount]" },
+						new PassthroughCommand()
+				),
 				new PickaxeCommand("up",
 						"Teleports you to the surface",
 						new String[] {},
@@ -104,9 +107,43 @@ public class Pickaxe implements ModInitializer {
 						new String[] {"[color]"},
 						new PassthroughCommand()
 				),
-
+				new PickaxeCommand("item",
+						"Sends the item you are holding in chat",
+						new String[] {"[text]  "},
+						new PassthroughCommand()
+				),
+				new PickaxeCommand("title",
+						"Changes the name of a notebook",
+						new String[] {"[name]"},
+						new PassthroughCommand()
+				),
+				new PickaxeCommand("backup",
+						"Backs your inventory up! Make sure to run often.",
+						new String[] { },
+						new PassthroughCommand()
+				),
+				new PickaxeCommand("ach",
+						"Opens the achievement menu!",
+						new String[] { },
+						new PassthroughCommand()
+				),
+				new PickaxeCommand("trash",
+						"Opens a trash can inventory (does the same thing as offhand while in inventory)",
+						new String[] { },
+						new PassthroughCommand()
+				),
+				new PickaxeCommand("wah",
+						"Opens a shop for your WAH points.",
+						new String[] {},
+						new PassthroughCommand()
+				),
+				new PickaxeCommand("pay",
+						"Pays a user",
+						new String[]{"[username]"},
+						new PassthroughCommand()
+				),
 				new PickaxeCommand("wiki",
-						"Sends a link to the wiki (Added by Pickaxe Mod)",
+						"Sends the link to the wiki (Added by Pickaxe Mod)",
 						new String[] {},
 						(name, args) -> {
 							MinecraftClient client = MinecraftClient.getInstance();
@@ -358,8 +395,6 @@ public class Pickaxe implements ModInitializer {
 
 		context.drawTextWithShadow(renderer, Texts.join(texts, Text.literal(" ")), 5, y, Colors.WHITE);
 
-		// Sounds
-		//prepSounds(client, time);
 	}
 
 	private void register_callbacks() {

@@ -30,6 +30,8 @@ public abstract class ClientPlayNetworkHandlerMixin  {
 	@Shadow
     public abstract void sendChatCommand(String message);
 
+	@Shadow public abstract void sendChatMessage(String content);
+
 	@Unique
 	private boolean inLoop = false;
 
@@ -56,7 +58,8 @@ public abstract class ClientPlayNetworkHandlerMixin  {
 	@Inject(at = @At("HEAD"), method = "sendChatMessage", cancellable = true)
 	private void sendMessage(String chatText, CallbackInfo info) {
 		MinecraftClient client = MinecraftClient.getInstance();
-		if (!Pickaxe.getInstance().isInPickaxe()) {
+		Pickaxe pick = Pickaxe.getInstance();
+		if (!pick.getInstance().isInPickaxe()) {
 			return;
 		}
 		if (chatText.startsWith("@") && !inLoop) {
@@ -66,18 +69,29 @@ public abstract class ClientPlayNetworkHandlerMixin  {
 
 			inLoop = true;
 
+			Boolean flag = false;
+
+
 			for (PickaxeCommand pickaxeCommand : Pickaxe.getInstance().commands) {
 				if (!Objects.equals(pickaxeCommand.name, command.get(0))) {
 					continue;
 				}
 
-
+				flag = true;
 				pickaxeCommand.handler.use(command.get(0), command.subList(1, command.size()));
+				break;
 			}
+
 
 			inLoop = false;
 
-			info.cancel();
+			if (!pick.rel_spawn.isInRange(Constants.WahDoor, 6))  {
+				if (!flag)
+					client.player.sendMessage(Text.literal(command.get(0) + " is an invalid command! If you think this is wrong, " +
+							"\n disable the mod, check, then report to ShowierData9978"));
+				info.cancel();
+
+			}
 			
 		}
 	}

@@ -1,5 +1,6 @@
 package tech.showierdata.pickaxe;
 
+import net.fabricmc.loader.impl.lib.sat4j.core.Vec;
 import net.minecraft.util.math.Vec3d;
 
 public class Constants {
@@ -8,6 +9,8 @@ public class Constants {
 
 
 	public static final Vec3d Spawn = new Vec3d(7085, 200, 4115);
+    public static final Vec3d WahDoor = new Vec3d(64, 0, 77);
+
 
 	public static final int    PLOT_ID   = 50644;
     public static final String SERVER_IP = "mcdiamondfire.com";
