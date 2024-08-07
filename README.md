@@ -33,6 +33,9 @@ I don't have any ideas for this mod.
    - @up (default R)
    - Notes (Default N)
 - Enable / disable plot ads
+- Swap forge and coin locations
+- Disable Forge rendering
+- Disable Coin rendering
 
 ## Acknowledgements
 
