@@ -7,15 +7,14 @@
     "ClientPlayNetworkHandlerMixin",
     "HandledScreenMixin",
     "InGameHudMixin",
-    "PlayerHudListMixin"
+    "PlayerHudListMixin",
+    "ChatHudMixin",
+    "TextFieldMixin",
+    "OtherClientPlayerEntityMixin",
+    "PlayerHudClassMixin",
+    "SoundMixin"
   ],
   "injectors": {
     "defaultRequire": 1
-  },
-  "client": [
-    "OtherClientPlayerEntityMixin",
-    "PlayerHudClassMixin",
-    "ChatHudMixin",
-    "SoundMixin"
-  ]
+  }
 }

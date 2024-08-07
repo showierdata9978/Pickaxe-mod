@@ -3,20 +3,20 @@
 
 A mod for the game ⛏️ on Minecraft Diamondfire.
 
-I dont have any ideas for this mod.
+I don't have any ideas for this mod.
 
 ## Features
 
 - @Help command
-- Relative plot coords from spawn
+- Relative plot cords from spawn
 - Coins covering the hunger bar
 - XP Bar can be any supported Boss bar
 - @up keybind (bound to R by default)
 - Sage Icon
 - Overclock icon
 - itemlock Icon
-- Chest Cooldown Timer (CCT)
 - Forge Timer
+- Note-taking (bound to N by default)
 - Plot ad hider
 - Chat Stacking
 
@@ -29,16 +29,16 @@ I dont have any ideas for this mod.
 - Auto /c l (Disabled by default)
 - Icon x, y (0, 0) by default
 - Enable/disable icons (off by default)
-- Keybinds
+- Keybindings
    - @up (default R)
-- Various CCT Options
-- Enable / desable plot ads
+   - Notes (Default N)
+- Enable / disable plot ads
 
 ## Acknowledgements
 
 - Sputt for creating Pickaxe
 - Heptor / baltdev for creating the mod before this
-
+- AlignedCookie88 for updating imgui-mc to 1.20.4 (and being a DF player!)
 
 ## Screenshots
 

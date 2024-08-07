@@ -1,5 +1,6 @@
 package tech.showierdata.pickaxe;
 
+import imgui.ImGui;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
@@ -47,6 +48,8 @@ import tech.showierdata.pickaxe.server.Ad;
 import tech.showierdata.pickaxe.server.CommandHelper;
 import tech.showierdata.pickaxe.server.Plot;
 import tech.showierdata.pickaxe.server.Regexps;
+import tech.showierdata.pickaxe.ui.NoteEditor;
+import xyz.breadloaf.imguimc.Imguimc;
 
 import java.awt.*;
 import java.util.ArrayList;
@@ -70,6 +73,7 @@ public class Pickaxe implements ModInitializer {
 
 
 	public static final Identifier COLORS = new Identifier("pickaxe", "textures/gui/colors.png");
+	public NoteEditor noteEditor;
 
 	public static Pickaxe getInstance() {
 		return instance;
@@ -245,6 +249,7 @@ public class Pickaxe implements ModInitializer {
 
 		LOGGER.info(String.format("Starting %s....", Constants.PICKAXE_STRING));
 
+		this.noteEditor = new NoteEditor(this);
 		register_callbacks();
 
 		// send a get request to https://api.modrinth.com/v2/project/{id|slug}/version
@@ -399,8 +404,12 @@ public class Pickaxe implements ModInitializer {
 
 	private void register_callbacks() {
 		// @up keybind
-		KeyBinding keyBinding = KeyBindingHelper.registerKeyBinding(
+		KeyBinding upKeybind = KeyBindingHelper.registerKeyBinding(
 				new KeyBinding("key.pickaxe.up", InputUtil.Type.KEYSYM, GLFW.GLFW_KEY_R, "category.pickaxe.keybinds"));
+
+		KeyBinding notesKeybind = KeyBindingHelper.registerKeyBinding(
+				new KeyBinding("key.pickaxe.notes", InputUtil.Type.KEYSYM, GLFW.GLFW_KEY_N, "category.pickaxe.keybinds")
+		);
 
 		ClientTickEvents.END_CLIENT_TICK.register(client -> {
 			if (!isInPickaxe()) {
@@ -424,11 +433,13 @@ public class Pickaxe implements ModInitializer {
 			}
 
 
-			//disable keybind in all areas except main mine; mesa mine; and sputtrooms
-			while (keyBinding.wasPressed()) {
+			while (upKeybind.wasPressed()) {
 				client.player.networkHandler.sendChatMessage("@up");
+			}
 
-
+			if (notesKeybind.wasPressed()) {
+				notesKeybind.setPressed(false); // prevent spam
+				noteEditor.flip();
 			}
 		});
 
