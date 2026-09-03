@@ -1,8 +1,9 @@
 package tech.showierdata.pickaxe.mixin;
 
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.network.ClientPlayNetworkHandler;
-import net.minecraft.network.packet.s2c.play.GameJoinS2CPacket;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.multiplayer.ClientPacketListener;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.protocol.game.ClientboundLoginPacket;
 import net.minecraft.text.*;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -17,7 +18,7 @@ import tech.showierdata.pickaxe.PickaxeCommand;
 import java.util.*;
 
 
-@Mixin(ClientPlayNetworkHandler.class)
+@Mixin(ClientPacketListener.class)
 public abstract class ClientPlayNetworkHandlerMixin  {
 
 	@Unique
@@ -28,15 +29,15 @@ public abstract class ClientPlayNetworkHandlerMixin  {
 
 	@SuppressWarnings("SameParameterValue")
 	@Shadow
-    public abstract void sendChatCommand(String message);
+    public abstract void sendCommand(String message);
 
-	@Shadow public abstract void sendChatMessage(String content);
+	@Shadow public abstract void sendChat(String content);
 
 	@Unique
 	private boolean inLoop = false;
 
-	@Inject(at = @At("TAIL"), method = "onGameJoin")
-	public void onGameJoin(GameJoinS2CPacket packet, CallbackInfo info) {
+	@Inject(at = @At("TAIL"), method = "handleLogin")
+	public void onGameJoin(ClientboundLoginPacket packet, CallbackInfo info) {
 		Pickaxe pickaxe = Pickaxe.getInstance();
 
 		//sleep for 5 seconds
@@ -51,13 +52,13 @@ public abstract class ClientPlayNetworkHandlerMixin  {
 	private void onTick(CallbackInfo info) {
 		if (joinedGame) {
 			joinedGame = false;
-			this.sendChatCommand("join " + Constants.PLOT_ID);
+			this.sendCommand("join " + Constants.PLOT_ID);
 		}
 	}
 	
-	@Inject(at = @At("HEAD"), method = "sendChatMessage", cancellable = true)
+	@Inject(at = @At("HEAD"), method = "sendChat", cancellable = true)
 	private void sendMessage(String chatText, CallbackInfo info) {
-		MinecraftClient client = MinecraftClient.getInstance();
+		Minecraft client = Minecraft.getInstance();
 		Pickaxe pick = Pickaxe.getInstance();
 		if (!pick.getInstance().isInPickaxe()) {
 			return;
@@ -85,9 +86,9 @@ public abstract class ClientPlayNetworkHandlerMixin  {
 
 			inLoop = false;
 
-			if (!pick.rel_spawn.isInRange(Constants.WahDoor, 6))  {
+			if (!pick.rel_spawn.closerThan(Constants.WahDoor, 6))  {
 				if (!flag)
-					client.player.sendMessage(Text.literal(command.get(0) + " is an invalid command! If you think this is wrong, " +
+					client.player.sendSystemMessage(Component.literal(command.get(0) + " is an invalid command! If you think this is wrong, " +
 							"\n disable the mod, check, then report to ShowierData9978"));
 				info.cancel();
 

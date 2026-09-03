@@ -1,9 +1,6 @@
 package tech.showierdata.pickaxe.mixin;
 
 import com.google.common.collect.Iterators;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.hud.BossBarHud;
-import net.minecraft.client.gui.hud.ClientBossBar;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -16,32 +13,35 @@ import tech.showierdata.pickaxe.config.Options;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.UUID;
-@Mixin(BossBarHud.class) //
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.components.BossHealthOverlay;
+import net.minecraft.client.gui.components.LerpingBossEvent;
+@Mixin(BossHealthOverlay.class) //
 public class BossBarHudMixin implements IBossBarHudMixin {
 
 
 	@Final
 	@Shadow
-    Map<UUID, ClientBossBar> bossBars;
+    Map<UUID, LerpingBossEvent> events;
 
-    public Map<UUID, ClientBossBar> pickaxe_mod$getBossBars() {
-		return bossBars;
+    public Map<UUID, LerpingBossEvent> pickaxe_mod$getBossBars() {
+		return events;
 	}
 
-	@ModifyVariable(method = "render(Lnet/minecraft/client/gui/DrawContext;)V", ordinal = 0, at = @At(value = "STORE", ordinal = 0))
-	public Iterator<ClientBossBar> bossBarFix(Iterator<ClientBossBar> var4) {
+	@ModifyVariable(method = "render(Lnet/minecraft/client/gui/GuiGraphics;)V", ordinal = 0, at = @At(value = "STORE", ordinal = 0))
+	public Iterator<LerpingBossEvent> bossBarFix(Iterator<LerpingBossEvent> var4) {
 		if (!Pickaxe.getInstance().isInPickaxe()) { return var4; }
 
 		Pickaxe.getInstance().bossbarFound = false;
 
-		Iterator<ClientBossBar> iter = Iterators.filter(var4, (clientBossBar) -> {
+		Iterator<LerpingBossEvent> iter = Iterators.filter(var4, (clientBossBar) -> {
 			boolean val = !(Options.getInstance().XPBarType.detect(clientBossBar));
 
 			if (!val) //noinspection RedundantSuppression
             {
-				MinecraftClient client = MinecraftClient.getInstance();
+				Minecraft client = Minecraft.getInstance();
 				assert client.player != null;
-				client.player.experienceProgress = clientBossBar.getPercent();
+				client.player.experienceProgress = clientBossBar.getProgress();
 
                 //noinspection SwitchStatementWithTooFewBranches (Looks better)
                 switch (Options.getInstance().XPBarType) {
@@ -59,7 +59,7 @@ public class BossBarHudMixin implements IBossBarHudMixin {
 
         //noinspection ConstantValue
         if (!Pickaxe.getInstance().bossbarFound) {
-			MinecraftClient client = MinecraftClient.getInstance();
+			Minecraft client = Minecraft.getInstance();
             assert client.player != null;
             client.player.experienceLevel = 0;
 		}

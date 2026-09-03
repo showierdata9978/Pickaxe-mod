@@ -1,8 +1,6 @@
 package tech.showierdata.pickaxe.mixin;
 
 
-import net.minecraft.client.gui.hud.PlayerListHud;
-import net.minecraft.client.network.PlayerListEntry;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -12,15 +10,17 @@ import tech.showierdata.pickaxe.config.Options;
 
 import java.util.ArrayList;
 import java.util.List;
+import net.minecraft.client.gui.components.PlayerTabOverlay;
+import net.minecraft.client.multiplayer.PlayerInfo;
 
-@Mixin(PlayerListHud.class)
+@Mixin(PlayerTabOverlay.class)
 public class PlayerHudClassMixin {
-    @Inject(method = "collectPlayerEntries", at = @At("RETURN"), cancellable = true)
-    private void Pickaxe_collectPlayerEntries(CallbackInfoReturnable<List<PlayerListEntry>> cir) {
-        ArrayList<PlayerListEntry> ret = new ArrayList<>(cir.getReturnValue());
+    @Inject(method = "getPlayerInfos", at = @At("RETURN"), cancellable = true)
+    private void Pickaxe_collectPlayerEntries(CallbackInfoReturnable<List<PlayerInfo>> cir) {
+        ArrayList<PlayerInfo> ret = new ArrayList<>(cir.getReturnValue());
 
         if (Pickaxe.getInstance().isInPickaxe() && Options.getInstance().hideNonPickaxePlayers)
-            ret.removeIf(p -> p.getScoreboardTeam() == null);
+            ret.removeIf(p -> p.getTeam() == null);
 
         cir.setReturnValue(ret);
     }

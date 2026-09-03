@@ -1,6 +1,6 @@
 package tech.showierdata.pickaxe.config;
 
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.world.phys.Vec3;
 
 public enum POI {
     SPAWN(0, 0, 0),
@@ -30,13 +30,13 @@ public enum POI {
     WATER_FORGE(116, -1, 203),
     O2_FILL(115, -1, 208);
 
-    private final Vec3d position;
+    private final Vec3 position;
 
     POI(double x, double y, double z) {
-        this.position = new Vec3d(x, y, z);
+        this.position = new Vec3(x, y, z);
     }
 
-    public Vec3d getPosition() {
+    public Vec3 getPosition() {
         return position;
     }
 }

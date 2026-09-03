@@ -2,9 +2,8 @@ package tech.showierdata.pickaxe.config;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import net.minecraft.text.MutableText;
-import net.minecraft.text.Text;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
 import tech.showierdata.pickaxe.server.Regexps;
 
 public class MsgStackConfig {
@@ -41,7 +40,7 @@ public class MsgStackConfig {
 	}
 
 	/**
-	 * @param message Content of message from {@link Text#getString()}
+	 * @param message Content of message from {@link Component#getString()}
 	 * @return {@link Boolean} If the message has been stacked
 	 */
 	public boolean hasBeenStacked(String message) {
@@ -52,12 +51,12 @@ public class MsgStackConfig {
 
 	/**
 	 * 
-	 * @param modifiedText {@link Text}
-	 * @return {@link Text} with all {@link MutableText#getSiblings()} matching  BracketEnum#hasBeenStacked() removed
+	 * @param modifiedText {@link Component}
+	 * @return {@link Component} with all {@link MutableComponent#getSiblings()} matching  BracketEnum#hasBeenStacked() removed
 	 * @see #hasBeenStacked(String)
 	 */
-	public Text removeStackMods(Text modifiedText) {
-		MutableText res = Regexps.removeTimestamps(modifiedText).copy();
+	public Component removeStackMods(Component modifiedText) {
+		MutableComponent res = Regexps.removeTimestamps(modifiedText).copy();
         res.getSiblings().removeIf(text -> hasBeenStacked(text.getString()));
         return res;
     }

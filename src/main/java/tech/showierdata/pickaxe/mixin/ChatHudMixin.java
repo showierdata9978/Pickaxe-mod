@@ -3,7 +3,11 @@ package tech.showierdata.pickaxe.mixin;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.function.Function;
-
+import net.minecraft.client.GuiMessage;
+import net.minecraft.client.GuiMessageTag;
+import net.minecraft.client.gui.components.ChatComponent;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MessageSignature;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -12,38 +16,31 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-
-import net.minecraft.text.Text;
 import tech.showierdata.pickaxe.config.MsgStackConfig;
 import tech.showierdata.pickaxe.config.Options;
 import tech.showierdata.pickaxe.server.Regexps;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.hud.ChatHud;
-import net.minecraft.client.gui.hud.ChatHudLine;
-import net.minecraft.client.gui.hud.MessageIndicator;
-import net.minecraft.network.message.MessageSignatureData;
 
-@Mixin(ChatHud.class)
+@Mixin(ChatComponent.class)
 public abstract class ChatHudMixin {
     @Unique
-    private Text prevText = null;
+    private Component prevText = null;
     @Unique
     private int count = 1;
 
     @Shadow
     @Final
-    private List<ChatHudLine> messages;
+    private List<GuiMessage> allMessages;
 
     @Shadow
-    public abstract void reset();
+    public abstract void rescaleChat();
 
     
     @ModifyVariable(
-        method = "addMessage(Lnet/minecraft/text/Text;Lnet/minecraft/network/message/MessageSignatureData;ILnet/minecraft/client/gui/hud/MessageIndicator;Z)V",
+        method = "addMessage(Lnet/minecraft/network/chat/Component;Lnet/minecraft/network/chat/MessageSignature;ILnet/minecraft/client/GuiMessageTag;Z)V",
         at = @At("HEAD"),
         argsOnly = true
     )
-    private Text stackMessages(Text message, Text parameterMessage, MessageSignatureData data, int ticks, MessageIndicator indicator, boolean refreshing) {
+    private Component stackMessages(Component message, Component parameterMessage, MessageSignature data, int ticks, GuiMessageTag indicator, boolean refreshing) {
         if (!Options.getInstance().msgStackConfig.enabled) return message;
         
         /*
@@ -53,9 +50,9 @@ public abstract class ChatHudMixin {
         if (refreshing) return message;
 
         // Timestamps are removed to compare texts (otherwise none would match)
-        Text withoutTimestamps = Regexps.removeTimestamps(message);
+        Component withoutTimestamps = Regexps.removeTimestamps(message);
 
-        Text prevMessage = prevText;
+        Component prevMessage = prevText;
         prevText = withoutTimestamps;
 
         // Return if this is new message.
@@ -68,18 +65,18 @@ public abstract class ChatHudMixin {
         MsgStackConfig stack = Options.getInstance().msgStackConfig;
 
         // Iterate and remove
-        ListIterator<ChatHudLine> iterator = messages.listIterator();
+        ListIterator<GuiMessage> iterator = allMessages.listIterator();
         while (iterator.hasNext()) {
-            ChatHudLine chatHudLine = iterator.next();
+            GuiMessage chatHudLine = iterator.next();
 
             // Undo changes
-            Text contentWithoutOccurrences = stack.removeStackMods(chatHudLine.content());
-            Text textWithoutOccurrences = stack.removeStackMods(message);
+            Component contentWithoutOccurrences = stack.removeStackMods(chatHudLine.content());
+            Component textWithoutOccurrences = stack.removeStackMods(message);
 
             // Test if they are equal
             if (contentWithoutOccurrences.equals(textWithoutOccurrences)) {
                 iterator.remove();
-                reset();
+                rescaleChat();
 
                 break; // Found the instance, we're done here
             }
@@ -89,7 +86,7 @@ public abstract class ChatHudMixin {
         return message.copy().append(" " + stack.getBorderString(count));
     }
 
-    @Inject(method = "clear", at = @At("RETURN"))
+    @Inject(method = "clearMessages", at = @At("RETURN"))
     private void onClear(boolean clearHistory, CallbackInfo info) {
         prevText = null;
         count = 1;

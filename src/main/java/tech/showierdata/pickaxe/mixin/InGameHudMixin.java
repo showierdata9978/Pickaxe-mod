@@ -1,6 +1,12 @@
 package tech.showierdata.pickaxe.mixin;
 
 
+import net.minecraft.client.gui.Gui;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
@@ -11,40 +17,33 @@ import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.Slice;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.gui.hud.InGameHud;
-import net.minecraft.client.network.ClientPlayerEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.Identifier;
 import tech.showierdata.pickaxe.Pickaxe;
 import tech.showierdata.pickaxe.config.Options;
 
 
-@Mixin(InGameHud.class)
+@Mixin(Gui.class)
 public abstract class InGameHudMixin {
 
 
-    @ModifyConstant(method = "renderStatusBars", constant = @Constant(intValue = 0, ordinal = 2))
+    @ModifyConstant(method = "renderPlayerHealth", constant = @Constant(intValue = 0, ordinal = 2))
     private int modifyHungerLoop(int zero) {
         if (Pickaxe.getInstance().isInPickaxe()) return 10;
         return zero;
     }
 
-    @ModifyVariable(method = "renderStatusBars", slice = @Slice(from = @At(value = "INVOKE", target = "net/minecraft/entity/player/PlayerEntity.getMaxAir ()I")), at = @At(value = "STORE", ordinal = 0), ordinal = 14)
+    @ModifyVariable(method = "renderPlayerHealth", slice = @Slice(from = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/player/Player;getMaxAir ()I")), at = @At(value = "STORE", ordinal = 0), ordinal = 14)
     private int modifyAirBar(int y) {
         if (Pickaxe.getInstance().isInPickaxe()) return 0;
         return y;
     }
 
-    @Inject(method = "renderMountHealth", at = @At(value = "HEAD"), cancellable = true)
-    private void modifyMountBar(DrawContext c, CallbackInfo ci) {
+    @Inject(method = "renderVehicleHealth", at = @At(value = "HEAD"), cancellable = true)
+    private void modifyMountBar(GuiGraphics c, CallbackInfo ci) {
         if (Pickaxe.getInstance().isInPickaxe()) ci.cancel();
     }
 
-    @Inject(at=@At("TAIL"), method = "renderHotbarItem")
-    private void renderHotbarIcons(DrawContext context, int x, int y, float f, PlayerEntity player, ItemStack stack, int seed, CallbackInfo ci) {
+    @Inject(at=@At("TAIL"), method = "renderSlot")
+    private void renderHotbarIcons(GuiGraphics context, int x, int y, float f, Player player, ItemStack stack, int seed, CallbackInfo ci) {
         Pickaxe.getInstance().renderHotbarIcons(context, x, y, stack);
     }
 
@@ -52,16 +51,16 @@ public abstract class InGameHudMixin {
         slice = @Slice(
             from = @At(
                 value = "INVOKE",
-                target = "net/minecraft/client/network/ClientPlayerEntity.getNextLevelExperience ()I")
+                target = "Lnet/minecraft/client/player/LocalPlayer;getNextLevelExperience ()I")
         ),
         at = @At(
             value = "INVOKE",
             target = "net/minecraft/client/gui/DrawContext.drawGuiTexture (Lnet/minecraft/util/Identifier;IIIIIIII)V"
         ),
         allow = 1)
-    void swapIcons(DrawContext context, Identifier ICONS, int i, int j, int k, int l, int x, int y, int width, int height) {
+    void swapIcons(GuiGraphics context, ResourceLocation ICONS, int i, int j, int k, int l, int x, int y, int width, int height) {
         if (!Pickaxe.getInstance().isInPickaxe()) {
-            context.drawGuiTexture(ICONS, i, j, k, l, x, y, width, height);
+            context.blitSprite(ICONS, i, j, k, l, x, y, width, height);
             return;
         }
         renderNewExperienceBar(context, x, y, width, false);
@@ -71,23 +70,23 @@ public abstract class InGameHudMixin {
         slice = @Slice(
             from = @At(
                 value = "INVOKE",
-                target = "net/minecraft/client/network/ClientPlayerEntity.getNextLevelExperience ()I")
+                target = "Lnet/minecraft/client/player/LocalPlayer;getNextLevelExperience ()I")
         ),
         at = @At(
             value = "INVOKE",
             target = "net/minecraft/client/gui/DrawContext.drawGuiTexture (Lnet/minecraft/util/Identifier;IIII)V"
         ),
         allow = 1)
-    void swapIcons(DrawContext context, Identifier ICONS, int x, int y, int width, int height) {
+    void swapIcons(GuiGraphics context, ResourceLocation ICONS, int x, int y, int width, int height) {
         if (!Pickaxe.getInstance().isInPickaxe()) {
-            context.drawGuiTexture(ICONS, x, y, width, height);
+            context.blitSprite(ICONS, x, y, width, height);
             return;
         }
         renderNewExperienceBar(context, x, y, width, true);
     }
 
     @Unique
-    void renderNewExperienceBar(DrawContext context, int x, int y, int width, boolean isBG) {
+    void renderNewExperienceBar(GuiGraphics context, int x, int y, int width, boolean isBG) {
         int v = (isBG)? 0 : 5;
         switch (Options.getInstance().XPBarType) {
             case Depth:
@@ -101,7 +100,7 @@ public abstract class InGameHudMixin {
                 v += 10;
                 break;
         }
-        context.drawTexture(Pickaxe.COLORS, x, y, 0, v, width, 5, 182, 50);
+        context.blit(Pickaxe.COLORS, x, y, 0, v, width, 5, 182, 50);
     }
 
     @ModifyConstant(method = "renderExperienceBar", constant = @Constant(intValue = 8453920))
@@ -143,7 +142,7 @@ public abstract class InGameHudMixin {
         slice = @Slice(
             from = @At(
                 value = "INVOKE",
-                target = "net/minecraft/util/profiler/Profiler.pop ()V",
+                target = "Lnet/minecraft/util/profiling/ProfilerFiller;pop ()V",
                 ordinal = 0
             )
         ),
@@ -153,7 +152,7 @@ public abstract class InGameHudMixin {
             ordinal = 0
         )
     )
-    int displayWithZero(ClientPlayerEntity clientPlayerEntity) {
+    int displayWithZero(LocalPlayer clientPlayerEntity) {
         if (!Pickaxe.getInstance().isInPickaxe()) return clientPlayerEntity.experienceLevel;
         return 1;
     }

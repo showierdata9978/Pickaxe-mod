@@ -1,6 +1,6 @@
 package tech.showierdata.pickaxe.config;
 
-import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.Minecraft;
 
 public class MDTConfig {
 
@@ -31,9 +31,9 @@ public class MDTConfig {
      * @return (int) Time (in seconds) until the Moon Door Open
 	*/
 	public int getMoonDoorTime() {
-		MinecraftClient client = MinecraftClient.getInstance();
-        assert client.world != null;
-        int ctime = (int)((MOON_TIME - client.world.getTimeOfDay()) % 24000L);
+		Minecraft client = Minecraft.getInstance();
+        assert client.level != null;
+        int ctime = (int)((MOON_TIME - client.level.getDayTime()) % 24000L);
 		if (ctime < -MOON_TICK_SPEED) ctime += 24000; // You can get negative numbers, which is not useful >:(
 		return Math.floorDiv(ctime, MOON_TICK_SPEED);
 	}

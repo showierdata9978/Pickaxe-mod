@@ -1,10 +1,9 @@
 package tech.showierdata.pickaxe;
 
-import net.minecraft.client.gui.hud.ClientBossBar;
-
 import java.util.Map;
 import java.util.UUID;
+import net.minecraft.client.gui.components.LerpingBossEvent;
 
 public interface IBossBarHudMixin {
-	Map<UUID, ClientBossBar> pickaxe_mod$getBossBars();
+	Map<UUID, LerpingBossEvent> pickaxe_mod$getBossBars();
 }

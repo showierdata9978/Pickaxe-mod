@@ -11,9 +11,6 @@ import dev.isxander.yacl3.api.controller.ColorControllerBuilder;
 import dev.isxander.yacl3.api.controller.EnumControllerBuilder;
 import dev.isxander.yacl3.api.controller.StringControllerBuilder;
 import dev.isxander.yacl3.api.controller.IntegerFieldControllerBuilder;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.text.Text;
 import org.jetbrains.annotations.NotNull;
 import tech.showierdata.pickaxe.Pickaxe;
 
@@ -22,6 +19,9 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 import java.util.Objects;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.network.chat.Component;
 
 
 public class ModMenuIntegrationImpl implements ModMenuApi  {
@@ -61,15 +61,15 @@ public class ModMenuIntegrationImpl implements ModMenuApi  {
 
 	public void createGeneralScreen(YetAnotherConfigLib.@NotNull Builder builder) {
 		builder.category(ConfigCategory.createBuilder()
-				.name(Text.literal("General"))
+				.name(Component.literal("General"))
 				.option(Option.<Boolean>createBuilder()
-						.name(Text.literal("Enable Mod"))
+						.name(Component.literal("Enable Mod"))
 						.binding(true, () -> Options.getInstance().enabled, e -> {
 							if (Pickaxe.getInstance().isInPickaxe()) {
 								if (!e) {
-									Objects.requireNonNull(MinecraftClient.getInstance().getNetworkHandler()).sendChatCommand("c g");
+									Objects.requireNonNull(Minecraft.getInstance().getConnection()).sendCommand("c g");
 								} else {
-									Objects.requireNonNull(MinecraftClient.getInstance().getNetworkHandler()).sendChatCommand("c l");
+									Objects.requireNonNull(Minecraft.getInstance().getConnection()).sendCommand("c l");
 								}
 							}
 							Options.getInstance().enabled = e;
@@ -79,7 +79,7 @@ public class ModMenuIntegrationImpl implements ModMenuApi  {
 				)
 				.option(Option.<XPBarEnum>createBuilder()
 
-						.name(Text.literal("XP Bar Control"))
+						.name(Component.literal("XP Bar Control"))
 						.binding(XPBarEnum.Radiation, () -> Options.getInstance().XPBarType, e -> Options.getInstance().XPBarType = e)
 						.controller((opt) -> EnumControllerBuilder.create(opt)
 								.enumClass(XPBarEnum.class)
@@ -87,25 +87,25 @@ public class ModMenuIntegrationImpl implements ModMenuApi  {
 						.build()
 				)
 				.option(Option.<Boolean>createBuilder()
-						.name(Text.literal("Automatically send /c l"))
+						.name(Component.literal("Automatically send /c l"))
 						.binding(false, () -> Options.getInstance().AutoCL, e -> Options.getInstance().AutoCL = e)
 						.controller(BooleanControllerBuilder::create)
 						.build()
 				)
 				.option(Option.<Boolean>createBuilder()
-						.name(Text.literal("Hide Players not on pickaxe in tab"))
+						.name(Component.literal("Hide Players not on pickaxe in tab"))
 						.binding(true, () -> Options.getInstance().hideNonPickaxePlayers, e -> Options.getInstance().hideNonPickaxePlayers = e)
 						.controller(BooleanControllerBuilder::create)
 						.build()
 				)
 				.option(Option.<Boolean>createBuilder()
-						.name(Text.literal("Hide Plot Ads"))
+						.name(Component.literal("Hide Plot Ads"))
 						.binding(true, () -> Options.getInstance().hide_plot_ads, e -> Options.getInstance().hide_plot_ads = e)
 						.controller(BooleanControllerBuilder::create)
 						.build()
 				)
 				.option(Option.<Boolean>createBuilder()
-						.name(Text.literal(("Show Cords")))
+						.name(Component.literal(("Show Cords")))
 						.binding(true, () -> Options.getInstance().showCords, e -> Options.getInstance().showCords = e)
 						.controller(BooleanControllerBuilder::create)
 						.build()
@@ -118,39 +118,39 @@ public class ModMenuIntegrationImpl implements ModMenuApi  {
 	}
 	public void createItemConfig(YetAnotherConfigLib.@NotNull Builder builder) {
 		builder.category(ConfigCategory.createBuilder()
-				.name(Text.literal("Item Rendering"))
+				.name(Component.literal("Item Rendering"))
 				.option(Option.<Boolean>createBuilder()
-						.name(Text.literal("Show Sage/Overclock/Lock Icons"))
+						.name(Component.literal("Show Sage/Overclock/Lock Icons"))
 						.binding(false, () -> Options.getInstance().ShowLockIcon, e -> Options.getInstance().ShowLockIcon = e)
 						.controller(BooleanControllerBuilder::create)
 						.build()
 				)
 				.option(Option.<Integer>createBuilder()
-						.name(Text.literal("x"))
+						.name(Component.literal("x"))
 						.binding(0, () -> Options.getInstance().itemconfig.x, e -> Options.getInstance().itemconfig.x = e)
 						.controller(IntegerFieldControllerBuilder::create)
 						.build()
 				)
 				.option(Option.<Integer>createBuilder()
-						.name(Text.literal("y"))
+						.name(Component.literal("y"))
 						.binding(0, () -> Options.getInstance().itemconfig.y, e -> Options.getInstance().itemconfig.y = e)
 						.controller(IntegerFieldControllerBuilder::create)
 						.build()
 				)
 				.option(Option.<Color>createBuilder()
-						.name(Text.literal("Overclocker Icon color"))
+						.name(Component.literal("Overclocker Icon color"))
 						.binding(new Color(0xFF0000), () -> Options.getInstance().itemconfig.overclocker_color, e -> Options.getInstance().itemconfig.overclocker_color = e)
 						.controller(ColorControllerBuilder::create)
 						.build()
 				)
 				.option(Option.<Color>createBuilder()
-						.name(Text.literal("Sage Icon Color"))
+						.name(Component.literal("Sage Icon Color"))
 						.binding(new Color(0x000000), () -> Options.getInstance().itemconfig.sage_color, e -> Options.getInstance().itemconfig.sage_color = e)
 						.controller(ColorControllerBuilder::create)
 						.build()
 				)
 				.option(Option.<Color>createBuilder()
-						.name(Text.literal("Sanded Icon Color"))
+						.name(Component.literal("Sanded Icon Color"))
 						.binding(new Color(0xD9C664), () -> Options.getInstance().itemconfig.sanded_color, e -> Options.getInstance().itemconfig.sanded_color = e)
 						.controller(ColorControllerBuilder::create)
 						.build()
@@ -161,21 +161,21 @@ public class ModMenuIntegrationImpl implements ModMenuApi  {
 
 	public void createHotBarConfig(YetAnotherConfigLib.@NotNull Builder builder) {
 		builder.category(ConfigCategory.createBuilder()
-				.name(Text.literal("Hotbars"))
+				.name(Component.literal("Hotbars"))
 				.option(Option.<Boolean>createBuilder()
-						.name(Text.literal(("Show Coins in hotbar")))
+						.name(Component.literal(("Show Coins in hotbar")))
 						.binding(true, () -> Options.getInstance().hotBarConfig.showCoinsInHotBar, e -> Options.getInstance().hotBarConfig.showCoinsInHotBar = e)
 						.controller(BooleanControllerBuilder::create)
 						.build()
 				)
 				.option(Option.<Boolean>createBuilder()
-						.name(Text.literal(("Show Forge Status")))
+						.name(Component.literal(("Show Forge Status")))
 						.binding(true, () -> Options.getInstance().hotBarConfig.showForgeStatus, e -> Options.getInstance().hotBarConfig.showForgeStatus = e)
 						.controller(BooleanControllerBuilder::create)
 						.build()
 				)
 				.option(Option.<Boolean>createBuilder()
-						.name(Text.literal("Flip Forge and coin positions"))
+						.name(Component.literal("Flip Forge and coin positions"))
 						.binding(false, () -> Options.getInstance().hotBarConfig.flip, e -> Options.getInstance().hotBarConfig.flip = e)
 						.controller(BooleanControllerBuilder::create)
 						.build()
@@ -187,23 +187,23 @@ public class ModMenuIntegrationImpl implements ModMenuApi  {
 	public void createTimerConfig(YetAnotherConfigLib.@NotNull Builder builder) {
 		
 		builder.category(ConfigCategory.createBuilder()
-			.name(Text.literal("Timers"))
+			.name(Component.literal("Timers"))
 			.group(OptionGroup.createBuilder()
-				.name(Text.literal("Moon Door Timer"))
+				.name(Component.literal("Moon Door Timer"))
 				.option(Option.<Boolean>createBuilder()
-					.name(Text.literal("Enabled"))
+					.name(Component.literal("Enabled"))
 					.binding(true, () -> Options.getInstance().mdtConfig.enabled, e -> Options.getInstance().mdtConfig.enabled = e)
 					.controller(BooleanControllerBuilder::create)
 					.build()
 				)
 				.option(Option.<Boolean>createBuilder()
-					.name(Text.literal("Play Sound When Door Ready"))
+					.name(Component.literal("Play Sound When Door Ready"))
 					.binding(false, () -> Options.getInstance().mdtConfig.soundEnabled, e -> Options.getInstance().mdtConfig.soundEnabled = e)
 					.controller(BooleanControllerBuilder::create)
 					.build()
 				)
 				.option(Option.<TimerLocation>createBuilder()
-					.name(Text.literal("MDT Location"))
+					.name(Component.literal("MDT Location"))
 					.binding(TimerLocation.TOPLEFT, () -> Options.getInstance().mdtConfig.location, e -> Options.getInstance().mdtConfig.location = e)
 					.controller((opt) -> EnumControllerBuilder.create(opt)
 							.enumClass(TimerLocation.class)
@@ -219,16 +219,16 @@ public class ModMenuIntegrationImpl implements ModMenuApi  {
 
 	private void createPOIConfig(YetAnotherConfigLib.@NotNull Builder builder) {
 		builder.category(ConfigCategory.createBuilder()
-				.name(Text.literal("POI Config"))
+				.name(Component.literal("POI Config"))
 				.option(Option.<Boolean>createBuilder()
-						.name(Text.literal("Enable POI Hiding"))
+						.name(Component.literal("Enable POI Hiding"))
 						.binding(true, () -> Options.getInstance().enable_poi, e -> Options.getInstance().enable_poi = e)
 						.controller(BooleanControllerBuilder::create)
 						.build()
 				)
 				.option(ListOption.<POI>createBuilder()
-						.name(Text.literal("POIS"))
-						.description(OptionDescription.of(Text.literal("POI Config")))
+						.name(Component.literal("POIS"))
+						.description(OptionDescription.of(Component.literal("POI Config")))
 						.binding(List.of(POI.values()), () -> List.of(Options.getInstance().pois), e -> Options.getInstance().pois = e.toArray(new POI[0]))
 						.controller(opt -> EnumControllerBuilder.create(opt)
                                 .enumClass(POI.class))
@@ -241,16 +241,16 @@ public class ModMenuIntegrationImpl implements ModMenuApi  {
 	public void createMessageStackingConfig(YetAnotherConfigLib.@NotNull Builder builder, Screen ignoredScreen) {
 
 		Option<String> text = Option.<String>createBuilder()
-			.name(Text.literal("Custom String"))
+			.name(Component.literal("Custom String"))
 			.binding("&8[&bx{num}&8]", () -> Options.getInstance().msgStackConfig.text, e -> Options.getInstance().msgStackConfig.text = e)
 				.controller(StringControllerBuilder::create)
-			.description(val -> OptionDescription.of(Text.literal("Preview: " + val.replaceAll("&([a-f,j-nrx0-9])", "§$1").replaceAll("\\{num}", "2"))))
+			.description(val -> OptionDescription.of(Component.literal("Preview: " + val.replaceAll("&([a-f,j-nrx0-9])", "§$1").replaceAll("\\{num}", "2"))))
 			.build();
 			
 		builder.category(ConfigCategory.createBuilder()
-			.name(Text.literal("Message Stacker"))
+			.name(Component.literal("Message Stacker"))
 			.option(Option.<Boolean>createBuilder()
-					.name(Text.literal("Enable"))
+					.name(Component.literal("Enable"))
 					.binding(true, () -> Options.getInstance().msgStackConfig.enabled, e -> Options.getInstance().msgStackConfig.enabled = e)
 						.controller(BooleanControllerBuilder::create)
 					.listener((Option<Boolean> self, Boolean enabled) -> text.setAvailable(enabled))
@@ -262,7 +262,7 @@ public class ModMenuIntegrationImpl implements ModMenuApi  {
 
 	public Screen getConfigScreen(Screen parent) {
     	YetAnotherConfigLib.Builder builder =  YetAnotherConfigLib.createBuilder()
-        	    .title(Text.literal("Pickaxe Mod Settings"));
+        	    .title(Component.literal("Pickaxe Mod Settings"));
 
 		createGeneralScreen(builder);
 		createItemConfig(builder);

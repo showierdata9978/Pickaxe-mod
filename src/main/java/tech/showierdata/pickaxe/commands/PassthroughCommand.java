@@ -1,21 +1,21 @@
 package tech.showierdata.pickaxe.commands;
 
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.network.ClientPlayNetworkHandler;
 import tech.showierdata.pickaxe.Pickaxe;
 
 import java.util.List;
 import java.util.Objects;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.multiplayer.ClientPacketListener;
 
 public class PassthroughCommand implements PickaxeCommandController {
     public void use(String command, List<String> args) {
         if (!Pickaxe.getInstance().isInPickaxe()) return;
 
-        MinecraftClient client = MinecraftClient.getInstance();
+        Minecraft client = Minecraft.getInstance();
 
-        ClientPlayNetworkHandler net = Objects.requireNonNull(client.getNetworkHandler());
+        ClientPacketListener net = Objects.requireNonNull(client.getConnection());
 
-        net.sendChatMessage("@" + command + " " + String.join(" ", args));
+        net.sendChat("@" + command + " " + String.join(" ", args));
 
     }
 }

@@ -1,7 +1,7 @@
 package tech.showierdata.pickaxe.config;
 
-import net.minecraft.entity.boss.BossBar;
-import net.minecraft.client.gui.hud.ClientBossBar;
+import net.minecraft.client.gui.components.LerpingBossEvent;
+import net.minecraft.world.BossEvent;
 
 public enum XPBarEnum {
 	Radiation("Radiation"),
@@ -16,7 +16,7 @@ public enum XPBarEnum {
 		this.name = name;
 	}
 
-	public boolean detect(BossBar bar) {
+	public boolean detect(BossEvent bar) {
 		boolean detected = false;
 		String[] split = bar.getName().getString().split(" ");
 
@@ -53,11 +53,11 @@ public enum XPBarEnum {
 		return detected;
 	}
 
-	public boolean detect(ClientBossBar bar) {
-		return detect((BossBar)bar);
+	public boolean detect(LerpingBossEvent bar) {
+		return detect((BossEvent)bar);
 	}
 
-	public int getBarDetails(BossBar bar) {
+	public int getBarDetails(BossEvent bar) {
 		String[] splits = bar.getName().getString().split(" ");
 		String last = "";
 		int index = splits.length - 1;

@@ -1,11 +1,9 @@
 package tech.showierdata.pickaxe.server;
 
-import net.minecraft.text.MutableText;
-import net.minecraft.text.Text;
-
-
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
 
 
 public class Regexps {
@@ -82,7 +80,7 @@ public class Regexps {
 		return null;
 	}
 
-	public static Text removeTimestamps(Text text) {
+	public static Component removeTimestamps(Component text) {
 
 		String string = text.getString();
         String withoutTimestamps = string.replaceAll(".?\\d{1,2}:\\d{2}(:\\d{2})*.?", "");
@@ -96,7 +94,7 @@ public class Regexps {
 		 * - Copy style
 		 * - Copy Changes (Siblings)
 		 */
-        MutableText newText = Text.literal(withoutTimestamps.trim());
+        MutableComponent newText = Component.literal(withoutTimestamps.trim());
         newText.setStyle(newText.getStyle());
         newText.getSiblings().addAll(text.getSiblings());
 

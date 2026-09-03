@@ -6,7 +6,6 @@ import imgui.ImVec2;
 import imgui.extension.texteditor.TextEditor;
 import imgui.flag.ImGuiCond;
 import imgui.flag.ImGuiWindowFlags;
-import net.minecraft.client.MinecraftClient;
 import org.lwjgl.glfw.GLFW;
 import tech.showierdata.pickaxe.Pickaxe;
 import xyz.breadloaf.imguimc.interfaces.Renderable;
@@ -17,6 +16,7 @@ import xyz.breadloaf.imguimc.Imguimc;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import net.minecraft.client.Minecraft;
 
 public class NoteEditor implements Renderable {
     private final TextEditor textEditor;
@@ -55,8 +55,8 @@ public class NoteEditor implements Renderable {
             Imguimc.pullRenderable(this);
         } else {
             Imguimc.pushRenderable(this);
-            MinecraftClient client = MinecraftClient.getInstance();
-            ImGui.setNextWindowSize(client.getWindow().getHeight(), client.getWindow().getWidth() / 5f, ImGuiCond.Always);
+            Minecraft client = Minecraft.getInstance();
+            ImGui.setNextWindowSize(client.getWindow().getScreenHeight(), client.getWindow().getScreenWidth() / 5f, ImGuiCond.Always);
             ImGui.setNextWindowPos(0, 0, ImGuiCond.Always);
             ImGui.setWindowFocus();
             this.textEditor.setHandleKeyboardInputs(true);
@@ -137,7 +137,7 @@ public class NoteEditor implements Renderable {
             this.isOpen = false;
         }
 
-        MinecraftClient client = MinecraftClient.getInstance();
+        Minecraft client = Minecraft.getInstance();
 
 
         ImGui.begin(getName(), ImGuiWindowFlags.MenuBar);
