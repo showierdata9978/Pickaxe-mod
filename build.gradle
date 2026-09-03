@@ -72,7 +72,7 @@ dependencies {
 	
 	// DEPRECIATED
 	//implementation "maven.modrinth:imgui-mc:1.20.4-1.0.7"
-	compileOnly("releases.foundry.imguimc:imguimc-fabric-${project.minecraft_version}:${project.imguimc_version}")
+	compileOnly("foundry.imguimc:imguimc-fabric-${project.minecraft_version}:${project.imguimc_version}")
 
 	// Uncomment the following line to enable the deprecated Fabric API modules. 
 	// These are included in the Fabric API production distribution and allow you to update your mod to the latest modules at a later more convenient time.
